@@ -4,7 +4,29 @@ An AI-powered Data Analytics application built with **FastAPI**, **Pandas**, and
 --
 ## 📌 Project Overview
 The AI Data Analyst Agent is designed to simplify data analysis by allowing users to upload CSV datasets and automatically generate useful statistics, insights, and visualizations. In future versions, AI capabilities will enable users to ask questions in plain English and receive verified SQL queries, Python analysis, charts, and business insights.
+## 📸 Project Screenshots
+
+### 🏠 Home API
+
+![Home API](screenshots/home-api.png)
+
 ---
+
+### 📚 Swagger UI
+
+![Swagger UI](screenshots/swagger-ui.png)
+
+---
+
+### 📂 CSV Upload API
+
+![CSV Upload API](screenshots/csv-upload.png)
+![CSV Upload API](screenshots/csv-upload1.png)
+---
+
+### 💻 Project Structure
+
+![Project Structure](screenshots/project-structure.png)
 ## 🚀 Features Completed
 - ✅ FastAPI Backend
 - ✅ REST API Development
