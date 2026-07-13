@@ -45,3 +45,11 @@
 - Counted duplicate rows
 - Calculated memory usage
 - Tested API successfully
+## Day 5 - Dataset Summary API
+
+- Added Dataset Summary API
+- Returned dataset rows and columns
+- Returned column names
+- Returned data types
+- Calculated missing values
+- Generated summary statistics using Pandas
