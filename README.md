@@ -1,155 +1,159 @@
-# 🚀 AI Data Analyst Agent
-An AI-powered Data Analytics platform built using FastAPI, Pandas, Matplotlib, and Seaborn.
+# 🤖 AI Data Analyst Agent
 
-The application allows users to upload datasets, analyze data, clean datasets, generate statistical summaries, and create professional visualizations through REST APIs.
+An AI-powered Data Analysis platform built with **FastAPI**, **Pandas**, **Matplotlib**, and **Seaborn**. It allows users to upload datasets, clean data, generate professional visualizations, and provides the foundation for AI-driven analytics.
+
 ---
-## ✨ Features
 
-### 📂 Dataset Management
-- Upload CSV Dataset
-- Analyze Dataset
-- Dataset Summary
-- Automatic Metadata Detection
+# 🚀 Features
 
-### 🧹 Data Cleaning
-- Remove Duplicate Rows
-- Handle Missing Values
-- Export Cleaned Dataset
+## 📂 Dataset Management
 
-### 📊 Data Visualization
+- Upload CSV datasets
+- Load latest uploaded dataset
+- Dataset summary
+- Dataset information
+- Column information
+
+---
+
+## 🧹 Data Cleaning
+
+- Remove missing values
+- Fill missing values
+- Remove duplicate records
+- Clean datasets
+- Export cleaned data
+
+---
+
+## 📊 Data Analysis
+
+- Dataset statistics
+- Missing value analysis
+- Data types
+- Shape analysis
+- Descriptive statistics
+
+---
+
+# 📈 Visualization APIs
+
+### Basic Charts
+
 - Histogram
 - Bar Chart
 - Line Chart
-- Pie Chart
-- Scatter Plot
-- Box Plot
-- Correlation Heatmap
+- Area Chart
 
-### ⚙ Backend
-- FastAPI
-- REST APIs
-- Swagger UI Documentation
-- Modular Project Architecture
-- Service Layer Architecture
+### Relationship Charts
+
+- Scatter Plot
+- Bubble Chart
+- Hexbin Plot
+- Joint Plot
+
+### Distribution Charts
+
+- Box Plot
+- Violin Plot
+- KDE Plot
+- Distribution Plot
+
+### Categorical Charts
+
+- Pie Chart
+- Donut Chart
+- Count Plot
+
+### Advanced Charts
+
+- Multi-Line Chart
+- Stacked Bar Chart
+- Correlation Heatmap
+- Pair Plot
+
+**Total Visualization APIs : 19**
 
 ---
 
-## 🛠 Tech Stack
+# ⚙ Professional Chart Engine
 
-- Python
+Every visualization supports:
+
+- Custom Title
+- Chart Theme
+- Width
+- Height
+- DPI
+- Rotation
+- Color
+- Image Format
+
+---
+
+# 🏗 Project Structure
+
+backend/
+│
+├── app/
+│ ├── models/
+│ │ └── chart_config.py
+│ │
+│ ├── routes/
+│ │ ├── upload.py
+│ │ ├── analysis.py
+│ │ ├── cleaning.py
+│ │ └── visualization.py
+│ │
+│ ├── services/
+│ │ ├── upload_service.py
+│ │ ├── analysis_service.py
+│ │ ├── cleaning_service.py
+│ │ └── visualization_service.py
+│ │
+│ ├── utils/
+│ │ ├── chart_utils.py
+│ │ ├── chart_engine.py
+│ │ ├── validation.py
+│ │ └── response.py
+│ │
+│ └── main.py
+│
+├── datasets/
+├── charts/
+├── requirements.txt
+└── README.md
+
+---
+
+# 🛠 Tech Stack
+
 - FastAPI
+- Python
 - Pandas
 - NumPy
 - Matplotlib
 - Seaborn
+- Pydantic
 - Uvicorn
-- Git
-- GitHub
 
 ---
 
-## 📁 Project Structure
+# 📌 Upcoming Features
 
-```text
-AI-Data-Analyst-Agent/
-│
-├── backend/
-│   ├── app/
-│   │   ├── main.py
-│   │   ├── routes/
-│   │   ├── services/
-│   │   ├── models/
-│   │   └── utils/
-│   │
-│   ├── uploads/
-│   ├── cleaned_data/
-│   ├── charts/
-│   └── requirements.txt
-│
-├── docs/
-├── screenshots/
-├── README.md
-└── .gitignore
-```
+- 🤖 AI Dataset Insights
+- 💬 Chat with CSV
+- 📄 PDF Report Generator
+- 📊 Excel Report Generator
+- 📈 Dashboard Generator
+- ⚛ React Frontend
+- 🔐 JWT Authentication
+- 🐳 Docker Deployment
 
 ---
 
-## 📸 Project Screenshots
-
-### Home API
-
-![Home API](screenshots/home-api.png)
-### swagger ui
-
-![swagger ui](screenshots/swagger-ui.png)
-
-### Upload API
-
-![Upload API](screenshots/csv-upload.png)
-
-### Analyze API
-
-![Analyze API](screenshots/analyze-api.png)
-
-### Summary API
-
-![Summary API](screenshots/summary-api.png)
-
-### Clean API
-
-![Clean API](screenshots/clean-api.png)
-
-### Histogram
-
-![Histogram](screenshots/histogram-api.png)
-
-### Bar Chart
-
-![Bar Chart](screenshots/bar-chart-api.png)
-
-### Line Chart
-
-![Line Chart](screenshots/line-chart-api.png)
-
-### Pie Chart
-
-![Pie Chart](screenshots/pie-chart-api.png)
-
-### Scatter Plot
-
-![Scatter Plot](screenshots/scatter-plot-api.png)
-
-### Box Plot
-
-![Box Plot](screenshots/box-plot-api.png)
-
-### Correlation Heatmap
-
-![Correlation Heatmap](screenshots/correlation-heatmap-api.png)
-
-### project structure
-![project structure](screenshots/project-structure.png)
-
-## 🚀 Upcoming Features
-
-- AI Insights
-- SQL Query Generator
-- Chat with Dataset
-- PDF Report Generator
-- Excel Report Generator
-- React Frontend
-- Authentication
-- Dashboard
-- Docker Deployment
-
----
-
-## 👨‍💻 Developer
+# 👨‍💻 Author
 
 **Pritiranjan Rout**
 
-Computer Science Engineering Student
-
-GitHub: https://github.com/rpritiranjan90-crypto
----
-⭐ If you find this project interesting, consider giving it a star.
+B.Tech CSE | Data Analyst | AI Enthusiast
