@@ -1,106 +1,155 @@
-# 🤖 AI Data Analyst Agent
+# 🚀 AI Data Analyst Agent
+An AI-powered Data Analytics platform built using FastAPI, Pandas, Matplotlib, and Seaborn.
 
-An AI-powered Data Analytics application built with **FastAPI**, **Pandas**, and **React** that enables users to upload datasets, analyze them, generate insights, create visualizations, and interact with their data using natural language.
---
-## 📌 Project Overview
-The AI Data Analyst Agent is designed to simplify data analysis by allowing users to upload CSV datasets and automatically generate useful statistics, insights, and visualizations. In future versions, AI capabilities will enable users to ask questions in plain English and receive verified SQL queries, Python analysis, charts, and business insights.
-## 📷 Project Screenshots
+The application allows users to upload datasets, analyze data, clean datasets, generate statistical summaries, and create professional visualizations through REST APIs.
+---
+## ✨ Features
 
-### 🏠 Home API
-![Home API](screenshots/home-api.png)
+### 📂 Dataset Management
+- Upload CSV Dataset
+- Analyze Dataset
+- Dataset Summary
+- Automatic Metadata Detection
 
-### 📄 Swagger UI
-![Swagger UI](screenshots/swagger-ui.png)
+### 🧹 Data Cleaning
+- Remove Duplicate Rows
+- Handle Missing Values
+- Export Cleaned Dataset
 
-### 📤 CSV Upload API
-![CSV Upload API](screenshots/csv-upload.png)
-![CSV Upload API](screenshots/csv-upload1.png)
-### 📊 Dataset Analysis API
-![Dataset Analysis API](screenshots/analyze-api.png)
+### 📊 Data Visualization
+- Histogram
+- Bar Chart
+- Line Chart
+- Pie Chart
+- Scatter Plot
+- Box Plot
+- Correlation Heatmap
 
-### 📈 Dataset Summary API
-![Dataset Summary API](screenshots/summary-api.png)
-
-### 🧹 Data Cleaning API
-![Data Cleaning API](screenshots/clean-api.png)
-
-### 📉 Histogram API
-![Histogram API](screenshots/histogram-api.png)
-
-### 🗂️ Project Structure
-![Project Structure](screenshots/project-structure.png)
-## 🚀 Features Completed
-
--  FastAPI Backend
--  REST APIs
--  CSV Upload API
-- Dataset Metadata API
-- Dataset Analysis API
--  Dataset Summary API
-- Dataset Cleaning API
-- Automatic Missing Value Handling
-- Duplicate Row Removal
-- Cleaned Dataset Export
+### ⚙ Backend
+- FastAPI
+- REST APIs
 - Swagger UI Documentation
-- Git & GitHub Version Control
-- Data Visualization API
-- Histogram Generation
-- Matplotlib Charts
-- Seaborn Integration
+- Modular Project Architecture
+- Service Layer Architecture
+
 ---
+
 ## 🛠 Tech Stack
-| Technology | Purpose |
-|------------|---------|
-| Python | Backend Development |
-| FastAPI | REST API Framework |
-| Pandas | Data Processing |
-| Uvicorn | ASGI Server |
-| Git | Version Control |
-| GitHub | Repository Hosting |
+
+- Python
+- FastAPI
+- Pandas
+- NumPy
+- Matplotlib
+- Seaborn
+- Uvicorn
+- Git
+- GitHub
+
 ---
-## 📂 Project Structure
+
+## 📁 Project Structure
+
 ```text
-AI-Data-Analyst-Agent
+AI-Data-Analyst-Agent/
 │
 ├── backend/
 │   ├── app/
+│   │   ├── main.py
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── models/
+│   │   └── utils/
+│   │
 │   ├── uploads/
-│   ├── venv/
+│   ├── cleaned_data/
+│   ├── charts/
 │   └── requirements.txt
 │
-├── frontend/
 ├── docs/
 ├── screenshots/
 ├── README.md
 └── .gitignore
+```
 
 ---
-## 📅 Development Progress
-| Day | Status |
-|------|--------|
-| ✅ Day 1 | Project Setup |
-| ✅ Day 2 | FastAPI Backend |
-| ✅ Day 3 | CSV Upload API |
-| 🔜 Day 4 | Dataset Analysis API |
-| 🔜 Day 5 | Data Cleaning API |
-| 🔜 Day 6 | Data Visualization |
-| 🔜 Day 7 | AI Insights |
-| 🔜 Day 8 | React Frontend |
-| 🔜 Day 9 | AI Chat with Dataset |
-| 🔜 Day 10 | Deployment |
+
+## 📸 Project Screenshots
+
+### Home API
+
+![Home API](screenshots/home-api.png)
+### swagger ui
+
+![swagger ui](screenshots/swagger-ui.png)
+
+### Upload API
+
+![Upload API](screenshots/csv-upload.png)
+
+### Analyze API
+
+![Analyze API](screenshots/analyze-api.png)
+
+### Summary API
+
+![Summary API](screenshots/summary-api.png)
+
+### Clean API
+
+![Clean API](screenshots/clean-api.png)
+
+### Histogram
+
+![Histogram](screenshots/histogram-api.png)
+
+### Bar Chart
+
+![Bar Chart](screenshots/bar-chart-api.png)
+
+### Line Chart
+
+![Line Chart](screenshots/line-chart-api.png)
+
+### Pie Chart
+
+![Pie Chart](screenshots/pie-chart-api.png)
+
+### Scatter Plot
+
+![Scatter Plot](screenshots/scatter-plot-api.png)
+
+### Box Plot
+
+![Box Plot](screenshots/box-plot-api.png)
+
+### Correlation Heatmap
+
+![Correlation Heatmap](screenshots/correlation-heatmap-api.png)
+
+### project structure
+![project structure](screenshots/project-structure.png)
+
+## 🚀 Upcoming Features
+
+- AI Insights
+- SQL Query Generator
+- Chat with Dataset
+- PDF Report Generator
+- Excel Report Generator
+- React Frontend
+- Authentication
+- Dashboard
+- Docker Deployment
+
 ---
-## 🚧 Upcoming Features
-- 📉 Bar Chart Generator
-- 🥧 Pie Chart Generator
-- 📦 Download Charts
-- 🤖 AI Data Analysis
-- 💬 Chat with Dataset
-- 🧠 OpenAI Integration
-- ⚛ React Frontend
----
+
 ## 👨‍💻 Developer
+
 **Pritiranjan Rout**
-Computer Science Engineering Student | Aspiring Data Analyst
+
+Computer Science Engineering Student
+
 GitHub: https://github.com/rpritiranjan90-crypto
 ---
 ⭐ If you find this project interesting, consider giving it a star.
