@@ -32,3 +32,16 @@
 - Successfully tested API using Swagger UI
 - Uploaded Loan_Data.csv successfully
 - Committed and pushed Day 3 changes to GitHub
+## ✅ Day 4 - Dataset Analysis API
+
+### Completed
+
+- Added GET /analyze endpoint
+- Read uploaded CSV using Pandas
+- Calculated dataset shape
+- Displayed column names
+- Displayed data types
+- Counted missing values
+- Counted duplicate rows
+- Calculated memory usage
+- Tested API successfully
