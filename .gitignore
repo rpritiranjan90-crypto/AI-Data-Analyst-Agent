@@ -8,3 +8,5 @@ node_modules/
 backend/uploads/*
 !backend/uploads/.gitkeep
 backend/cleaned_data/
+backend/charts/*.png
+!backend/charts/.gitkeep

@@ -2,7 +2,8 @@ from fastapi import FastAPI, UploadFile, File
 import pandas as pd
 import os
 import shutil
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 app = FastAPI(
     title="AI Data Analyst Agent",
     description="An AI-powered Data Analytics Platform",
@@ -11,7 +12,8 @@ app = FastAPI(
 
 UPLOAD_FOLDER = "uploads"
 CLEANED_FOLDER = "cleaned_data"
-
+CHART_FOLDER = "charts"
+os.makedirs(CHART_FOLDER, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(CLEANED_FOLDER, exist_ok=True)
 
@@ -107,16 +109,32 @@ def clean_dataset():
     for column in text_columns:
         if not df[column].mode().empty:
             df[column] = df[column].fillna(df[column].mode()[0])
-
     rows_after = len(df)
-
     cleaned_file = os.path.join(CLEANED_FOLDER, "cleaned_dataset.csv")
     df.to_csv(cleaned_file, index=False)
-
     return {
         "rows_before": rows_before,
         "rows_after": rows_after,
         "duplicates_removed": duplicates_before,
         "missing_values_remaining": int(df.isnull().sum().sum()),
         "cleaned_file": "cleaned_dataset.csv"
+    }
+@app.get("/histogram")
+def generate_histogram(column: str):
+    files = [f for f in os.listdir(UPLOAD_FOLDER) if f.endswith(".csv")]
+    if not files:
+        return {"error": "No dataset uploaded"}
+    latest_file = os.path.join(UPLOAD_FOLDER, files[-1])
+    df = pd.read_csv(latest_file)
+    if column not in df.columns:
+        return {"error": "Column not found"}
+    plt.figure(figsize=(8,5))
+    sns.histplot(df[column], kde=True)
+    plt.title(f"Histogram of {column}")
+    chart_path = os.path.join(CHART_FOLDER, "histogram.png")
+    plt.savefig(chart_path)
+    plt.close()
+    return {
+        "message": "Histogram generated successfully",
+        "chart": "histogram.png"
     }

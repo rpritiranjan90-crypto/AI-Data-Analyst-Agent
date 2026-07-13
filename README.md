@@ -29,18 +29,22 @@ The AI Data Analyst Agent is designed to simplify data analysis by allowing user
 ![Project Structure](screenshots/project-structure.png)
 ## 🚀 Features Completed
 
-- ✅ FastAPI Backend
-- ✅ REST APIs
-- ✅ CSV Upload API
-- ✅ Dataset Metadata API
-- ✅ Dataset Analysis API
-- ✅ Dataset Summary API
-- ✅ Dataset Cleaning API
-- ✅ Automatic Missing Value Handling
-- ✅ Duplicate Row Removal
-- ✅ Cleaned Dataset Export
-- ✅ Swagger UI Documentation
-- ✅ Git & GitHub Version Control
+-  FastAPI Backend
+-  REST APIs
+-  CSV Upload API
+- Dataset Metadata API
+- Dataset Analysis API
+-  Dataset Summary API
+- Dataset Cleaning API
+- Automatic Missing Value Handling
+- Duplicate Row Removal
+- Cleaned Dataset Export
+- Swagger UI Documentation
+- Git & GitHub Version Control
+- Data Visualization API
+- Histogram Generation
+- Matplotlib Charts
+- Seaborn Integration
 ---
 ## 🛠 Tech Stack
 | Technology | Purpose |
@@ -84,9 +88,6 @@ AI-Data-Analyst-Agent
 | 🔜 Day 10 | Deployment |
 ---
 ## 🚧 Upcoming Features
-
-- 📊 Data Visualization API
-- 📈 Histogram Generator
 - 📉 Bar Chart Generator
 - 🥧 Pie Chart Generator
 - 📦 Download Charts

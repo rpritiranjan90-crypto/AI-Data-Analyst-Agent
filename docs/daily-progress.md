@@ -32,7 +32,7 @@
 - Successfully tested API using Swagger UI
 - Uploaded Loan_Data.csv successfully
 - Committed and pushed Day 3 changes to GitHub
-## ✅ Day 4 - Dataset Analysis API
+## Day 4 - Dataset Analysis API
 
 ### Completed
 
@@ -76,3 +76,11 @@
 - Generated cleaned_dataset.csv
 - Tested API successfully using Swagger UI
 - Uploaded code to GitHub
+## Day 7 - Data Visualization API
+### Completed
+- Added Histogram API
+- Integrated Matplotlib
+- Integrated Seaborn
+- Generated histogram from uploaded dataset
+- Saved charts automatically
+- Tested visualization API successfully
