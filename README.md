@@ -14,7 +14,7 @@ The AI Data Analyst Agent is designed to simplify data analysis by allowing user
 
 ### 📤 CSV Upload API
 ![CSV Upload API](screenshots/csv-upload.png)
-
+![CSV Upload API](screenshots/csv-upload1.png)
 ### 📊 Dataset Analysis API
 ![Dataset Analysis API](screenshots/analyze-api.png)
 
