@@ -4,3 +4,6 @@ venv/
 .venv/
 node_modules/
 .env
+# Uploaded files
+backend/uploads/*
+!backend/uploads/.gitkeep
