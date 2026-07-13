@@ -28,13 +28,19 @@ The AI Data Analyst Agent is designed to simplify data analysis by allowing user
 
 ![Project Structure](screenshots/project-structure.png)
 ## 🚀 Features Completed
+
 - ✅ FastAPI Backend
-- ✅ REST API Development
-- ✅ Interactive Swagger UI Documentation
+- ✅ REST APIs
 - ✅ CSV Upload API
-- ✅ Dataset Metadata Extraction
-- ✅ Read CSV Files Using Pandas
-- ✅ Professional Git & GitHub Workflow
+- ✅ Dataset Metadata API
+- ✅ Dataset Analysis API
+- ✅ Dataset Summary API
+- ✅ Dataset Cleaning API
+- ✅ Automatic Missing Value Handling
+- ✅ Duplicate Row Removal
+- ✅ Cleaned Dataset Export
+- ✅ Swagger UI Documentation
+- ✅ Git & GitHub Version Control
 ---
 ## 🛠 Tech Stack
 | Technology | Purpose |
@@ -79,15 +85,15 @@ AI-Data-Analyst-Agent
 ---
 ## 🚧 Upcoming Features
 
-- 📊 Dataset Summary
-- 🔍 Missing Value Detection
-- 🧹 Data Cleaning
-- 📈 Interactive Charts
-- 🤖 AI-Powered Data Insights
-- 💬 Natural Language Querying
-- 📝 SQL Query Generation
-- 📄 Report Generation
-- ☁️ Cloud Deployment
+- 📊 Data Visualization API
+- 📈 Histogram Generator
+- 📉 Bar Chart Generator
+- 🥧 Pie Chart Generator
+- 📦 Download Charts
+- 🤖 AI Data Analysis
+- 💬 Chat with Dataset
+- 🧠 OpenAI Integration
+- ⚛ React Frontend
 ---
 ## 👨‍💻 Developer
 **Pritiranjan Rout**

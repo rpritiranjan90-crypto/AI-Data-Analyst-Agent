@@ -7,3 +7,4 @@ node_modules/
 # Uploaded files
 backend/uploads/*
 !backend/uploads/.gitkeep
+backend/cleaned_data/

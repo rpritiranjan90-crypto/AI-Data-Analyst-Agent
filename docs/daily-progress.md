@@ -47,9 +47,32 @@
 - Tested API successfully
 ## Day 5 - Dataset Summary API
 
-- Added Dataset Summary API
-- Returned dataset rows and columns
+### Completed
+
+- Added GET /summary endpoint
+- Returned dataset dimensions
 - Returned column names
 - Returned data types
 - Calculated missing values
-- Generated summary statistics using Pandas
+- Generated statistical summary
+- Successfully tested using Swagger UI
+
+### Skills Learned
+
+- Pandas describe()
+- DataFrame shape
+- Missing value detection
+- FastAPI GET endpoint
+## Day 6 - Dataset Cleaning API
+
+### Completed
+
+- Added Dataset Cleaning API (/clean)
+- Removed duplicate rows
+- Filled missing numeric values using mean
+- Filled missing categorical values using mode
+- Saved cleaned dataset automatically
+- Created cleaned_data folder
+- Generated cleaned_dataset.csv
+- Tested API successfully using Swagger UI
+- Uploaded code to GitHub
