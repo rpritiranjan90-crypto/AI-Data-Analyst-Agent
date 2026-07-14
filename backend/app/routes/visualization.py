@@ -206,7 +206,6 @@ def pair_plot(
     config: ChartConfig = Depends()
 ):
     return generate_pair_plot(config)
-
 # Hexbin Plot
 @router.get("/hexbin-plot")
 def hexbin_plot(

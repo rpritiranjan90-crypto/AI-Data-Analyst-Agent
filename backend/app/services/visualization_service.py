@@ -33,12 +33,10 @@ def generate_histogram(
 
     if not pd.api.types.is_numeric_dtype(df[column]):
         return {"error": f"{column} must be numeric"}
-
     if config.title is None:
         config.title = f"Histogram of {column}"
 
     setup_chart(config)
-
     sns.histplot(
         data=df,
         x=column,
