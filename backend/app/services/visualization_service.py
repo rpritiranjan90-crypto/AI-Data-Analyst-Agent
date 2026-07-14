@@ -18,17 +18,6 @@ CHART_FOLDER = "charts"
 
 os.makedirs(CHART_FOLDER, exist_ok=True)
 
-
-def get_latest_dataset():
-
-    files = [f for f in os.listdir(UPLOAD_FOLDER) if f.endswith(".csv")]
-
-    if not files:
-        return None
-
-    latest_file = os.path.join(UPLOAD_FOLDER, files[-1])
-
-    return pd.read_csv(latest_file)
 def generate_histogram(
     column: str,
     config: ChartConfig

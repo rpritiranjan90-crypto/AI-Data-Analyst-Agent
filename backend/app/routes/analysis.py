@@ -1,7 +1,6 @@
 from fastapi import APIRouter
-from app.services.dataset_service import analyze_dataset, dataset_summary
-router = APIRouter()
-
+from app.services.analysis_service import analyze_dataset, dataset_summary
+router = APIRouter(tags=["Analysis"])
 @router.get("/analyze")
 def analyze():
     return analyze_dataset()
