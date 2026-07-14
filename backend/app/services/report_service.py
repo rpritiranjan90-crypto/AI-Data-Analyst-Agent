@@ -1,3 +1,6 @@
+from fastapi.responses import FileResponse
+import os
+from datetime import datetime
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
@@ -12,17 +15,25 @@ from app.services.ai_insights_service import generate_ai_insights
 
 
 def generate_report():
-
+    
     insights = generate_ai_insights()
 
-    filename = "AI_Data_Analyst_Report.pdf"
+    REPORT_FOLDER = "reports"
 
+    os.makedirs(REPORT_FOLDER, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    filename = os.path.join(
+        REPORT_FOLDER,
+        f"AI_Data_Analyst_Report_{timestamp}.pdf"
+    )
     document = SimpleDocTemplate(filename)
 
     styles = getSampleStyleSheet()
 
     story = []
-
+    
     # =====================================
     # REPORT TITLE
     # =====================================
@@ -251,9 +262,66 @@ def generate_report():
     )
 )
     document.build(story)
+    return {
+    "success": True,
+    "message": "PDF Report Generated Successfully",
+    "report": os.path.basename(filename)
+}
+def list_reports():
+
+    REPORT_FOLDER = "reports"
+
+    if not os.path.exists(REPORT_FOLDER):
+        return {
+            "success": False,
+            "message": "No reports folder found."
+        }
+
+    reports = []
+
+    for file in os.listdir(REPORT_FOLDER):
+        if file.endswith(".pdf"):
+            reports.append(file)
+
+    reports.sort(reverse=True)
 
     return {
         "success": True,
-        "message": "PDF Report Generated Successfully",
-        "report": filename
+        "total_reports": len(reports),
+        "reports": reports
+    }
+def download_report(filename):
+
+    REPORT_FOLDER = "reports"
+
+    file_path = os.path.join(REPORT_FOLDER, filename)
+
+    if not os.path.exists(file_path):
+        return {
+            "success": False,
+            "message": "Report not found."
+        }
+
+    return FileResponse(
+        path=file_path,
+        media_type="application/pdf",
+        filename=filename
+    )
+def delete_report(filename):
+
+    REPORT_FOLDER = "reports"
+
+    file_path = os.path.join(REPORT_FOLDER, filename)
+
+    if not os.path.exists(file_path):
+        return {
+            "success": False,
+            "message": "Report not found."
+        }
+
+    os.remove(file_path)
+
+    return {
+        "success": True,
+        "message": f"{filename} deleted successfully."
     }
