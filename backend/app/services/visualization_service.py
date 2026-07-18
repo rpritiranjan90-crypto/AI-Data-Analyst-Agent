@@ -1,18 +1,19 @@
 from app.models.chart_config import ChartConfig
 from app.utils.chart_utils import setup_chart, finish_chart
 from app.utils.chart_engine import save_chart
-from app.utils.chart_utils import setup_chart, finish_chart
 from app.utils.validation import (
     validate_dataset,
-      validate_column,
+    validate_column,
     validate_numeric_column,
 )
 from app.utils.response import error_response
+
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from app.services.dataset_service import get_latest_dataset
 UPLOAD_FOLDER = "uploads"
 CHART_FOLDER = "charts"
 
@@ -33,10 +34,12 @@ def generate_histogram(
 
     if not pd.api.types.is_numeric_dtype(df[column]):
         return {"error": f"{column} must be numeric"}
+
     if config.title is None:
         config.title = f"Histogram of {column}"
 
     setup_chart(config)
+
     sns.histplot(
         data=df,
         x=column,
@@ -46,11 +49,11 @@ def generate_histogram(
     )
 
     return save_chart(
-    config=config,
-    chart_name="bar_chart",
-    df=df,
-    title=config.title
-)
+        config=config,
+        chart_name="histogram",
+        df=df,
+        title=config.title
+    )
 
 def generate_bar_chart(
     x_column: str,

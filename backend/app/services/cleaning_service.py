@@ -1,34 +1,113 @@
-import os
-import pandas as pd
-UPLOAD_FOLDER = "uploads"
-CLEANED_FOLDER = "cleaned_data"
-os.makedirs(CLEANED_FOLDER, exist_ok=True)
-def clean_dataset():
+from __future__ import annotations
 
-    files = [f for f in os.listdir(UPLOAD_FOLDER) if f.endswith(".csv")]
-    if not files:
-        return {"error": "No dataset uploaded"}
-    latest_file = os.path.join(UPLOAD_FOLDER, files[-1])
-    df = pd.read_csv(latest_file)
-    rows_before = len(df)
-    duplicates_before = int(df.duplicated().sum())
+from typing import Any
 
-    df = df.drop_duplicates()
-    numeric_columns = df.select_dtypes(include="number").columns
-    for column in numeric_columns:
-        df[column] = df[column].fillna(df[column].mean())
+from app.services.dataset_service import DatasetService
+from app.services.missing_value_service import MissingValueService
+from app.services.duplicate_service import DuplicateService
+from app.services.outlier_service import OutlierService
+from app.services.datatype_service import DatatypeService
+from app.services.quality_service import QualityService
+from app.services.cleaning_history import CleaningHistory
 
-    text_columns = df.select_dtypes(include="object").columns
-    for column in text_columns:
-        if not df[column].mode().empty:
-            df[column] = df[column].fillna(df[column].mode()[0])
-    rows_after = len(df)
-    cleaned_file = os.path.join(CLEANED_FOLDER, "cleaned_dataset.csv")
-    df.to_csv(cleaned_file, index=False)
-    return {
-        "rows_before": rows_before,
-        "rows_after": rows_after,
-        "duplicates_removed": duplicates_before,
-        "missing_values_remaining": int(df.isnull().sum().sum()),
-        "cleaned_file": "cleaned_dataset.csv"
-    }
+
+class CleaningService:
+    """
+    Enterprise Cleaning Orchestrator.
+
+    This service coordinates all cleaning operations.
+    """
+
+    @staticmethod
+    def fill_missing(
+        column: str,
+        method: str,
+        value: Any = None
+    ):
+
+        df = DatasetService.get_dataset()
+
+        return MissingValueService.fill(
+            df,
+            column,
+            method,
+            value
+        )
+
+    @staticmethod
+    def drop_missing_rows():
+
+        df = DatasetService.get_dataset()
+
+        return MissingValueService.drop_rows(df)
+
+    @staticmethod
+    def drop_missing_columns():
+
+        df = DatasetService.get_dataset()
+
+        return MissingValueService.drop_columns(df)
+
+    @staticmethod
+    def remove_duplicates():
+
+        df = DatasetService.get_dataset()
+
+        return DuplicateService.remove_duplicates(df)
+
+    @staticmethod
+    def duplicate_count():
+
+        df = DatasetService.get_dataset()
+
+        return DuplicateService.get_duplicate_count(df)
+
+    @staticmethod
+    def remove_iqr_outliers(column: str):
+
+        df = DatasetService.get_dataset()
+
+        return OutlierService.remove_iqr(
+            df,
+            column
+        )
+
+    @staticmethod
+    def remove_zscore_outliers(
+        column: str,
+        threshold: float = 3.0
+    ):
+
+        df = DatasetService.get_dataset()
+
+        return OutlierService.remove_zscore(
+            df,
+            column,
+            threshold
+        )
+
+    @staticmethod
+    def convert_datatype(
+        column: str,
+        datatype: str
+    ):
+
+        df = DatasetService.get_dataset()
+
+        return DatatypeService.convert(
+            df,
+            column,
+            datatype
+        )
+
+    @staticmethod
+    def dataset_quality():
+
+        df = DatasetService.get_dataset()
+
+        return QualityService.calculate(df)
+
+    @staticmethod
+    def cleaning_history():
+
+        return CleaningHistory.get_history()
