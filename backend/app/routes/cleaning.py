@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
@@ -6,140 +6,126 @@ from app.services.cleaning_service import CleaningService
 
 router = APIRouter(
     prefix="/clean",
-    tags=["Data Cleaning"]
+    tags=["Data Cleaning"],
 )
 
 
-@router.post("/missing-values")
+def execute(operation):
+    """
+    Execute a cleaning operation with consistent
+    exception handling.
+    """
+    try:
+        return operation()
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal Server Error: {error}",
+        )
+
+
+@router.post(
+    "/missing-values",
+    summary="Fill Missing Values",
+    description="Fill missing values using mean, median, mode, constant, forward-fill or backward-fill.",
+)
 def fill_missing_values(
     column: str,
     method: str,
-    value: Optional[str] = None
-):
-    try:
+    value: str | None = None,
+) -> dict[str, Any]:
 
-        CleaningService.fill_missing(
+    return execute(
+        lambda: CleaningService.fill_missing(
             column,
             method,
-            value
+            value,
         )
-
-        return {
-            "success": True,
-            "message": f"Missing values in '{column}' filled using '{method}'."
-        }
-
-    except Exception as error:
-
-        raise HTTPException(
-            status_code=400,
-            detail=str(error)
-        )
+    )
 
 
-@router.post("/duplicates")
-def remove_duplicates():
+@router.post(
+    "/duplicates",
+    summary="Remove Duplicate Rows",
+)
+def remove_duplicates() -> dict[str, Any]:
 
-    try:
-
-        CleaningService.remove_duplicates()
-
-        return {
-            "success": True,
-            "message": "Duplicate rows removed successfully."
-        }
-
-    except Exception as error:
-
-        raise HTTPException(
-            status_code=400,
-            detail=str(error)
-        )
+    return execute(
+        CleaningService.remove_duplicates
+    )
 
 
-@router.post("/outliers/iqr")
+@router.post(
+    "/outliers/iqr",
+    summary="Remove IQR Outliers",
+)
 def remove_iqr_outliers(
-    column: str
-):
+    column: str,
+) -> dict[str, Any]:
 
-    try:
-
-        CleaningService.remove_iqr_outliers(
+    return execute(
+        lambda: CleaningService.remove_iqr_outliers(
             column
         )
-
-        return {
-            "success": True,
-            "message": f"IQR outliers removed from '{column}'."
-        }
-
-    except Exception as error:
-
-        raise HTTPException(
-            status_code=400,
-            detail=str(error)
-        )
+    )
 
 
-@router.post("/outliers/zscore")
+@router.post(
+    "/outliers/zscore",
+    summary="Remove Z-Score Outliers",
+)
 def remove_zscore_outliers(
     column: str,
-    threshold: float = 3.0
-):
+    threshold: float = 3.0,
+) -> dict[str, Any]:
 
-    try:
-
-        CleaningService.remove_zscore_outliers(
+    return execute(
+        lambda: CleaningService.remove_zscore_outliers(
             column,
-            threshold
+            threshold,
         )
-
-        return {
-            "success": True,
-            "message": f"Z-score outliers removed from '{column}'."
-        }
-
-    except Exception as error:
-
-        raise HTTPException(
-            status_code=400,
-            detail=str(error)
-        )
+    )
 
 
-@router.post("/datatype")
+@router.post(
+    "/datatype",
+    summary="Convert Datatype",
+)
 def convert_datatype(
     column: str,
-    datatype: str
-):
+    datatype: str,
+) -> dict[str, Any]:
 
-    try:
-
-        CleaningService.convert_datatype(
+    return execute(
+        lambda: CleaningService.convert_datatype(
             column,
-            datatype
+            datatype,
         )
-
-        return {
-            "success": True,
-            "message": f"'{column}' converted to '{datatype}'."
-        }
-
-    except Exception as error:
-
-        raise HTTPException(
-            status_code=400,
-            detail=str(error)
-        )
+    )
 
 
-@router.get("/quality")
-def dataset_quality():
+@router.get(
+    "/quality",
+    summary="Dataset Quality",
+)
+def dataset_quality() -> dict[str, Any]:
 
-    return CleaningService.dataset_quality()
+    return execute(
+        CleaningService.dataset_quality
+    )
 
 
-@router.get("/history")
-def cleaning_history():
+@router.get(
+    "/history",
+    summary="Cleaning History",
+)
+def cleaning_history() -> list[dict[str, Any]]:
 
-    return CleaningService.cleaning_history()
+    return execute(
+        CleaningService.cleaning_history
+    )

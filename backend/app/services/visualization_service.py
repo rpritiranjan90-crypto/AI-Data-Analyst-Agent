@@ -1,119 +1,97 @@
-from app.models.chart_config import ChartConfig
-from app.utils.chart_utils import setup_chart, finish_chart
-from app.utils.chart_engine import save_chart
-from app.utils.validation import (
-    validate_dataset,
-    validate_column,
-    validate_numeric_column,
-)
-from app.utils.response import error_response
+from __future__ import annotations
 
 import os
-import pandas as pd
+
 import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
 
-from app.services.dataset_service import get_latest_dataset
+from app.models.chart_config import ChartConfig
+from app.services.dataset_cache import DatasetCache
+from app.utils.chart_engine import save_chart
+from app.utils.response import error_response
+from app.utils.validation import (
+    validate_column,
+    validate_dataset,
+    validate_numeric_column,
+)
+
 UPLOAD_FOLDER = "uploads"
 CHART_FOLDER = "charts"
 
 os.makedirs(CHART_FOLDER, exist_ok=True)
 
-def generate_histogram(
-    column: str,
-    config: ChartConfig
-):
 
-    df = get_latest_dataset()
+def _get_dataset():
+    """
+    Return the currently loaded dataset.
+    """
+
+    df = DatasetCache.get_dataset()
 
     if df is None:
-        return {"error": "No dataset uploaded"}
+        return None
 
-    if column not in df.columns:
-        return {"error": f"{column} column not found"}
+    return df
 
-    if not pd.api.types.is_numeric_dtype(df[column]):
-        return {"error": f"{column} must be numeric"}
 
-    if config.title is None:
-        config.title = f"Histogram of {column}"
+def generate_histogram(
+    column: str,
+    config: ChartConfig,
+):
 
-    setup_chart(config)
+    df = _get_dataset()
+
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
+
+    validate_column(df, column)
+    validate_numeric_column(df, column)
+
+    config.title = (
+        config.title
+        or f"Histogram of {column}"
+    )
+
+    plt.figure(figsize=config.figsize)
 
     sns.histplot(
         data=df,
         x=column,
         kde=True,
         bins=20,
-        color=config.color
+        color=config.color,
     )
+
+    plt.title(config.title)
+    plt.xlabel(column)
+    plt.ylabel("Frequency")
 
     return save_chart(
         config=config,
         chart_name="histogram",
         df=df,
-        title=config.title
+        title=config.title,
     )
+
 
 def generate_bar_chart(
     x_column: str,
     y_column: str,
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
     if df is None:
-        return {"error": "No dataset uploaded"}
+        return error_response(
+            "No dataset is currently loaded."
+        )
 
-    if x_column not in df.columns:
-        return {"error": f"{x_column} column not found"}
-
-    if y_column not in df.columns:
-        return {"error": f"{y_column} column not found"}
-
-    if not pd.api.types.is_numeric_dtype(df[y_column]):
-        return {"error": f"{y_column} must be numeric"}
-
-    if config.title is None:
-        config.title = f"Average {y_column} by {x_column}"
-
-    grouped_df = df.groupby(x_column)[y_column].mean().reset_index()
-
-    setup_chart(config)
-
-    sns.barplot(
-        data=grouped_df,
-        x=x_column,
-        y=y_column,
-        color=config.color
-    )
-
-    return save_chart(
-    config=config,
-    chart_name="bar_chart",
-    df=df,
-    title=config.title
-)
-
-
-def generate_line_chart(
-    x_column: str,
-    y_column: str,
-    config: ChartConfig
-):
-
-    df = get_latest_dataset()
-
-    validate_dataset(df)
-
-    if x_column not in df.columns:
-        return error_response(f"{x_column} column not found")
-
+    validate_column(df, x_column)
     validate_numeric_column(df, y_column)
-
-    if config.title is None:
-        config.title = f"Average {y_column} by {x_column}"
 
     grouped_df = (
         df.groupby(x_column)[y_column]
@@ -121,262 +99,373 @@ def generate_line_chart(
         .reset_index()
     )
 
-    setup_chart(config)
+    config.title = (
+        config.title
+        or f"Average {y_column} by {x_column}"
+    )
+
+    plt.figure(figsize=config.figsize)
+
+    sns.barplot(
+        data=grouped_df,
+        x=x_column,
+        y=y_column,
+        color=config.color,
+    )
+
+    plt.title(config.title)
+
+    return save_chart(
+        config=config,
+        chart_name="bar_chart",
+        df=df,
+        title=config.title,
+    )
+
+
+def generate_line_chart(
+    x_column: str,
+    y_column: str,
+    config: ChartConfig,
+):
+
+    df = _get_dataset()
+
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
+
+    validate_column(df, x_column)
+    validate_numeric_column(df, y_column)
+
+    grouped_df = (
+        df.groupby(x_column)[y_column]
+        .mean()
+        .reset_index()
+    )
+
+    config.title = (
+        config.title
+        or f"Average {y_column} by {x_column}"
+    )
+
+    plt.figure(figsize=config.figsize)
 
     plt.plot(
         grouped_df[x_column],
         grouped_df[y_column],
         marker="o",
         linewidth=2,
-        color=config.color
+        color=config.color,
     )
+
+    plt.grid(True)
 
     plt.xlabel(x_column)
     plt.ylabel(y_column)
-    plt.grid(True)
+    plt.title(config.title)
 
     return save_chart(
         config=config,
         chart_name="line_chart",
         df=df,
-        title=config.title
+        title=config.title,
     )
+
+
 def generate_pie_chart(
     column: str,
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
-    validate_dataset(df)
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
 
     validate_column(df, column)
 
-    if config.title is None:
-        config.title = f"{column} Distribution"
+    config.title = (
+        config.title
+        or f"{column} Distribution"
+    )
 
     counts = df[column].value_counts()
 
-    setup_chart(config)
+    plt.figure(figsize=config.figsize)
 
     plt.pie(
         counts.values,
         labels=counts.index,
         autopct="%1.1f%%",
-        startangle=90
+        startangle=90,
     )
 
     plt.axis("equal")
+    plt.title(config.title)
 
     return save_chart(
         config=config,
         chart_name="pie_chart",
         df=df,
-        title=config.title
+        title=config.title,
     )
 
-from app.utils.validation import (
-    validate_dataset,
-    validate_numeric_column,
-)
-from app.utils.response import error_response
 
 def generate_scatter_plot(
     x_column: str,
     y_column: str,
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
-    validate_dataset(df)
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
 
     validate_numeric_column(df, x_column)
     validate_numeric_column(df, y_column)
 
-    if config.title is None:
-        config.title = f"{y_column} vs {x_column}"
+    config.title = (
+        config.title
+        or f"{y_column} vs {x_column}"
+    )
 
-    setup_chart(config)
+    plt.figure(figsize=config.figsize)
 
     plt.scatter(
         df[x_column],
         df[y_column],
         color=config.color,
-        alpha=0.7
+        alpha=0.7,
     )
+
+    plt.grid(True)
 
     plt.xlabel(x_column)
     plt.ylabel(y_column)
-    plt.grid(True)
+    plt.title(config.title)
 
     return save_chart(
         config=config,
         chart_name="scatter_plot",
         df=df,
-        title=config.title
+        title=config.title,
     )
 def generate_box_plot(
     column: str,
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
-    validate_dataset(df)
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
+
     validate_numeric_column(df, column)
 
-    if config.title is None:
-        config.title = f"Box Plot of {column}"
+    config.title = (
+        config.title
+        or f"Box Plot of {column}"
+    )
 
-    setup_chart(config)
+    plt.figure(figsize=config.figsize)
 
     sns.boxplot(
         y=df[column],
-        color=config.color
+        color=config.color,
     )
 
     plt.ylabel(column)
+    plt.title(config.title)
 
     return save_chart(
         config=config,
         chart_name="box_plot",
         df=df,
-        title=config.title
+        title=config.title,
     )
+
+
 def generate_correlation_heatmap(
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
-    validate_dataset(df)
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
 
     numeric_df = df.select_dtypes(include="number")
 
-    if config.title is None:
-        config.title = "Correlation Heatmap"
+    if numeric_df.shape[1] < 2:
+        return error_response(
+            "At least two numeric columns are required."
+        )
 
-    setup_chart(config)
+    config.title = (
+        config.title
+        or "Correlation Heatmap"
+    )
+
+    plt.figure(figsize=config.figsize)
 
     sns.heatmap(
-        numeric_df.corr(),
+        numeric_df.corr(numeric_only=True),
         annot=True,
-        cmap="coolwarm"
+        cmap="coolwarm",
+        fmt=".2f",
     )
+
+    plt.title(config.title)
 
     return save_chart(
         config=config,
         chart_name="correlation_heatmap",
         df=df,
-        title=config.title
+        title=config.title,
     )
-    
+
+
 def generate_count_plot(
     column: str,
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
-    validate_dataset(df)
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
+
     validate_column(df, column)
 
-    if config.title is None:
-        config.title = f"Count Plot of {column}"
+    config.title = (
+        config.title
+        or f"Count Plot of {column}"
+    )
 
-    setup_chart(config)
+    plt.figure(figsize=config.figsize)
 
     sns.countplot(
         data=df,
         x=column,
-        color=config.color
+        color=config.color,
     )
 
     plt.xlabel(column)
     plt.ylabel("Count")
+    plt.title(config.title)
 
     return save_chart(
         config=config,
         chart_name="count_plot",
         df=df,
-        title=config.title
+        title=config.title,
     )
+
+
 def generate_violin_plot(
     column: str,
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
-    validate_dataset(df)
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
+
     validate_numeric_column(df, column)
 
-    if config.title is None:
-        config.title = f"Violin Plot of {column}"
+    config.title = (
+        config.title
+        or f"Violin Plot of {column}"
+    )
 
-    setup_chart(config)
+    plt.figure(figsize=config.figsize)
 
     sns.violinplot(
         y=df[column],
-        color=config.color
+        color=config.color,
     )
 
     plt.ylabel(column)
+    plt.title(config.title)
 
     return save_chart(
         config=config,
         chart_name="violin_plot",
         df=df,
-        title=config.title
+        title=config.title,
     )
+
+
 def generate_kde_plot(
     column: str,
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
-    validate_dataset(df)
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
+
     validate_numeric_column(df, column)
 
-    if config.title is None:
-        config.title = f"KDE Plot of {column}"
+    config.title = (
+        config.title
+        or f"KDE Plot of {column}"
+    )
 
-    setup_chart(config)
+    plt.figure(figsize=config.figsize)
 
     sns.kdeplot(
         data=df,
         x=column,
         fill=True,
-        color=config.color
+        color=config.color,
     )
 
     plt.xlabel(column)
+    plt.title(config.title)
 
     return save_chart(
         config=config,
         chart_name="kde_plot",
         df=df,
-        title=config.title
+        title=config.title,
     )
+
+
 def generate_area_chart(
     x_column: str,
     y_column: str,
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
-    validate_dataset(df)
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
 
-    if x_column not in df.columns:
-        return error_response(f"{x_column} column not found")
-
+    validate_column(df, x_column)
     validate_numeric_column(df, y_column)
-
-    if config.title is None:
-        config.title = f"Area Chart of {y_column}"
 
     grouped_df = (
         df.groupby(x_column)[y_column]
@@ -384,255 +473,327 @@ def generate_area_chart(
         .reset_index()
     )
 
-    setup_chart(config)
+    config.title = (
+        config.title
+        or f"Area Chart of {y_column}"
+    )
+
+    plt.figure(figsize=config.figsize)
 
     plt.fill_between(
         grouped_df[x_column],
         grouped_df[y_column],
         alpha=0.5,
-        color=config.color
+        color=config.color,
     )
 
     plt.plot(
         grouped_df[x_column],
         grouped_df[y_column],
-        color=config.color
+        color=config.color,
     )
 
     plt.xlabel(x_column)
     plt.ylabel(y_column)
+    plt.title(config.title)
 
     return save_chart(
         config=config,
         chart_name="area_chart",
         df=df,
-        title=config.title
+        title=config.title,
     )
-    
 def generate_bubble_chart(
     x_column: str,
     y_column: str,
     size_column: str,
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
-    validate_dataset(df)
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
 
     validate_numeric_column(df, x_column)
     validate_numeric_column(df, y_column)
     validate_numeric_column(df, size_column)
 
-    if config.title is None:
-        config.title = f"{y_column} vs {x_column}"
+    config.title = (
+        config.title
+        or f"{y_column} vs {x_column}"
+    )
 
-    setup_chart(config)
+    plt.figure(figsize=config.figsize)
 
     plt.scatter(
         df[x_column],
         df[y_column],
         s=df[size_column] * 5,
         c=config.color,
-        alpha=0.6
+        alpha=0.6,
     )
 
     plt.xlabel(x_column)
     plt.ylabel(y_column)
+    plt.title(config.title)
 
     return save_chart(
         config=config,
         chart_name="bubble_chart",
         df=df,
-        title=config.title
+        title=config.title,
     )
+
+
 def generate_stacked_bar_chart(
     x_column: str,
     y_columns: str,
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
-    validate_dataset(df)
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
 
-    if x_column not in df.columns:
-        return error_response(f"{x_column} column not found")
+    validate_column(df, x_column)
 
-    columns = [col.strip() for col in y_columns.split(",")]
+    columns = [
+        col.strip()
+        for col in y_columns.split(",")
+    ]
 
-    for col in columns:
-        validate_numeric_column(df, col)
+    for column in columns:
+        validate_numeric_column(df, column)
 
-    if config.title is None:
-        config.title = "Stacked Bar Chart"
+    config.title = (
+        config.title
+        or "Stacked Bar Chart"
+    )
 
     grouped = df.groupby(x_column)[columns].sum()
 
-    setup_chart(config)
+    plt.figure(figsize=config.figsize)
 
     grouped.plot(
         kind="bar",
         stacked=True,
-        ax=plt.gca()
+        ax=plt.gca(),
     )
+
+    plt.title(config.title)
 
     return save_chart(
         config=config,
         chart_name="stacked_bar_chart",
         df=df,
-        title=config.title
+        title=config.title,
     )
+
+
 def generate_multi_line_chart(
     x_column: str,
     y_columns: str,
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
-    validate_dataset(df)
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
 
-    if x_column not in df.columns:
-        return error_response(f"{x_column} column not found")
+    validate_column(df, x_column)
 
-    columns = [col.strip() for col in y_columns.split(",")]
+    columns = [
+        col.strip()
+        for col in y_columns.split(",")
+    ]
 
-    for col in columns:
-        validate_numeric_column(df, col)
+    for column in columns:
+        validate_numeric_column(df, column)
 
-    if config.title is None:
-        config.title = "Multi Line Chart"
+    grouped = (
+        df.groupby(x_column)[columns]
+        .mean()
+        .reset_index()
+    )
 
-    setup_chart(config)
+    config.title = (
+        config.title
+        or "Multi Line Chart"
+    )
 
-    grouped = df.groupby(x_column)[columns].mean().reset_index()
+    plt.figure(figsize=config.figsize)
 
-    for col in columns:
+    for column in columns:
+
         plt.plot(
             grouped[x_column],
-            grouped[col],
+            grouped[column],
             marker="o",
             linewidth=2,
-            label=col
+            label=column,
         )
 
     plt.legend()
+    plt.title(config.title)
 
     return save_chart(
         config=config,
         chart_name="multi_line_chart",
         df=df,
-        title=config.title
+        title=config.title,
     )
+
+
 def generate_donut_chart(
     column: str,
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
-    validate_dataset(df)
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
 
     validate_column(df, column)
 
-    if config.title is None:
-        config.title = f"{column} Distribution"
-
     counts = df[column].value_counts()
 
-    setup_chart(config)
+    config.title = (
+        config.title
+        or f"{column} Distribution"
+    )
+
+    plt.figure(figsize=config.figsize)
 
     plt.pie(
         counts.values,
         labels=counts.index,
         autopct="%1.1f%%",
         startangle=90,
-        wedgeprops=dict(width=0.4)
+        wedgeprops={"width": 0.4},
     )
 
     plt.axis("equal")
+    plt.title(config.title)
 
     return save_chart(
         config=config,
         chart_name="donut_chart",
         df=df,
-        title=config.title
+        title=config.title,
     )
+
+
 def generate_pair_plot(
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
-    validate_dataset(df)
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
 
     numeric_df = df.select_dtypes(include="number")
 
-    sns.pairplot(numeric_df)
+    if numeric_df.empty:
+        return error_response(
+            "No numeric columns found."
+        )
 
-    filename = f"pair_plot.{config.image_format}"
+    pair_plot = sns.pairplot(numeric_df)
+
+    filename = (
+        f"pair_plot.{config.image_format}"
+    )
 
     chart_path = os.path.join(
         CHART_FOLDER,
-        filename
+        filename,
     )
 
-    plt.savefig(chart_path)
-
-    plt.close()
-
-    return success_response(
-        message="Pair Plot generated successfully",
-        chart=filename,
-        rows=len(df),
-        columns=len(df.columns)
+    pair_plot.savefig(
+        chart_path,
+        dpi=config.dpi,
     )
+
+    plt.close("all")
+
+    return {
+        "success": True,
+        "message": "Pair Plot generated successfully",
+        "chart": filename,
+        "rows": len(df),
+        "columns": len(df.columns),
+    }
 def generate_hexbin_plot(
     x_column: str,
     y_column: str,
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
-    validate_dataset(df)
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
 
     validate_numeric_column(df, x_column)
     validate_numeric_column(df, y_column)
 
-    if config.title is None:
-        config.title = f"Hexbin Plot of {y_column} vs {x_column}"
+    config.title = (
+        config.title
+        or f"Hexbin Plot of {y_column} vs {x_column}"
+    )
 
-    setup_chart(config)
+    plt.figure(figsize=config.figsize)
 
     plt.hexbin(
         df[x_column],
         df[y_column],
         gridsize=20,
-        cmap="viridis"
+        cmap="viridis",
     )
 
     plt.colorbar()
 
     plt.xlabel(x_column)
     plt.ylabel(y_column)
+    plt.title(config.title)
 
     return save_chart(
         config=config,
         chart_name="hexbin_plot",
         df=df,
-        title=config.title
+        title=config.title,
     )
+
+
 def generate_joint_plot(
     x_column: str,
     y_column: str,
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
-    validate_dataset(df)
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
 
     validate_numeric_column(df, x_column)
     validate_numeric_column(df, y_column)
@@ -642,61 +803,96 @@ def generate_joint_plot(
         x=x_column,
         y=y_column,
         kind="scatter",
-        color=config.color
+        color=config.color,
     )
 
-    if config.title:
-        joint.fig.suptitle(config.title)
+    joint.fig.suptitle(
+        config.title or f"{y_column} vs {x_column}"
+    )
 
-    filename = f"joint_plot.{config.image_format}"
+    filename = (
+        f"joint_plot.{config.image_format}"
+    )
 
     chart_path = os.path.join(
         CHART_FOLDER,
-        filename
+        filename,
     )
 
     joint.fig.savefig(
         chart_path,
-        dpi=config.dpi
+        dpi=config.dpi,
     )
 
     plt.close(joint.fig)
 
-    return success_response(
-        message="Joint Plot generated successfully",
-        chart=filename,
-        rows=len(df),
-        columns=len(df.columns),
-        title=config.title
-    )
+    return {
+        "success": True,
+        "message": "Joint Plot generated successfully",
+        "chart": filename,
+        "rows": len(df),
+        "columns": len(df.columns),
+    }
+
+
 def generate_distribution_plot(
     column: str,
-    config: ChartConfig
+    config: ChartConfig,
 ):
 
-    df = get_latest_dataset()
+    df = _get_dataset()
 
-    validate_dataset(df)
+    if df is None:
+        return error_response(
+            "No dataset is currently loaded."
+        )
 
     validate_numeric_column(df, column)
 
-    if config.title is None:
-        config.title = f"Distribution Plot of {column}"
+    config.title = (
+        config.title
+        or f"Distribution Plot of {column}"
+    )
 
-    setup_chart(config)
+    plt.figure(figsize=config.figsize)
 
     sns.histplot(
         data=df,
         x=column,
         kde=True,
-        color=config.color
+        color=config.color,
     )
 
     plt.xlabel(column)
+    plt.ylabel("Frequency")
+    plt.title(config.title)
 
     return save_chart(
         config=config,
         chart_name="distribution_plot",
         df=df,
-        title=config.title
+        title=config.title,
     )
+
+
+__all__ = [
+    "generate_histogram",
+    "generate_bar_chart",
+    "generate_line_chart",
+    "generate_pie_chart",
+    "generate_scatter_plot",
+    "generate_box_plot",
+    "generate_correlation_heatmap",
+    "generate_count_plot",
+    "generate_violin_plot",
+    "generate_kde_plot",
+    "generate_area_chart",
+    "generate_bubble_chart",
+    "generate_stacked_bar_chart",
+    "generate_multi_line_chart",
+    "generate_donut_chart",
+    "generate_pair_plot",
+    "generate_hexbin_plot",
+    "generate_joint_plot",
+    "generate_distribution_plot",
+]

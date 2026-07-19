@@ -1,0 +1,38 @@
+{
+    "filename": "sample_dataset.csv",
+    "extension": ".csv",
+    "rows": 21,
+    "columns": 10,
+    "memory_usage": 6805,
+    "column_names": [
+        "PassengerId",
+        "Name",
+        "Age",
+        "Gender",
+        "Department",
+        "Salary",
+        "Experience",
+        "JoiningDate",
+        "City",
+        "Performance"
+    ],
+    "column_types": {
+        "PassengerId": "int64",
+        "Name": "str",
+        "Age": "float64",
+        "Gender": "str",
+        "Department": "str",
+        "Salary": "float64",
+        "Experience": "int64",
+        "JoiningDate": "str",
+        "City": "str",
+        "Performance": "int64"
+    },
+    "missing_values": 2,
+    "duplicate_rows": 0,
+    "numeric_columns": 5,
+    "categorical_columns": 5,
+    "created_at": "2026-07-19T18:13:21.520427+00:00",
+    "dataset_hash": "fb2cb9e716c08e7db2f3c4eae418cbcfae1e478f3823cea73e3c5654d126c490",
+    "id": "9a5b2e93-49ac-42c6-a1aa-d4f3aa58d7f7"
+}

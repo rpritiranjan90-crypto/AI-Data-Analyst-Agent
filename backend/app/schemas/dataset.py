@@ -1,8 +1,15 @@
+from __future__ import annotations
+
+from typing import Any, Dict, List
+
 from pydantic import BaseModel
-from typing import Dict, List, Any
 
 
 class DatasetMetadata(BaseModel):
+    """
+    Metadata about the uploaded dataset.
+    """
+
     filename: str
     extension: str
     rows: int
@@ -15,6 +22,10 @@ class DatasetMetadata(BaseModel):
 
 
 class DatasetProfile(BaseModel):
+    """
+    Dataset profiling information.
+    """
+
     rows: int
     columns: int
     numeric_columns: List[str]
@@ -26,9 +37,31 @@ class DatasetProfile(BaseModel):
     data_types: Dict[str, str]
 
 
+class DatasetAnalysisResult(BaseModel):
+    """
+    Result returned by DatasetService after loading a dataset.
+    """
+
+    metadata: DatasetMetadata
+    profile: DatasetProfile
+    statistics: Dict[str, Any]
+
+
 class UploadResponse(BaseModel):
+    """
+    API response for dataset upload.
+    """
+
     success: bool
     message: str
     metadata: DatasetMetadata
     profile: DatasetProfile
     statistics: Dict[str, Any]
+
+
+__all__ = [
+    "DatasetMetadata",
+    "DatasetProfile",
+    "DatasetAnalysisResult",
+    "UploadResponse",
+]

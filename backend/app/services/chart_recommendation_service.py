@@ -1,21 +1,32 @@
-from app.services.dataset_service import get_latest_dataset
+from app.services.dataset_cache import DatasetCache
 
 
 def recommend_charts():
+    """
+    Recommend charts based on the currently loaded dataset.
+    """
 
-    df = get_latest_dataset()
+    df = DatasetCache.get_dataset()
 
     if df is None:
         return {
             "success": False,
-            "message": "No dataset uploaded."
+            "message": "No dataset is currently loaded."
         }
 
     recommendations = []
 
-    numeric_columns = df.select_dtypes(include=["number"]).columns.tolist()
+    numeric_columns = (
+        df.select_dtypes(include=["number"])
+        .columns
+        .tolist()
+    )
 
-    categorical_columns = df.select_dtypes(exclude=["number"]).columns.tolist()
+    categorical_columns = (
+        df.select_dtypes(exclude=["number"])
+        .columns
+        .tolist()
+    )
 
     # Numeric columns
     for column in numeric_columns:

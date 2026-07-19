@@ -1,15 +1,23 @@
-from app.services.dataset_service import get_latest_dataset
+from app.services.dataset_cache import DatasetCache
 
 
 class ContextBuilder:
     """
-    Builds AI context from the current dataset.
+    Builds AI context from the currently loaded dataset.
     """
 
     @staticmethod
     def build():
 
-        dataset = get_latest_dataset()
+        dataset = DatasetCache.get_dataset()
+
+        if dataset is None:
+            return {
+                "rows": 0,
+                "columns": [],
+                "shape": (0, 0),
+                "preview": [],
+            }
 
         return {
             "rows": len(dataset),

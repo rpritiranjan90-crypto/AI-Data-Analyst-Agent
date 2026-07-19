@@ -2,112 +2,124 @@ from __future__ import annotations
 
 from typing import Any
 
-from app.services.dataset_service import DatasetService
-from app.services.missing_value_service import MissingValueService
-from app.services.duplicate_service import DuplicateService
-from app.services.outlier_service import OutlierService
-from app.services.datatype_service import DatatypeService
-from app.services.quality_service import QualityService
+import pandas as pd
+
 from app.services.cleaning_history import CleaningHistory
+from app.services.dataset_service import DatasetService
+from app.services.datatype_service import DatatypeService
+from app.services.duplicate_service import DuplicateService
+from app.services.missing_value_service import MissingValueService
+from app.services.outlier_service import OutlierService
+from app.services.quality_service import QualityService
 
 
 class CleaningService:
     """
     Enterprise Cleaning Orchestrator.
-
-    This service coordinates all cleaning operations.
     """
 
-    @staticmethod
+    _dataset_service = DatasetService()
+
+    @classmethod
+    def _dataset(cls) -> pd.DataFrame:
+        """
+        Return the active dataset.
+        """
+        return cls._dataset_service.get_dataset()
+
+    @classmethod
     def fill_missing(
+        cls,
         column: str,
         method: str,
-        value: Any = None
-    ):
-
-        df = DatasetService.get_dataset()
+        value: Any = None,
+    ) -> dict[str, Any]:
 
         return MissingValueService.fill(
-            df,
+            cls._dataset(),
             column,
             method,
-            value
+            value,
         )
 
-    @staticmethod
-    def drop_missing_rows():
+    @classmethod
+    def drop_missing_rows(cls):
 
-        df = DatasetService.get_dataset()
+        return MissingValueService.drop_rows(
+            cls._dataset()
+        )
 
-        return MissingValueService.drop_rows(df)
+    @classmethod
+    def drop_missing_columns(cls):
 
-    @staticmethod
-    def drop_missing_columns():
+        return MissingValueService.drop_columns(
+            cls._dataset()
+        )
 
-        df = DatasetService.get_dataset()
+    @classmethod
+    def remove_duplicates(cls):
 
-        return MissingValueService.drop_columns(df)
+        return DuplicateService.remove_duplicates(
+            cls._dataset()
+        )
 
-    @staticmethod
-    def remove_duplicates():
+    @classmethod
+    def duplicate_count(cls):
 
-        df = DatasetService.get_dataset()
+        return DuplicateService.get_duplicate_count(
+            cls._dataset()
+        )
 
-        return DuplicateService.remove_duplicates(df)
-
-    @staticmethod
-    def duplicate_count():
-
-        df = DatasetService.get_dataset()
-
-        return DuplicateService.get_duplicate_count(df)
-
-    @staticmethod
-    def remove_iqr_outliers(column: str):
-
-        df = DatasetService.get_dataset()
+    @classmethod
+    def remove_iqr_outliers(
+        cls,
+        column: str,
+    ):
 
         return OutlierService.remove_iqr(
-            df,
-            column
+            cls._dataset(),
+            column,
         )
 
-    @staticmethod
+    @classmethod
     def remove_zscore_outliers(
+        cls,
         column: str,
-        threshold: float = 3.0
+        threshold: float = 3.0,
     ):
-
-        df = DatasetService.get_dataset()
 
         return OutlierService.remove_zscore(
-            df,
+            cls._dataset(),
             column,
-            threshold
+            threshold,
         )
 
-    @staticmethod
+    @classmethod
     def convert_datatype(
+        cls,
         column: str,
-        datatype: str
+        datatype: str,
     ):
 
-        df = DatasetService.get_dataset()
-
         return DatatypeService.convert(
-            df,
+            cls._dataset(),
             column,
-            datatype
+            datatype,
         )
 
-    @staticmethod
-    def dataset_quality():
+    @classmethod
+    def dataset_quality(cls):
 
-        df = DatasetService.get_dataset()
+        return QualityService.calculate(
+            cls._dataset()
+        )
 
-        return QualityService.calculate(df)
-
-    @staticmethod
-    def cleaning_history():
+    @classmethod
+    def cleaning_history(cls):
 
         return CleaningHistory.get_history()
+
+
+__all__ = [
+    "CleaningService",
+]

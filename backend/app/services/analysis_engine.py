@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+from app.services.categorical_service import CategoricalService
+from app.services.correlation_service import CorrelationService
 from app.services.dataset_service import DatasetService
 from app.services.descriptive_service import DescriptiveService
-from app.services.correlation_service import CorrelationService
-from app.services.categorical_service import CategoricalService
 from app.services.distribution_service import DistributionService
 from app.services.insight_service import InsightService
 from app.services.timeseries_service import TimeSeriesService
@@ -14,76 +14,87 @@ class AnalysisEngine:
     Enterprise Analysis Orchestrator.
     """
 
-    @staticmethod
-    def descriptive():
+    _dataset_service = DatasetService()
 
-        df = DatasetService.get_dataset()
+    @classmethod
+    def _get_dataset(cls):
+        """
+        Return the currently loaded dataset.
+        """
+        return cls._dataset_service.get_dataset()
+
+    @classmethod
+    def descriptive(cls):
+
+        df = cls._get_dataset()
 
         return DescriptiveService.analyze(df)
 
-    @staticmethod
+    @classmethod
     def correlation(
-        method: str = "pearson"
+        cls,
+        method: str = "pearson",
     ):
 
-        df = DatasetService.get_dataset()
+        df = cls._get_dataset()
 
         return CorrelationService.analyze(
             df,
-            method
+            method,
         )
 
-    @staticmethod
-    def strong_correlations():
+    @classmethod
+    def strong_correlations(cls):
 
-        df = DatasetService.get_dataset()
+        df = cls._get_dataset()
 
-        return CorrelationService.strong_correlations(df)
+        return CorrelationService.strong_correlations(
+            df
+        )
 
-    @staticmethod
-    def categorical():
+    @classmethod
+    def categorical(cls):
 
-        df = DatasetService.get_dataset()
+        df = cls._get_dataset()
 
         return CategoricalService.analyze(df)
 
-    @staticmethod
-    def distribution():
+    @classmethod
+    def distribution(cls):
 
-        df = DatasetService.get_dataset()
+        df = cls._get_dataset()
 
         return DistributionService.analyze(df)
 
-    @staticmethod
-    def insights():
+    @classmethod
+    def insights(cls):
 
-        df = DatasetService.get_dataset()
+        df = cls._get_dataset()
 
         return InsightService.generate(df)
 
-    @staticmethod
-    def timeseries():
+    @classmethod
+    def timeseries(cls):
 
-        df = DatasetService.get_dataset()
+        df = cls._get_dataset()
 
         return TimeSeriesService.analyze(df)
 
-    @staticmethod
-    def summary():
+    @classmethod
+    def summary(cls):
 
-        df = DatasetService.get_dataset()
+        df = cls._get_dataset()
 
         return {
-
             "descriptive": DescriptiveService.analyze(df),
-
             "correlation": CorrelationService.analyze(df),
-
             "categorical": CategoricalService.analyze(df),
-
             "distribution": DistributionService.analyze(df),
-
             "timeseries": TimeSeriesService.analyze(df),
-
-            "insights": InsightService.generate(df)
+            "insights": InsightService.generate(df),
         }
+
+
+__all__ = [
+    "AnalysisEngine",
+]
