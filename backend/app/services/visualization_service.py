@@ -15,6 +15,7 @@ from app.utils.validation import (
     validate_dataset,
     validate_numeric_column,
 )
+from app.visualization.workflow import VisualizationWorkflow
 
 UPLOAD_FOLDER = "uploads"
 CHART_FOLDER = "charts"
@@ -874,7 +875,12 @@ def generate_distribution_plot(
         title=config.title,
     )
 
+def auto_visualize():
+    """
+    Execute the complete visualization workflow.
+    """
 
+    return VisualizationWorkflow().execute()
 __all__ = [
     "generate_histogram",
     "generate_bar_chart",
@@ -895,4 +901,6 @@ __all__ = [
     "generate_hexbin_plot",
     "generate_joint_plot",
     "generate_distribution_plot",
+    "auto_visualize",
 ]
+

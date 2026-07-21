@@ -129,3 +129,6 @@ def cleaning_history() -> list[dict[str, Any]]:
     return execute(
         CleaningService.cleaning_history
     )
+@router.post("/auto-clean")
+def auto_clean():
+    return CleaningService.auto_clean()

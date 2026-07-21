@@ -5,9 +5,11 @@ from typing import Any
 import pandas as pd
 from sklearn.base import BaseEstimator
 
+from app.services.ml.encoding_service import EncodingService
 from app.services.ml.ml_artifact_registry import (
     MLArtifactRegistry,
 )
+from app.services.ml.scaling_service import ScalingService
 from app.services.ml.validation_service import (
     ValidationService,
 )
@@ -15,11 +17,98 @@ from app.services.ml.validation_service import (
 
 class PredictionService:
     """
-    Enterprise Machine Learning Prediction Service.
+    Enterprise Prediction Service.
 
-    Responsible for generating predictions using trained
-    machine learning models stored in the artifact registry.
+    Responsibilities
+    ----------------
+    - Prediction
+    - Probability prediction
+    - Batch prediction
+    - Single prediction
+    - Automatic preprocessing
+    - Feature alignment
     """
+
+    @staticmethod
+    def _preprocess(
+        dataframe: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """
+        Apply the same preprocessing pipeline
+        used during model training.
+        """
+
+        ValidationService.validate_dataset(
+            dataframe
+        )
+
+        df = dataframe.copy()
+
+        # -----------------------------
+        # Apply fitted encoder
+        # -----------------------------
+
+        if (
+            EncodingService.has_fitted_encoder()
+        ):
+
+            df = EncodingService.transform(
+                df
+            )["dataframe"]
+
+        # -----------------------------
+        # Feature alignment
+        # -----------------------------
+
+        feature_columns = (
+            MLArtifactRegistry.get_feature_columns()
+        )
+
+        if feature_columns is None:
+
+            raise ValueError(
+                "Training feature metadata not found."
+            )
+
+        for column in feature_columns:
+
+            if column not in df.columns:
+
+                df[column] = 0
+
+        extra_columns = [
+
+            column
+
+            for column in df.columns
+
+            if column not in feature_columns
+
+        ]
+
+        if extra_columns:
+
+            df = df.drop(
+                columns=extra_columns
+            )
+
+        df = df[
+            feature_columns
+        ]
+
+        # -----------------------------
+        # Apply fitted scaler
+        # -----------------------------
+
+        if (
+            ScalingService.has_fitted_scaler()
+        ):
+
+            df = ScalingService.transform(
+                df
+            )["dataframe"]
+
+        return df
 
     @staticmethod
     def predict(
@@ -27,25 +116,15 @@ class PredictionService:
         dataframe: pd.DataFrame,
     ) -> dict[str, Any]:
         """
-        Generate predictions.
-
-        Args:
-            model:
-                Trained model.
-
-            dataframe:
-                Prediction dataset.
-
-        Returns:
-            Prediction results.
+        Predict using a trained model.
         """
 
-        ValidationService.validate_dataset(
+        df = PredictionService._preprocess(
             dataframe
         )
 
         predictions = model.predict(
-            dataframe
+            df
         )
 
         return {
@@ -54,28 +133,31 @@ class PredictionService:
             "prediction_rows": len(
                 predictions
             ),
-            "message": "Prediction completed successfully.",
+            "message": (
+                "Prediction completed successfully."
+            ),
         }
-
     @classmethod
     def predict_registered(
         cls,
         dataframe: pd.DataFrame,
     ) -> dict[str, Any]:
         """
-        Predict using the model stored in the registry.
+        Predict using the model currently
+        stored in the artifact registry.
         """
 
         model = MLArtifactRegistry.get_model()
 
         if model is None:
+
             raise ValueError(
                 "No trained model available."
             )
 
         return cls.predict(
-            model,
-            dataframe,
+            model=model,
+            dataframe=dataframe,
         )
 
     @staticmethod
@@ -85,12 +167,9 @@ class PredictionService:
     ) -> dict[str, Any]:
         """
         Predict class probabilities.
-
-        Supported only for classifiers implementing
-        predict_proba().
         """
 
-        ValidationService.validate_dataset(
+        df = PredictionService._preprocess(
             dataframe
         )
 
@@ -98,20 +177,49 @@ class PredictionService:
             model,
             "predict_proba",
         ):
+
             raise ValueError(
                 "Model does not support probability prediction."
             )
 
         probabilities = model.predict_proba(
-            dataframe
+            df
         )
 
         return {
             "success": True,
             "probabilities": probabilities.tolist(),
-            "rows": len(probabilities),
-            "message": "Probability prediction completed successfully.",
+            "rows": len(
+                probabilities
+            ),
+            "message": (
+                "Probability prediction completed successfully."
+            ),
         }
+
+    @classmethod
+    def predict_probability_registered(
+        cls,
+        dataframe: pd.DataFrame,
+    ) -> dict[str, Any]:
+        """
+        Predict probabilities using the
+        registered model.
+        """
+
+        model = MLArtifactRegistry.get_model()
+
+        if model is None:
+
+            raise ValueError(
+                "No trained model available."
+            )
+
+        return cls.predict_probability(
+            model=model,
+            dataframe=dataframe,
+        )
+
     @staticmethod
     def predict_single(
         model: BaseEstimator,
@@ -119,41 +227,57 @@ class PredictionService:
     ) -> dict[str, Any]:
         """
         Predict a single record.
-
-        Args:
-            model: Trained model.
-            data: Dictionary representing one sample.
-
-        Returns:
-            Prediction result.
         """
 
-        dataframe = pd.DataFrame([data])
+        dataframe = pd.DataFrame(
+            [data]
+        )
 
         result = PredictionService.predict(
-            model,
-            dataframe,
+            model=model,
+            dataframe=dataframe,
         )
 
         return {
             "success": True,
-            "prediction": result["predictions"][0],
-            "message": "Single prediction completed successfully.",
+            "prediction": result[
+                "predictions"
+            ][0],
+            "message": (
+                "Single prediction completed successfully."
+            ),
         }
 
+    @classmethod
+    def predict_single_registered(
+        cls,
+        data: dict[str, Any],
+    ) -> dict[str, Any]:
+        """
+        Predict a single record using
+        the registered model.
+        """
+
+        model = MLArtifactRegistry.get_model()
+
+        if model is None:
+
+            raise ValueError(
+                "No trained model available."
+            )
+
+        return cls.predict_single(
+            model=model,
+            data=data,
+        )
     @classmethod
     def batch_prediction(
         cls,
         dataframe: pd.DataFrame,
     ) -> dict[str, Any]:
         """
-        Generate predictions using the registered model.
-
-        Args:
-            dataframe: Dataset for prediction.
-
-        Returns:
-            Batch prediction results.
+        Generate batch predictions using
+        the registered model.
         """
 
         return cls.predict_registered(
@@ -165,34 +289,32 @@ class PredictionService:
         cls,
     ) -> dict[str, Any]:
         """
-        Return metadata about the currently loaded model.
-
-        Returns:
-            Prediction metadata.
+        Return metadata about the currently
+        loaded prediction model.
         """
 
         model = MLArtifactRegistry.get_model()
 
         if model is None:
+
             raise ValueError(
                 "No trained model available."
             )
 
-        feature_columns = (
-            MLArtifactRegistry.get_feature_columns()
-        )
-
-        target = (
-            MLArtifactRegistry.get_target_column()
-        )
-
         return {
             "model": model.__class__.__name__,
-            "feature_columns": feature_columns,
-            "feature_count": len(
-                feature_columns
+            "feature_columns": (
+                MLArtifactRegistry.get_feature_columns()
             ),
-            "target_column": target,
+            "feature_count": len(
+                MLArtifactRegistry.get_feature_columns()
+            ),
+            "target_column": (
+                MLArtifactRegistry.get_target_column()
+            ),
+            "registry": (
+                MLArtifactRegistry.registry_info()
+            ),
         }
 
     @classmethod
@@ -202,37 +324,75 @@ class PredictionService:
     ) -> dict[str, Any]:
         """
         Generate prediction summary.
-
-        Args:
-            dataframe: Input prediction dataset.
-
-        Returns:
-            Prediction summary.
         """
 
-        predictions = cls.predict_registered(
+        result = cls.predict_registered(
             dataframe
         )
 
+        metadata = cls.prediction_metadata()
+
         return {
-            "rows": len(dataframe),
-            "prediction_rows": predictions[
+            "success": True,
+            "rows": len(
+                dataframe
+            ),
+            "prediction_rows": result[
                 "prediction_rows"
             ],
-            "metadata": cls.prediction_metadata(),
+            "predictions": result[
+                "predictions"
+            ],
+            "metadata": metadata,
         }
 
     @staticmethod
+    def validate_prediction_input(
+        dataframe: pd.DataFrame,
+    ) -> dict[str, Any]:
+        """
+        Validate prediction dataset.
+        """
+
+        ValidationService.validate_dataset(
+            dataframe
+        )
+
+        expected = (
+            MLArtifactRegistry.get_feature_columns()
+        )
+
+        return {
+            "success": True,
+            "rows": len(
+                dataframe
+            ),
+            "columns": dataframe.columns.tolist(),
+            "expected_columns": expected,
+            "missing_columns": [
+                column
+                for column in expected
+                if column not in dataframe.columns
+            ],
+            "extra_columns": [
+                column
+                for column in dataframe.columns
+                if column not in expected
+            ],
+        }
+    @staticmethod
     def available_prediction_methods() -> list[str]:
         """
-        Return supported prediction methods.
+        Return all supported prediction methods.
         """
 
         return [
             "predict",
             "predict_registered",
             "predict_probability",
+            "predict_probability_registered",
             "predict_single",
+            "predict_single_registered",
             "batch_prediction",
         ]
 
@@ -241,20 +401,55 @@ class PredictionService:
         cls,
     ) -> dict[str, Any]:
         """
-        Return the prediction service status.
-
-        Returns:
-            Service status.
+        Return prediction service status.
         """
 
         model = MLArtifactRegistry.get_model()
 
+        metadata = MLArtifactRegistry.get_metadata()
+
+        feature_columns = (
+            MLArtifactRegistry.get_feature_columns()
+        )
+
         return {
-            "ready": model is not None,
+            "service": "PredictionService",
+            "status": (
+                "ready"
+                if model is not None
+                else "no_model_loaded"
+            ),
+            "model_loaded": model is not None,
             "model": (
                 None
                 if model is None
                 else model.__class__.__name__
             ),
-            "registry": MLArtifactRegistry.registry_info(),
+            "encoder_fitted": (
+                EncodingService.has_fitted_encoder()
+            ),
+            "scaler_fitted": (
+                ScalingService.has_fitted_scaler()
+            ),
+            "feature_count": len(
+                feature_columns
+            )
+            if feature_columns
+            else 0,
+            "target_column": (
+                MLArtifactRegistry.get_target_column()
+            ),
+            "metadata_available": (
+                metadata is not None
+            ),
         }
+
+    @classmethod
+    def service_status(
+        cls,
+    ) -> dict[str, Any]:
+        """
+        Alias for prediction_status().
+        """
+
+        return cls.prediction_status()

@@ -3,63 +3,64 @@ from __future__ import annotations
 from typing import Any
 
 import pandas as pd
-from sklearn.metrics import accuracy_score, r2_score
 
+from app.services.ml.evaluation_service import EvaluationService
+from app.services.ml.ml_artifact_registry import MLArtifactRegistry
 from app.services.ml.model_service import ModelService
 from app.services.ml.preprocessing_service import (
     PreprocessingService,
 )
-from app.services.ml.training_service import (
-    TrainingService,
-)
+from app.services.ml.training_service import TrainingService
 from app.services.ml.validation_service import (
     ValidationService,
-)
-from app.services.ml.evaluation_service import (
-    EvaluationService,
 )
 
 
 class AutoMLService:
     """
-    Enterprise AutoML Service.
+    Enterprise AutoML Engine.
 
-    Automatically preprocesses data,
-    trains multiple models,
-    evaluates their performance,
-    and selects the best model.
-
-    Supported Tasks
-    ---------------
-    - Classification
-    - Regression
-
-    Future
-    ------
-    - Clustering
-    - Hyperparameter Optimization
-    - Auto Feature Engineering
+    Pipeline
+    --------
+    Validate
+        ↓
+    Preprocess
+        ↓
+    Train Multiple Models
+        ↓
+    Cross Validation
+        ↓
+    Evaluation
+        ↓
+    Leaderboard
+        ↓
+    Best Model
+        ↓
+    Register Artifact
     """
 
-    CLASSIFICATION_MODELS = [
+    DEFAULT_CLASSIFICATION_MODELS = [
         "logistic_regression",
-        "decision_tree_classifier",
-        "random_forest_classifier",
-        "gradient_boosting_classifier",
-        "extra_trees_classifier",
+        "decision_tree",
+        "random_forest",
+        "gradient_boosting",
+        "extra_trees",
+        "adaboost",
         "knn",
         "naive_bayes",
+        "svm",
     ]
 
-    REGRESSION_MODELS = [
+    DEFAULT_REGRESSION_MODELS = [
         "linear_regression",
         "ridge",
         "lasso",
         "elasticnet",
-        "decision_tree_regressor",
-        "random_forest_regressor",
-        "gradient_boosting_regressor",
-        "extra_trees_regressor",
+        "decision_tree",
+        "random_forest",
+        "gradient_boosting",
+        "extra_trees",
+        "adaboost",
     ]
 
     @staticmethod
@@ -68,7 +69,7 @@ class AutoMLService:
         target: str,
     ) -> str:
         """
-        Automatically detect the ML problem type.
+        Detect the machine learning problem type.
         """
 
         result = ValidationService.detect_problem_type(
@@ -79,21 +80,43 @@ class AutoMLService:
         return result["problem_type"]
 
     @classmethod
-    def compare_models(
+    def available_models(
+        cls,
+        problem_type: str,
+    ) -> list[str]:
+        """
+        Return supported models for the problem type.
+        """
+
+        available = ModelService.available_models()
+
+        if problem_type == "classification":
+            preferred = cls.DEFAULT_CLASSIFICATION_MODELS
+
+        elif problem_type == "regression":
+            preferred = cls.DEFAULT_REGRESSION_MODELS
+
+        else:
+            return []
+
+        return [
+            model
+            for model in preferred
+            if model in available.get(problem_type, [])
+        ]
+
+    @classmethod
+    def _prepare_dataset(
         cls,
         dataframe: pd.DataFrame,
         target: str,
-    ) -> dict[str, Any]:
+    ):
         """
-        Compare multiple machine learning models.
-
-        Returns
-        -------
-        Leaderboard of trained models.
+        Validate and preprocess the dataset.
         """
 
         ValidationService.validate_dataset(
-            dataframe
+            dataframe,
         )
 
         ValidationService.validate_target(
@@ -102,7 +125,8 @@ class AutoMLService:
         )
 
         preprocessing = (
-            PreprocessingService.automatic_preprocessing(
+            PreprocessingService
+            .automatic_preprocessing(
                 dataframe,
                 target,
             )
@@ -110,34 +134,69 @@ class AutoMLService:
 
         split = preprocessing["split"]
 
-        x_train = split["x_train"]
-        x_test = split["x_test"]
-        y_train = split["y_train"]
-        y_test = split["y_test"]
+        return (
+            split["x_train"],
+            split["x_test"],
+            split["y_train"],
+            split["y_test"],
+        )
+
+    @staticmethod
+    def _score(
+        problem_type: str,
+        metrics: dict[str, Any],
+    ) -> float:
+        """
+        Select the primary score used for ranking.
+        """
+
+        if problem_type == "classification":
+            return float(metrics["accuracy"])
+
+        return float(metrics["r2_score"])
+    @classmethod
+    def compare_models(
+        cls,
+        dataframe: pd.DataFrame,
+        target: str,
+    ) -> dict[str, Any]:
+        """
+        Train, evaluate and compare multiple machine
+        learning models.
+        """
+
+        (
+            x_train,
+            x_test,
+            y_train,
+            y_test,
+        ) = cls._prepare_dataset(
+            dataframe,
+            target,
+        )
 
         problem_type = cls.detect_problem_type(
             dataframe,
             target,
         )
 
-        if problem_type == "classification":
+        algorithms = cls.available_models(
+            problem_type,
+        )
 
-            models = cls.CLASSIFICATION_MODELS
-
-        else:
-
-            models = cls.REGRESSION_MODELS
-
-        leaderboard = []
+        leaderboard: list[dict[str, Any]] = []
 
         best_model = None
+        best_algorithm = None
+        best_metrics: dict[str, Any] = {}
         best_score = float("-inf")
-        for model_name in models:
+
+        for algorithm in algorithms:
 
             try:
 
                 model = ModelService.create(
-                    model_name
+                    algorithm,
                 )
 
                 TrainingService.train(
@@ -147,45 +206,51 @@ class AutoMLService:
                 )
 
                 predictions = model.predict(
-                    x_test
+                    x_test,
                 )
 
-                if (
-                    problem_type
-                    == "classification"
-                ):
+                evaluation = EvaluationService.evaluate(
+                    problem_type=problem_type,
+                    y_true=y_test,
+                    y_pred=predictions,
+                    n_features=len(
+                        x_train.columns
+                    ),
+                )
 
-                    score = accuracy_score(
-                        y_test,
-                        predictions,
-                    )
+                metrics = evaluation["metrics"]
 
-                    evaluation = (
-                        EvaluationService.evaluate_classification(
-                            y_test,
-                            predictions,
+                score = cls._score(
+                    problem_type,
+                    metrics,
+                )
+
+                try:
+
+                    cross_validation = (
+                        TrainingService.cross_validate(
+                            model=model,
+                            x_train=x_train,
+                            y_train=y_train,
+                            cv=5,
                         )
                     )
 
-                else:
+                except Exception as error:
 
-                    score = r2_score(
-                        y_test,
-                        predictions,
-                    )
-
-                    evaluation = (
-                        EvaluationService.evaluate_regression(
-                            y_test,
-                            predictions,
-                        )
-                    )
+                    cross_validation = {
+                        "success": False,
+                        "error": str(error),
+                    }
 
                 leaderboard.append(
                     {
-                        "model": model_name,
+                        "algorithm": algorithm,
+                        "model": model.__class__.__name__,
                         "score": score,
-                        "evaluation": evaluation,
+                        "metrics": metrics,
+                        "cross_validation": cross_validation,
+                        "status": "success",
                     }
                 )
 
@@ -193,14 +258,16 @@ class AutoMLService:
 
                     best_score = score
                     best_model = model
+                    best_algorithm = algorithm
+                    best_metrics = metrics
 
             except Exception as error:
 
                 leaderboard.append(
                     {
-                        "model": model_name,
-                        "score": None,
+                        "algorithm": algorithm,
                         "status": "failed",
+                        "score": None,
                         "error": str(error),
                     }
                 )
@@ -213,16 +280,41 @@ class AutoMLService:
             ),
             reverse=True,
         )
-
         if best_model is not None:
-
-            from app.services.ml.ml_artifact_registry import (
-                MLArtifactRegistry,
-            )
 
             MLArtifactRegistry.set_model(
                 best_model
             )
+
+            MLArtifactRegistry.set_feature_columns(
+                list(
+                    x_train.columns
+                )
+            )
+
+            MLArtifactRegistry.set_target_column(
+                target
+            )
+
+            if hasattr(
+                MLArtifactRegistry,
+                "set_metadata",
+            ):
+
+                MLArtifactRegistry.set_metadata(
+                    {
+                        "algorithm": best_algorithm,
+                        "problem_type": problem_type,
+                        "metrics": best_metrics,
+                        "target": target,
+                        "feature_count": len(
+                            x_train.columns
+                        ),
+                        "training_rows": len(
+                            x_train
+                        ),
+                    }
+                )
 
         return {
             "success": True,
@@ -232,13 +324,17 @@ class AutoMLService:
                 if best_model is None
                 else best_model.__class__.__name__
             ),
+            "best_algorithm": best_algorithm,
             "best_score": best_score,
+            "models_tested": len(
+                algorithms
+            ),
             "leaderboard": leaderboard,
-            "models_tested": len(models),
             "message": (
                 "AutoML completed successfully."
             ),
         }
+
     @classmethod
     def classification(
         cls,
@@ -246,14 +342,8 @@ class AutoMLService:
         target: str,
     ) -> dict[str, Any]:
         """
-        Run AutoML for a classification dataset.
-
-        Args:
-            dataframe: Input dataset.
-            target: Target column.
-
-        Returns:
-            AutoML results.
+        Execute AutoML for a
+        classification dataset.
         """
 
         problem_type = cls.detect_problem_type(
@@ -262,6 +352,7 @@ class AutoMLService:
         )
 
         if problem_type != "classification":
+
             raise ValueError(
                 "Dataset is not a classification problem."
             )
@@ -278,14 +369,8 @@ class AutoMLService:
         target: str,
     ) -> dict[str, Any]:
         """
-        Run AutoML for a regression dataset.
-
-        Args:
-            dataframe: Input dataset.
-            target: Target column.
-
-        Returns:
-            AutoML results.
+        Execute AutoML for a
+        regression dataset.
         """
 
         problem_type = cls.detect_problem_type(
@@ -294,6 +379,7 @@ class AutoMLService:
         )
 
         if problem_type != "regression":
+
             raise ValueError(
                 "Dataset is not a regression problem."
             )
@@ -302,18 +388,6 @@ class AutoMLService:
             dataframe,
             target,
         )
-
-    @staticmethod
-    def available_models() -> dict[str, list[str]]:
-        """
-        Return all supported AutoML models.
-        """
-
-        return {
-            "classification": AutoMLService.CLASSIFICATION_MODELS,
-            "regression": AutoMLService.REGRESSION_MODELS,
-        }
-
     @staticmethod
     def leaderboard(
         automl_result: dict[str, Any],
@@ -336,6 +410,9 @@ class AutoMLService:
         """
 
         return {
+            "algorithm": automl_result.get(
+                "best_algorithm"
+            ),
             "model": automl_result.get(
                 "best_model"
             ),
@@ -363,6 +440,9 @@ class AutoMLService:
             "problem_type": result[
                 "problem_type"
             ],
+            "best_algorithm": result[
+                "best_algorithm"
+            ],
             "best_model": result[
                 "best_model"
             ],
@@ -380,17 +460,22 @@ class AutoMLService:
         Return AutoML service status.
         """
 
+        models = ModelService.available_models()
+
         return {
             "service": "AutoMLService",
+            "status": "ready",
             "supported_problem_types": [
                 "classification",
                 "regression",
             ],
             "classification_models": len(
-                AutoMLService.CLASSIFICATION_MODELS
+                models["classification"]
             ),
             "regression_models": len(
-                AutoMLService.REGRESSION_MODELS
+                models["regression"]
             ),
-            "status": "ready",
+            "clustering_models": len(
+                models["clustering"]
+            ),
         }

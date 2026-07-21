@@ -5,7 +5,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 
 from app.services.visualization_engine import VisualizationEngine
-
+from app.services.visualization_service import auto_visualize
 router = APIRouter(
     prefix="/visualization",
     tags=["Visualization"],
@@ -73,3 +73,10 @@ def generate_visualization(
             status_code=400,
             detail=str(error),
         )
+@router.post("/auto-visualize")
+def auto_visualize_endpoint():
+    """
+    Automatically generate visualizations.
+    """
+
+    return auto_visualize()

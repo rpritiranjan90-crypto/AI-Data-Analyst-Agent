@@ -307,23 +307,28 @@ async def save_model(
             status_code=400,
             detail=str(error),
         )
-
-
 @router.get(
     "/leaderboard",
     summary="Available AutoML Models",
 )
 async def leaderboard():
     """
-    Return the supported AutoML models.
+    Return all supported AutoML models.
     """
 
     try:
 
         return {
-            "supported_models": (
-                AutoMLService.available_models()
-            )
+            "classification": (
+                AutoMLService.available_models(
+                    "classification"
+                )
+            ),
+            "regression": (
+                AutoMLService.available_models(
+                    "regression"
+                )
+            ),
         }
 
     except Exception as error:
@@ -332,7 +337,6 @@ async def leaderboard():
             status_code=500,
             detail=str(error),
         )
-
 
 @router.get(
     "/recommendations",

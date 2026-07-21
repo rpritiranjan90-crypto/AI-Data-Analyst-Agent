@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 
 from app.services.dataset_cache import DatasetCache
-
+from app.ai_insights.workflow import AIInsightsWorkflow
 
 def detect_outliers(df: pd.DataFrame) -> dict[str, int]:
     """
@@ -196,9 +196,15 @@ def generate_ai_insights() -> dict:
         "recommendations": recommendations,
     }
 
+def auto_insights() -> dict:
+    """
+    Execute the complete AI Insights workflow.
+    """
 
+    return AIInsightsWorkflow().execute()
 __all__ = [
     "generate_ai_insights",
     "detect_outliers",
     "detect_correlations",
+    "auto_insights",
 ]

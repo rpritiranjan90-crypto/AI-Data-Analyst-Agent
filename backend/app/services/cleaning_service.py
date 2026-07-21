@@ -4,6 +4,7 @@ from typing import Any
 
 import pandas as pd
 
+from app.services.cleaning.workflow import CleaningWorkflow
 from app.services.cleaning_history import CleaningHistory
 from app.services.dataset_service import DatasetService
 from app.services.datatype_service import DatatypeService
@@ -118,6 +119,14 @@ class CleaningService:
     def cleaning_history(cls):
 
         return CleaningHistory.get_history()
+
+    @classmethod
+    def auto_clean(cls) -> dict[str, Any]:
+        """
+        Execute the complete automated cleaning workflow.
+        """
+
+        return CleaningWorkflow().execute()
 
 
 __all__ = [

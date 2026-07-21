@@ -14,10 +14,17 @@ from app.routes.chart_recommendation import (
 )
 from app.routes.cleaning import router as cleaning_router
 from app.routes.home import router as home_router
+from app.routes.ml import router as ml_router
 from app.routes.report import router as report_router
 from app.routes.upload import router as upload_router
 from app.routes.visualization import router as visualization_router
-
+from app.routes.ai_insights import (
+    router as ai_insights_router,
+)
+from app.routes.recommendation import (
+    router as recommendation_router,
+)
+from app.routes.ml_pipeline import router as ml_pipeline_router
 # ----------------------------------------------------
 # Logging
 # ----------------------------------------------------
@@ -62,6 +69,7 @@ Features:
 • AI Insights
 • Visualization
 • Chart Recommendation
+• Machine Learning
 • Report Generation
 """,
     version="1.0.0",
@@ -91,16 +99,17 @@ app.include_router(upload_router)
 app.include_router(analysis_router)
 app.include_router(cleaning_router)
 app.include_router(visualization_router)
+app.include_router(ml_router)
 app.include_router(chart_recommendation_router)
 app.include_router(report_router)
 app.include_router(ai_insights_router)
 app.include_router(ai_router)
-
-
+app.include_router(ai_insights_router)
+app.include_router(recommendation_router)
+app.include_router(ml_pipeline_router)
 # ----------------------------------------------------
 # Health Check
 # ----------------------------------------------------
-
 @app.get(
     "/health",
     tags=["System"],
