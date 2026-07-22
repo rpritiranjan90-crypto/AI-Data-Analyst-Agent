@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+/* Global Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* Root Variables */
+:root {
+  font-family:
+    Inter,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: #111827;
+  background-color: #f8fafc;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Base Elements */
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+body {
+  background-color: #f8fafc;
+  color: #111827;
+  overflow-x: hidden;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
