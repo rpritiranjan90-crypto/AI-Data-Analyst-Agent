@@ -1,0 +1,23 @@
+{
+    "filename": "sample_dataset.csv",
+    "extension": ".csv",
+    "rows": 21,
+    "columns": 10,
+    "column_names": [
+        "PassengerId",
+        "Name",
+        "Age",
+        "Gender",
+        "Department",
+        "Salary",
+        "Experience",
+        "JoiningDate",
+        "City",
+        "Performance"
+    ],
+    "memory_usage_mb": 0.01,
+    "missing_values": 2,
+    "duplicate_rows": 0,
+    "upload_time": "2026-07-22T09:09:33.606371+00:00",
+    "id": "f3210de9-cee5-4689-926e-8443482bdb4a"
+}

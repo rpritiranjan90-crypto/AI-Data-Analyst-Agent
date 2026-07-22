@@ -1,0 +1,17 @@
+{
+    "filename": "very_large_dataset_100000.csv",
+    "extension": ".csv",
+    "rows": 100000,
+    "columns": 4,
+    "column_names": [
+        "id",
+        "feature1",
+        "feature2",
+        "category"
+    ],
+    "memory_usage_mb": 7.06,
+    "missing_values": 0,
+    "duplicate_rows": 0,
+    "upload_time": "2026-07-22T13:18:47.235748+00:00",
+    "id": "79b92ee3-e49e-4250-b8d2-fa651f2870d8"
+}

@@ -1,8 +1,22 @@
-from typing import Any
+from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from typing import Any, Callable
+
+from fastapi import APIRouter
+
+from app.common.logger import get_logger
+from app.common.timing import measure_time
+
+from app.core.exceptions import ResourceNotFoundException
+
+from app.exceptions.base import (
+    InternalServerException,
+    ValidationException,
+)
 
 from app.services.cleaning_service import CleaningService
+
+logger = get_logger(__name__)
 
 router = APIRouter(
     prefix="/clean",
@@ -10,29 +24,75 @@ router = APIRouter(
 )
 
 
-def execute(operation):
+@measure_time
+def execute(
+    operation: Callable[..., Any],
+    *args: Any,
+) -> Any:
     """
-    Execute a cleaning operation with consistent
-    exception handling.
+    Execute a cleaning operation with centralized
+    logging and exception handling.
     """
+
+    logger.info(
+        "Executing cleaning operation: %s",
+        operation.__name__,
+    )
+
     try:
-        return operation()
-    except ValueError as error:
-        raise HTTPException(
-            status_code=400,
-            detail=str(error),
+        result = operation(*args)
+
+        logger.info(
+            "Cleaning operation '%s' completed successfully.",
+            operation.__name__,
         )
+
+        return result
+
+    except ValidationException:
+        raise
+
+    except ResourceNotFoundException:
+        raise
+
+    except ValueError as error:
+
+        logger.exception(
+            "Validation error during cleaning."
+        )
+
+        raise ValidationException(
+            str(error)
+        )
+
+    except FileNotFoundError as error:
+
+        logger.exception(
+            "Dataset not found."
+        )
+
+        raise ResourceNotFoundException(
+            str(error)
+        )
+
     except Exception as error:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Internal Server Error: {error}",
+
+        logger.exception(
+            "Unexpected cleaning error."
+        )
+
+        raise InternalServerException(
+            str(error)
         )
 
 
 @router.post(
     "/missing-values",
     summary="Fill Missing Values",
-    description="Fill missing values using mean, median, mode, constant, forward-fill or backward-fill.",
+    description=(
+        "Fill missing values using mean, median, "
+        "mode, constant, forward-fill or backward-fill."
+    ),
 )
 def fill_missing_values(
     column: str,
@@ -41,11 +101,10 @@ def fill_missing_values(
 ) -> dict[str, Any]:
 
     return execute(
-        lambda: CleaningService.fill_missing(
-            column,
-            method,
-            value,
-        )
+        CleaningService.fill_missing,
+        column,
+        method,
+        value,
     )
 
 
@@ -56,7 +115,7 @@ def fill_missing_values(
 def remove_duplicates() -> dict[str, Any]:
 
     return execute(
-        CleaningService.remove_duplicates
+        CleaningService.remove_duplicates,
     )
 
 
@@ -69,9 +128,8 @@ def remove_iqr_outliers(
 ) -> dict[str, Any]:
 
     return execute(
-        lambda: CleaningService.remove_iqr_outliers(
-            column
-        )
+        CleaningService.remove_iqr_outliers,
+        column,
     )
 
 
@@ -85,10 +143,9 @@ def remove_zscore_outliers(
 ) -> dict[str, Any]:
 
     return execute(
-        lambda: CleaningService.remove_zscore_outliers(
-            column,
-            threshold,
-        )
+        CleaningService.remove_zscore_outliers,
+        column,
+        threshold,
     )
 
 
@@ -102,10 +159,9 @@ def convert_datatype(
 ) -> dict[str, Any]:
 
     return execute(
-        lambda: CleaningService.convert_datatype(
-            column,
-            datatype,
-        )
+        CleaningService.convert_datatype,
+        column,
+        datatype,
     )
 
 
@@ -116,7 +172,7 @@ def convert_datatype(
 def dataset_quality() -> dict[str, Any]:
 
     return execute(
-        CleaningService.dataset_quality
+        CleaningService.dataset_quality,
     )
 
 
@@ -127,8 +183,19 @@ def dataset_quality() -> dict[str, Any]:
 def cleaning_history() -> list[dict[str, Any]]:
 
     return execute(
-        CleaningService.cleaning_history
+        CleaningService.cleaning_history,
     )
-@router.post("/auto-clean")
-def auto_clean():
-    return CleaningService.auto_clean()
+
+
+@router.post(
+    "/auto-clean",
+    summary="Automatic Dataset Cleaning",
+)
+def auto_clean() -> dict[str, Any]:
+    """
+    Automatically clean the uploaded dataset.
+    """
+
+    return execute(
+        CleaningService.auto_clean,
+    )

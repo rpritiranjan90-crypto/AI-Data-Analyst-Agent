@@ -5,10 +5,16 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from app.common.logger import get_logger
+from app.common.timing import measure_time
+
+logger = get_logger(__name__)
+
 
 class DatasetStatisticsService:
     """
-    Generate descriptive statistics for datasets.
+    Service responsible for generating descriptive
+    statistics for datasets.
     """
 
     def _column_statistics(
@@ -48,7 +54,7 @@ class DatasetStatisticsService:
         outliers: dict[str, int] = {}
 
         numeric = dataframe.select_dtypes(
-            include="number"
+            include="number",
         )
 
         for column in numeric.columns:
@@ -81,7 +87,7 @@ class DatasetStatisticsService:
         """
 
         numeric = dataframe.select_dtypes(
-            include="number"
+            include="number",
         )
 
         return {
@@ -105,7 +111,7 @@ class DatasetStatisticsService:
         outliers: dict[str, int],
     ) -> list[str]:
         """
-        Generate simple statistical insights.
+        Generate statistical insights.
         """
 
         insights: list[str] = []
@@ -138,17 +144,22 @@ class DatasetStatisticsService:
 
         return insights
 
+    @measure_time
     def generate(
         self,
         dataframe: pd.DataFrame,
         include_correlation: bool = True,
     ) -> dict[str, Any]:
         """
-        Generate complete statistics.
+        Generate complete statistical analysis.
         """
 
+        logger.info(
+            "Generating dataset statistics."
+        )
+
         numeric = dataframe.select_dtypes(
-            include="number"
+            include="number",
         )
 
         statistics = {
@@ -166,18 +177,18 @@ class DatasetStatisticsService:
         ):
             correlation = (
                 numeric.corr(
-                    numeric_only=True
+                    numeric_only=True,
                 )
                 .round(4)
                 .to_dict()
             )
 
         outliers = self._outlier_summary(
-            dataframe
+            dataframe,
         )
 
         summary = self._dataset_summary(
-            dataframe
+            dataframe,
         )
 
         insights = self._generate_insights(
@@ -185,7 +196,7 @@ class DatasetStatisticsService:
             outliers,
         )
 
-        return {
+        result = {
             "rows": len(dataframe),
             "columns": len(dataframe.columns),
             "numeric_columns": list(
@@ -197,6 +208,12 @@ class DatasetStatisticsService:
             "summary": summary,
             "insights": insights,
         }
+
+        logger.info(
+            "Dataset statistics generated successfully."
+        )
+
+        return result
 
 
 __all__ = [

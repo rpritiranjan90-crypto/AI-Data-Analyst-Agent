@@ -2,15 +2,25 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, UploadFile
 
-from app.config import UPLOAD_FOLDER
-from app.schemas.dataset import UploadResponse
-from app.services.dataset_service import DatasetService
-from app.services.dataset_validation import (
-    DatasetValidationError,
-    validate_upload,
+from app.common.config import settings
+from app.common.logger import get_logger
+from app.common.timing import measure_async_time
+
+from app.core.exceptions import ResourceNotFoundException
+
+from app.exceptions.base import (
+    InternalServerException,
+    ValidationException,
 )
+
+from app.schemas.dataset import UploadResponse
+
+from app.services.dataset_service import DatasetService
+from app.services.dataset_validation import validate_upload
+
+logger = get_logger(__name__)
 
 router = APIRouter(
     tags=["Dataset"],
@@ -23,6 +33,7 @@ router = APIRouter(
     summary="Upload Dataset",
     description="Upload a CSV or Excel dataset for analysis.",
 )
+@measure_async_time
 async def upload_dataset(
     file: UploadFile = File(...),
 ) -> UploadResponse:
@@ -34,28 +45,42 @@ async def upload_dataset(
     file_path: Path | None = None
 
     try:
+        logger.info(
+            "Receiving upload request: %s",
+            file.filename,
+        )
+
         contents = await file.read()
 
         validate_upload(
-            file,
-            len(contents),
+            file=file,
+            file_size=len(contents),
         )
 
-        UPLOAD_FOLDER.mkdir(
+        settings.UPLOAD_DIR.mkdir(
             parents=True,
             exist_ok=True,
         )
 
         filename = Path(file.filename).name
 
-        file_path = UPLOAD_FOLDER / filename
+        file_path = settings.UPLOAD_DIR / filename
 
         file_path.write_bytes(contents)
+
+        logger.info(
+            "Dataset saved to %s",
+            file_path,
+        )
 
         dataset_service = DatasetService()
 
         result = dataset_service.load_dataset(
-            file_path=str(file_path),
+            file_path=file_path,
+        )
+
+        logger.info(
+            "Dataset uploaded successfully."
         )
 
         return UploadResponse(
@@ -66,18 +91,19 @@ async def upload_dataset(
             statistics=result.statistics,
         )
 
-    except DatasetValidationError as error:
+    except ValidationException:
+        raise
 
-        raise HTTPException(
-            status_code=400,
-            detail=str(error),
-        )
+    except ResourceNotFoundException:
+        raise
 
     except FileNotFoundError as error:
+        logger.exception(
+            "File not found during upload."
+        )
 
-        raise HTTPException(
-            status_code=404,
-            detail=str(error),
+        raise ResourceNotFoundException(
+            str(error)
         )
 
     except ValueError as error:
@@ -85,9 +111,12 @@ async def upload_dataset(
         if file_path and file_path.exists():
             file_path.unlink()
 
-        raise HTTPException(
-            status_code=422,
-            detail=str(error),
+        logger.exception(
+            "Dataset processing failed."
+        )
+
+        raise ValidationException(
+            str(error)
         )
 
     except Exception as error:
@@ -95,9 +124,12 @@ async def upload_dataset(
         if file_path and file_path.exists():
             file_path.unlink()
 
-        raise HTTPException(
-            status_code=500,
-            detail=f"Unexpected error: {error}",
+        logger.exception(
+            "Unexpected upload error."
+        )
+
+        raise InternalServerException(
+            str(error)
         )
 
     finally:

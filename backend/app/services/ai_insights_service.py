@@ -2,13 +2,24 @@ from __future__ import annotations
 
 import pandas as pd
 
-from app.services.dataset_cache import DatasetCache
 from app.ai_insights.workflow import AIInsightsWorkflow
+from app.common.logger import get_logger
+from app.common.timing import measure_time
+from app.exceptions.base import (
+    NotFoundException,
+    InternalServerException,
+)
+from app.services.dataset_cache import DatasetCache
+
+logger = get_logger(__name__)
+
 
 def detect_outliers(df: pd.DataFrame) -> dict[str, int]:
     """
     Detect outliers using the IQR method.
     """
+
+    logger.info("Detecting outliers using IQR method.")
 
     outliers: dict[str, int] = {}
 
@@ -23,12 +34,17 @@ def detect_outliers(df: pd.DataFrame) -> dict[str, int]:
 
         iqr = q3 - q1
 
-        lower = q1 - 1.5 * iqr
-        upper = q3 + 1.5 * iqr
+        lower = q1 - (1.5 * iqr)
+        upper = q3 + (1.5 * iqr)
 
         outliers[column] = int(
             ((series < lower) | (series > upper)).sum()
         )
+
+    logger.info(
+        "Outlier detection completed for %d numeric columns.",
+        len(outliers),
+    )
 
     return outliers
 
@@ -40,12 +56,21 @@ def detect_correlations(
     Detect strong correlations between numeric columns.
     """
 
+    logger.info("Detecting strong correlations.")
+
     numeric_df = df.select_dtypes(include=["number"])
 
     if numeric_df.shape[1] < 2:
+
+        logger.info(
+            "Correlation analysis skipped. Less than two numeric columns."
+        )
+
         return []
 
-    correlation_matrix = numeric_df.corr(numeric_only=True)
+    correlation_matrix = numeric_df.corr(
+        numeric_only=True
+    )
 
     strong_correlations: list[dict] = []
 
@@ -69,22 +94,37 @@ def detect_correlations(
                     }
                 )
 
+    logger.info(
+        "Found %d strong correlations.",
+        len(strong_correlations),
+    )
+
     return strong_correlations
 
 
+@measure_time
 def generate_ai_insights() -> dict:
     """
     Generate AI insights for the currently loaded dataset.
     """
 
+    logger.info("Generating AI insights.")
+
     df = DatasetCache.get_dataset()
 
     if df is None:
-        return {
-            "success": False,
-            "message": "No dataset is currently loaded.",
-        }
 
+        logger.error("No dataset is currently loaded.")
+
+        raise NotFoundException(
+    resource="Dataset",
+)
+
+    logger.info(
+        "Dataset loaded successfully (%d rows, %d columns).",
+        len(df),
+        len(df.columns),
+    )
     numeric_columns = (
         df.select_dtypes(include=["number"])
         .columns.tolist()
@@ -95,36 +135,81 @@ def generate_ai_insights() -> dict:
         .columns.tolist()
     )
 
+    logger.info(
+        "Detected %d numeric columns and %d categorical columns.",
+        len(numeric_columns),
+        len(categorical_columns),
+    )
+
     missing_values = df.isna().sum().to_dict()
 
-    duplicate_rows = int(df.duplicated().sum())
+    duplicate_rows = int(
+        df.duplicated().sum()
+    )
 
-    total_missing = int(sum(missing_values.values()))
+    total_missing = int(
+        sum(missing_values.values())
+    )
+
+    logger.info(
+        "Missing values: %d | Duplicate rows: %d",
+        total_missing,
+        duplicate_rows,
+    )
 
     outliers = detect_outliers(df)
 
-    total_outliers = sum(outliers.values())
+    total_outliers = sum(
+        outliers.values()
+    )
+
+    logger.info(
+        "Total outliers detected: %d",
+        total_outliers,
+    )
 
     strong_correlations = detect_correlations(df)
+
+    logger.info(
+        "Strong correlations found: %d",
+        len(strong_correlations),
+    )
 
     health_score = 100
 
     if total_missing > 0:
-        health_score -= min(total_missing * 2, 30)
+        health_score -= min(
+            total_missing * 2,
+            30,
+        )
 
     if duplicate_rows > 0:
-        health_score -= min(duplicate_rows * 5, 20)
+        health_score -= min(
+            duplicate_rows * 5,
+            20,
+        )
 
     if total_outliers > 0:
-        health_score -= min(total_outliers, 10)
+        health_score -= min(
+            total_outliers,
+            10,
+        )
 
-    health_score = max(0, health_score)
-        # ----------------------------------------
+    health_score = max(
+        0,
+        health_score,
+    )
+
+    logger.info(
+        "Dataset health score calculated: %d",
+        health_score,
+    )
+
+    # ----------------------------------------
     # AI Recommendations
     # ----------------------------------------
 
     recommendations: list[str] = []
-
     if total_missing == 0:
         recommendations.append(
             "✅ No missing values detected."
@@ -156,7 +241,8 @@ def generate_ai_insights() -> dict:
 
     if strong_correlations:
         recommendations.append(
-            "📊 Strong correlations detected. A Correlation Heatmap is recommended."
+            "📊 Strong correlations detected. "
+            "A Correlation Heatmap is recommended."
         )
 
     if numeric_columns:
@@ -174,11 +260,12 @@ def generate_ai_insights() -> dict:
             "📉 Scatter Plot and Bubble Chart are recommended to analyze relationships."
         )
 
-    # ----------------------------------------
-    # Return Response
-    # ----------------------------------------
+    logger.info(
+        "Generated %d AI recommendations.",
+        len(recommendations),
+    )
 
-    return {
+    response = {
         "success": True,
         "message": "AI Insights generated successfully",
         "dataset_summary": {
@@ -196,12 +283,47 @@ def generate_ai_insights() -> dict:
         "recommendations": recommendations,
     }
 
+    logger.info(
+        "AI insights generated successfully."
+    )
+
+    return response
+
+
+@measure_time
 def auto_insights() -> dict:
     """
     Execute the complete AI Insights workflow.
     """
 
-    return AIInsightsWorkflow().execute()
+    logger.info(
+        "Starting AI Insights workflow."
+    )
+
+    try:
+
+        result = AIInsightsWorkflow().execute()
+
+        logger.info(
+            "AI Insights workflow completed successfully."
+        )
+
+        return result
+
+    except NotFoundException:
+        raise
+
+    except Exception as error:
+
+        logger.exception(
+        "AI Insights workflow failed."
+    )
+
+    raise InternalServerException(
+        str(error)
+    ) from error
+
+
 __all__ = [
     "generate_ai_insights",
     "detect_outliers",

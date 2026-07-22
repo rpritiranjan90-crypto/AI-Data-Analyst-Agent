@@ -6,31 +6,43 @@ from typing import Any
 
 import pandas as pd
 
+from app.common.logger import get_logger
+from app.common.timing import measure_time
+
+logger = get_logger(__name__)
+
 
 class DatasetMetadataService:
     """
-    Generate metadata for an uploaded dataset.
+    Service responsible for generating metadata
+    for an uploaded dataset.
     """
 
+    @measure_time
     def generate(
         self,
         dataframe: pd.DataFrame,
         file_path: str | Path,
     ) -> dict[str, Any]:
         """
-        Generate dataset metadata.
+        Generate metadata describing the dataset.
         """
 
         path = Path(file_path)
 
+        logger.info(
+            "Generating metadata for dataset '%s'.",
+            path.name,
+        )
+
         memory_usage_mb = (
             dataframe.memory_usage(
-                deep=True
+                deep=True,
             ).sum()
             / (1024 * 1024)
         )
 
-        return {
+        metadata = {
             "filename": path.name,
             "extension": path.suffix.lower(),
             "rows": len(dataframe),
@@ -50,6 +62,12 @@ class DatasetMetadataService:
                 UTC
             ).isoformat(),
         }
+
+        logger.info(
+            "Metadata generated successfully."
+        )
+
+        return metadata
 
 
 __all__ = [

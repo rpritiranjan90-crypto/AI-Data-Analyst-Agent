@@ -1,0 +1,21 @@
+{
+    "filename": "employee_dataset.csv",
+    "extension": ".csv",
+    "rows": 21,
+    "columns": 8,
+    "column_names": [
+        "EmployeeID",
+        "Department",
+        "Gender",
+        "Age",
+        "Experience",
+        "Salary",
+        "Performance",
+        "City"
+    ],
+    "memory_usage_mb": 0.0,
+    "missing_values": 1,
+    "duplicate_rows": 1,
+    "upload_time": "2026-07-22T19:11:14.094145+00:00",
+    "id": "dde7e02e-30a3-462b-be4d-fb17361e13db"
+}

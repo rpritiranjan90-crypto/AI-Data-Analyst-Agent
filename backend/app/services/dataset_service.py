@@ -5,11 +5,17 @@ from typing import Any
 
 import pandas as pd
 
+from app.common.logger import get_logger
+from app.common.timing import measure_time
+
 from app.core.constants import DATASET_METADATA_CATEGORY
 from app.core.exceptions import ResourceNotFoundException
+
 from app.repositories.dataset_repository import DatasetRepository
 from app.repositories.metadata_repository import MetadataRepository
+
 from app.schemas.dataset import DatasetAnalysisResult
+
 from app.services.dataset_cache import DatasetCache
 from app.services.dataset_loader_service import DatasetLoaderService
 from app.services.dataset_metadata_service import (
@@ -21,6 +27,8 @@ from app.services.dataset_profile_service import (
 from app.services.dataset_statistics_service import (
     DatasetStatisticsService,
 )
+
+logger = get_logger(__name__)
 
 
 class DatasetService:
@@ -74,11 +82,18 @@ class DatasetService:
             or DatasetStatisticsService()
         )
 
+    @measure_time
     def load_dataset(
         self,
         file_path: str | Path,
         **kwargs: Any,
     ) -> DatasetAnalysisResult:
+        """
+        Load a dataset, cache it, generate metadata,
+        profile and statistics, then persist metadata.
+        """
+
+        logger.info("Loading dataset: %s", file_path)
 
         dataframe = self._loader.load(
             file_path=file_path,
@@ -90,23 +105,33 @@ class DatasetService:
             filename=Path(file_path).name,
         )
 
+        logger.info("Dataset cached successfully.")
+
         metadata = self._metadata_service.generate(
             dataframe=dataframe,
             file_path=str(file_path),
         )
 
+        logger.info("Dataset metadata generated.")
+
         profile = self._profile_service.generate(
             dataframe,
         )
+
+        logger.info("Dataset profile generated.")
 
         statistics = self._statistics_service.generate(
             dataframe,
         )
 
+        logger.info("Dataset statistics generated.")
+
         self._metadata_repository.save(
             category=DATASET_METADATA_CATEGORY,
             entity=metadata,
         )
+
+        logger.info("Dataset metadata saved.")
 
         return DatasetAnalysisResult(
             metadata=metadata,
@@ -115,6 +140,9 @@ class DatasetService:
         )
 
     def get_dataset(self) -> pd.DataFrame:
+        """
+        Return the currently loaded dataset.
+        """
 
         dataset = DatasetCache.get_dataset()
 
@@ -126,18 +154,39 @@ class DatasetService:
         return dataset
 
     def has_dataset(self) -> bool:
+        """
+        Check whether a dataset is currently loaded.
+        """
         return DatasetCache.has_dataset()
 
     def clear_dataset(self) -> None:
+        """
+        Clear the active dataset cache.
+        """
+
         DatasetCache.clear()
 
+        logger.info("Dataset cache cleared.")
+
     def list_datasets(self) -> list[dict]:
+        """
+        Return all available datasets.
+        """
+
         return self._dataset_repository.list()
 
     def delete_dataset(
         self,
         dataset_id: str,
     ) -> None:
+        """
+        Delete a dataset and its metadata.
+        """
+
+        logger.info(
+            "Deleting dataset with ID: %s",
+            dataset_id,
+        )
 
         metadata = self._dataset_repository.get(
             dataset_id
@@ -154,6 +203,13 @@ class DatasetService:
 
         if DatasetCache.has_dataset():
             DatasetCache.clear()
+
+            logger.info("Dataset cache cleared.")
+
+        logger.info(
+            "Dataset %s deleted successfully.",
+            dataset_id,
+        )
 
 
 __all__ = [

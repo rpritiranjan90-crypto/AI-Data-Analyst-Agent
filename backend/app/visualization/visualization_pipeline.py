@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from app.services.dataset_service import DatasetService
+from app.services.dataset_cache import DatasetCache
 from app.visualization.chart_factory import ChartFactory
 from app.visualization.output_manager import OutputManager
 
@@ -43,7 +43,8 @@ class VisualizationPipeline:
             OutputManager.get_output_path(chart_type),
         )
 
-        dataframe = DatasetService.get_dataset()
+        # Get the currently loaded dataset from cache
+        dataframe = DatasetCache.get_dataset()
 
         if dataframe is not None and not dataframe.empty:
             kwargs.setdefault("dataframe", dataframe)

@@ -1,0 +1,18 @@
+{
+    "filename": "sales_test.xlsx",
+    "extension": ".xlsx",
+    "rows": 100,
+    "columns": 5,
+    "column_names": [
+        "OrderID",
+        "Region",
+        "Product",
+        "Sales",
+        "Profit"
+    ],
+    "memory_usage_mb": 0.01,
+    "missing_values": 0,
+    "duplicate_rows": 0,
+    "upload_time": "2026-07-22T13:10:51.865350+00:00",
+    "id": "acca63f1-5011-4ce9-93cd-ef70845a529d"
+}

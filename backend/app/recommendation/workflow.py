@@ -4,7 +4,11 @@ from typing import Any
 
 import pandas as pd
 
-from app.services.dataset_service import DatasetService
+from app.common.logger import get_logger
+from app.exceptions.base import NotFoundException
+from app.services.dataset_cache import DatasetCache
+
+logger = get_logger(__name__)
 
 
 class RecommendationWorkflow:
@@ -17,8 +21,6 @@ class RecommendationWorkflow:
 
     def __init__(self) -> None:
 
-        self._dataset_service = DatasetService()
-
         self._report: dict[str, Any] = {
             "success": True,
             "recommendations": [],
@@ -28,10 +30,16 @@ class RecommendationWorkflow:
 
     def _dataset(self) -> pd.DataFrame:
         """
-        Return active dataset.
+        Return the active dataset.
         """
 
-        return self._dataset_service.get_dataset()
+        dataframe = DatasetCache.get_dataset()
+
+        if dataframe is None:
+            logger.error("No dataset is currently loaded.")
+            raise NotFoundException(resource="Dataset")
+
+        return dataframe
 
     def _recommend(
         self,
@@ -39,6 +47,9 @@ class RecommendationWorkflow:
         message: str,
         priority: str = "Medium",
     ) -> None:
+        """
+        Add a recommendation.
+        """
 
         self._report["recommendations"].append(
             {
@@ -49,10 +60,16 @@ class RecommendationWorkflow:
         )
 
     def _warning(self, message: str) -> None:
+        """
+        Add a warning.
+        """
 
         self._report["warnings"].append(message)
 
     def _error(self, message: str) -> None:
+        """
+        Add an error.
+        """
 
         self._report["success"] = False
         self._report["errors"].append(message)
@@ -92,7 +109,6 @@ class RecommendationWorkflow:
                 "No duplicate rows detected.",
                 "Low",
             )
-
     def _ml_recommendations(self) -> None:
         """
         Generate machine learning recommendations.
@@ -109,7 +125,6 @@ class RecommendationWorkflow:
         ).columns.tolist()
 
         if len(numeric) >= 2:
-
             self._recommend(
                 "Machine Learning",
                 "Dataset is suitable for regression and clustering.",
@@ -117,7 +132,6 @@ class RecommendationWorkflow:
             )
 
         if categorical:
-
             self._recommend(
                 "Machine Learning",
                 "Encode categorical features before model training.",
@@ -151,7 +165,6 @@ class RecommendationWorkflow:
         rows, columns = dataframe.shape
 
         if rows < 100:
-
             self._recommend(
                 "Business",
                 "Collect more data to improve analytical confidence.",
@@ -159,7 +172,6 @@ class RecommendationWorkflow:
             )
 
         if columns > 20:
-
             self._recommend(
                 "Business",
                 "Consider feature selection to reduce dimensionality.",
@@ -174,7 +186,7 @@ class RecommendationWorkflow:
 
     def _next_steps(self) -> None:
         """
-        Recommend next steps.
+        Recommend the next actions.
         """
 
         self._recommend(
@@ -200,6 +212,8 @@ class RecommendationWorkflow:
         Execute the Recommendation Workflow.
         """
 
+        logger.info("Starting recommendation workflow.")
+
         try:
 
             self._data_quality_recommendations()
@@ -224,9 +238,20 @@ class RecommendationWorkflow:
                 ),
             }
 
+            logger.info(
+                "Recommendation workflow completed successfully."
+            )
+
             return self._report
 
+        except NotFoundException:
+            raise
+
         except Exception as error:
+
+            logger.exception(
+                "Recommendation workflow failed."
+            )
 
             self._error(str(error))
 

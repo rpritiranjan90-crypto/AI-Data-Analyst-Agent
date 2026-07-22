@@ -1,37 +1,28 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import MainLayout from "../layouts/MainLayout";
-
-function DashboardPage() {
-  return <h1 className="text-2xl font-bold">Dashboard</h1>;
-}
-
-function UploadPage() {
-  return <h1 className="text-2xl font-bold">Upload Dataset</h1>;
-}
-
-function AnalysisPage() {
-  return <h1 className="text-2xl font-bold">Analysis</h1>;
-}
-
-function NotFoundPage() {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <h1 className="text-3xl font-bold">404 | Page Not Found</h1>
-    </div>
-  );
-}
+import AnalysisPage from "../features/analysis/pages/AnalysisPage";
+import DashboardPage from "../pages/Dashboard/DashboardPage";
+import NotFoundPage from "../pages/NotFound/NotFoundPage";
+import UploadPage from "../pages/Upload/UploadPage";
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      <Routes>
+    <Routes>
+        <Route element={<MainLayout />}>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-        <Route element={<MainLayout />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/upload" element={<UploadPage />} />
-          <Route path="/analysis" element={<AnalysisPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/upload" element={<UploadPage />} />
+        <Route path="/analysis" element={<AnalysisPage />} />
+        <Route path="/cleaning" element={<div>Data Cleaning (Coming Soon)</div>} />
+
+        <Route path="/visualization" element={<div>Visualization (Coming Soon)</div>} />
+
+        <Route path="/recommendation" element={<div>Recommendations (Coming Soon)</div>} />
+
+        <Route path="/machine-learning" element={<div>Machine Learning (Coming Soon)</div>} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

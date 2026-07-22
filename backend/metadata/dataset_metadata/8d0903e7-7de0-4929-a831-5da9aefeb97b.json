@@ -1,0 +1,25 @@
+{
+    "filename": "NETFLIX.xlsx",
+    "extension": ".xlsx",
+    "rows": 6234,
+    "columns": 12,
+    "column_names": [
+        "show_id",
+        "type",
+        "title",
+        "director",
+        "cast",
+        "country",
+        "date_added",
+        "release_year",
+        "rating",
+        "duration",
+        "listed_in",
+        "description"
+    ],
+    "memory_usage_mb": 4.87,
+    "missing_values": 3036,
+    "duplicate_rows": 0,
+    "upload_time": "2026-07-22T17:29:32.495477+00:00",
+    "id": "8d0903e7-7de0-4929-a831-5da9aefeb97b"
+}

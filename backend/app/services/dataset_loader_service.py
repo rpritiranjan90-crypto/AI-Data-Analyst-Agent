@@ -6,8 +6,11 @@ from typing import Any, Callable
 import pandas as pd
 from pandas.errors import EmptyDataError, ParserError
 
-from app.core.exceptions import BadRequestException
-from app.core.logging import get_logger
+from app.common.logger import get_logger
+from app.common.timing import measure_time
+
+from app.exceptions.base import ValidationException
+
 from app.core.validators import validate_existing_path
 
 logger = get_logger(__name__)
@@ -35,13 +38,20 @@ class DatasetLoaderService:
     def loaders(
         self,
     ) -> dict[str, Callable[..., pd.DataFrame]]:
+        """
+        Return all supported dataset loaders.
+        """
         return self._loaders
 
+    @measure_time
     def load(
         self,
         file_path: str | Path,
         **kwargs: Any,
     ) -> pd.DataFrame:
+        """
+        Load a dataset into a pandas DataFrame.
+        """
 
         path = Path(file_path)
 
@@ -52,7 +62,7 @@ class DatasetLoaderService:
         loader = self.loaders.get(extension)
 
         if loader is None:
-            raise BadRequestException(
+            raise ValidationException(
                 f"Unsupported dataset format: {extension}"
             )
 
@@ -68,31 +78,33 @@ class DatasetLoaderService:
             )
 
         except EmptyDataError as exc:
-            raise BadRequestException(
+            raise ValidationException(
                 "Dataset is empty."
             ) from exc
 
         except ParserError as exc:
-            raise BadRequestException(
+            raise ValidationException(
                 "Unable to parse dataset."
             ) from exc
 
         except UnicodeDecodeError as exc:
-            raise BadRequestException(
+            raise ValidationException(
                 "Unsupported file encoding."
             ) from exc
 
         except Exception as exc:
             logger.exception(
-                "Failed to load dataset."
+                "Failed to load dataset '%s'.",
+                path.name,
             )
 
-            raise BadRequestException(
+            raise ValidationException(
                 f"Unable to load dataset: {exc}"
             ) from exc
 
         logger.info(
-            "Dataset loaded successfully. Rows=%d Columns=%d",
+            "Dataset '%s' loaded successfully. Rows=%d Columns=%d",
+            path.name,
             len(dataframe),
             len(dataframe.columns),
         )
