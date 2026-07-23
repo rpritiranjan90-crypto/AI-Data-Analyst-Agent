@@ -1,106 +1,62 @@
-import { Tags } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Search } from "lucide-react";
 
-import EmptyState from "../../../../components/ui/EmptyState";
-import LoadingCard from "../../../../components/ui/LoadingCard";
-import MetricCard from "../../../../components/ui/MetricCard";
-import SectionHeader from "../../../../components/ui/SectionHeader";
-import StatusBadge from "../../../../components/ui/StatusBadge";
-
-import { useCategorical } from "../../hooks";
+import CategoricalCard from "../cards/CategoricalCard";
+import { useAnalysisData } from "../../context/AnalysisContext";
 
 export default function CategoricalTab() {
-  const { data, isLoading, isError } = useCategorical();
+  const { categorical } = useAnalysisData();
 
-  if (isLoading) {
-    return <LoadingCard rows={4} />;
-  }
+  const [search, setSearch] = useState("");
 
-  if (isError || !data) {
-    return (
-      <EmptyState
-        icon={Tags}
-        title="Categorical Analysis Unavailable"
-        description="Unable to load categorical analysis."
-      />
-    );
-  }
-
-  const columns = Object.entries(data);
+  const columns = useMemo(() => {
+    return Object.entries(categorical)
+      .filter(([column]) =>
+        column.toLowerCase().includes(search.toLowerCase())
+      )
+      .sort(([a], [b]) => a.localeCompare(b));
+  }, [categorical, search]);
 
   if (columns.length === 0) {
     return (
-      <EmptyState
-        icon={Tags}
-        title="No Categorical Columns"
-        description="No categorical columns were detected."
-      />
+      <div className="rounded-xl border border-slate-200 bg-white p-8 text-center">
+        <h3 className="text-lg font-semibold text-slate-700">
+          No categorical columns found
+        </h3>
+
+        <p className="mt-2 text-sm text-slate-500">
+          Try another search.
+        </p>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <SectionHeader
-        icon={Tags}
-        title="Categorical Analysis"
-        subtitle={`${columns.length} categorical columns`}
-      />
+    <div className="space-y-6">
+      <div className="relative">
+        <Search
+          size={18}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+        />
 
-      {columns.map(([column, stats]) => (
-        <div
-          key={column}
-          className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-        >
-          <SectionHeader
-            title={column}
-            subtitle="Column Summary"
+        <input
+          type="text"
+          placeholder="Search categorical columns..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+        />
+      </div>
+
+      <div className="space-y-6">
+        {columns.map(([column, stats]) => (
+          <CategoricalCard
+            key={column}
+            column={column}
+            stats={stats}
           />
-
-          <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <MetricCard
-              title="Unique"
-              value={stats.unique_values}
-              subtitle="Distinct values"
-              icon={Tags}
-            />
-
-            <MetricCard
-              title="Missing"
-              value={stats.missing_values}
-              subtitle={`${stats.missing_percentage.toFixed(2)}%`}
-              icon={Tags}
-              color="orange"
-            />
-
-            <MetricCard
-              title="Most Frequent"
-              value={stats.most_frequent}
-              subtitle={`${stats.most_frequent_count} records`}
-              icon={Tags}
-              color="green"
-            />
-
-            <MetricCard
-              title="Cardinality"
-              value={stats.cardinality}
-              subtitle="Category type"
-              icon={Tags}
-              color="purple"
-            />
-          </div>
-
-          <div className="mb-4 flex gap-3">
-            <StatusBadge
-              label={stats.binary_column ? "Binary" : "Not Binary"}
-              variant={stats.binary_column ? "success" : "neutral"}
-            />
-
-            <StatusBadge
-              label={stats.constant_column ? "Constant" : "Variable"}
-              variant={stats.constant_column ? "warning" : "info"}
-            />
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

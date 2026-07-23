@@ -10,22 +10,24 @@ import {
 } from "lucide-react";
 
 import EmptyState from "../../../../components/ui/EmptyState";
-import LoadingCard from "../../../../components/ui/LoadingCard";
 import MetricCard from "../../../../components/ui/MetricCard";
 import SectionHeader from "../../../../components/ui/SectionHeader";
 import StatusBadge from "../../../../components/ui/StatusBadge";
 
 import { useDatasetStore } from "../../../../store/datasetStore";
-import { useAnalysisSummary } from "../../hooks";
+import { useAnalysisData } from "../../context/AnalysisContext";
+
+import ExecutiveSummaryCard from "../dashboard/ExecutiveSummaryCard";
+import DatasetHealthCard from "../dashboard/DatasetHealthCard";
 
 export default function OverviewTab() {
   const { dataset } = useDatasetStore();
 
   const {
-    data,
-    isLoading,
-    isError,
-  } = useAnalysisSummary();
+    correlation,
+    categorical,
+    insights,
+  } = useAnalysisData();
 
   if (!dataset) {
     return (
@@ -37,28 +39,15 @@ export default function OverviewTab() {
     );
   }
 
-  if (isLoading) {
-    return <LoadingCard rows={8} />;
-  }
-
-  if (isError || !data) {
-    return (
-      <EmptyState
-        icon={AlertTriangle}
-        title="Analysis Failed"
-        description="Unable to load the dataset analysis. Please try again."
-      />
-    );
-  }
-
   const metadata = dataset.metadata;
 
   const qualityInsight =
-    data.insights.find((item) =>
+    insights.find((item) =>
       item.toLowerCase().includes("dataset quality score")
     ) ?? "";
 
   let qualityLabel = "Unknown";
+
   let qualityVariant:
     | "success"
     | "warning"
@@ -82,6 +71,24 @@ export default function OverviewTab() {
 
   return (
     <div className="space-y-10">
+      {/* Executive Summary */}
+
+      <section>
+        <ExecutiveSummaryCard
+          rows={metadata.rows}
+          columns={metadata.columns}
+          qualityLabel={qualityLabel}
+          qualityVariant={qualityVariant}
+          missingValues={metadata.missing_values}
+          duplicateRows={metadata.duplicate_rows}
+          numericColumns={correlation.total_numeric_columns}
+          categoricalColumns={Object.keys(categorical).length}
+          qualityInsight={qualityInsight}
+        />
+      </section>
+
+      {/* Dataset Overview */}
+
       <section>
         <SectionHeader
           icon={Database}
@@ -132,7 +139,7 @@ export default function OverviewTab() {
 
           <MetricCard
             title="Numeric Columns"
-            value={data.correlation.total_numeric_columns}
+            value={correlation.total_numeric_columns}
             subtitle="Ready for analysis"
             icon={BarChart3}
             color="blue"
@@ -140,7 +147,7 @@ export default function OverviewTab() {
 
           <MetricCard
             title="Categorical Columns"
-            value={Object.keys(data.categorical).length}
+            value={Object.keys(categorical).length}
             subtitle="Category features"
             icon={Tags}
             color="purple"
@@ -155,6 +162,30 @@ export default function OverviewTab() {
           />
         </div>
       </section>
+
+      {/* Dataset Health */}
+
+      <section>
+        <SectionHeader
+          icon={ShieldCheck}
+          title="Dataset Health Dashboard"
+          subtitle="AI-powered quality assessment of the uploaded dataset."
+        />
+
+        <DatasetHealthCard
+          rows={metadata.rows}
+          columns={metadata.columns}
+          missingValues={metadata.missing_values}
+          duplicateRows={metadata.duplicate_rows}
+          numericColumns={correlation.total_numeric_columns}
+          categoricalColumns={Object.keys(categorical).length}
+          qualityLabel={qualityLabel}
+          qualityVariant={qualityVariant}
+          qualityInsight={qualityInsight}
+        />
+      </section>
+
+      {/* Dataset Quality */}
 
       <section>
         <SectionHeader
@@ -177,6 +208,8 @@ export default function OverviewTab() {
         </div>
       </section>
 
+      {/* AI Insights */}
+
       <section>
         <SectionHeader
           icon={BarChart3}
@@ -185,10 +218,10 @@ export default function OverviewTab() {
         />
 
         <div className="space-y-4">
-          {data.insights.map((insight, index) => (
+          {insights.map((insight, index) => (
             <div
               key={index}
-              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
             >
               {insight}
             </div>

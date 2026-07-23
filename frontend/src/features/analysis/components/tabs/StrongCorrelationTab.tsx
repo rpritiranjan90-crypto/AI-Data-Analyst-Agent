@@ -1,30 +1,17 @@
 import { Link2 } from "lucide-react";
 
 import EmptyState from "../../../../components/ui/EmptyState";
-import LoadingCard from "../../../../components/ui/LoadingCard";
 import SectionHeader from "../../../../components/ui/SectionHeader";
 import StatusBadge from "../../../../components/ui/StatusBadge";
 
-import { useStrongCorrelation } from "../../hooks";
+import { useAnalysisData } from "../../context/AnalysisContext";
 
 export default function StrongCorrelationTab() {
-  const { data, isLoading, isError } = useStrongCorrelation();
+  const { correlation } = useAnalysisData();
 
-  if (isLoading) {
-    return <LoadingCard rows={5} />;
-  }
+  const data = correlation.strong_correlations;
 
-  if (isError || !data) {
-    return (
-      <EmptyState
-        icon={Link2}
-        title="Strong Correlations Not Available"
-        description="Unable to load strong correlation analysis."
-      />
-    );
-  }
-
-  if (data.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <EmptyState
         icon={Link2}
@@ -46,12 +33,29 @@ export default function StrongCorrelationTab() {
         <table className="min-w-full text-sm">
           <thead className="bg-slate-100">
             <tr>
-              <th className="px-4 py-3 text-left">Column 1</th>
-              <th className="px-4 py-3 text-left">Column 2</th>
-              <th className="px-4 py-3 text-center">Correlation</th>
-              <th className="px-4 py-3 text-center">Direction</th>
-              <th className="px-4 py-3 text-center">Strength</th>
-              <th className="px-4 py-3 text-left">Interpretation</th>
+              <th className="px-4 py-3 text-left">
+                Column 1
+              </th>
+
+              <th className="px-4 py-3 text-left">
+                Column 2
+              </th>
+
+              <th className="px-4 py-3 text-center">
+                Correlation
+              </th>
+
+              <th className="px-4 py-3 text-center">
+                Direction
+              </th>
+
+              <th className="px-4 py-3 text-center">
+                Strength
+              </th>
+
+              <th className="px-4 py-3 text-left">
+                Interpretation
+              </th>
             </tr>
           </thead>
 
@@ -69,7 +73,13 @@ export default function StrongCorrelationTab() {
                   {item.column_2}
                 </td>
 
-                <td className="px-4 py-3 text-center">
+                <td
+                  className={`px-4 py-3 text-center font-semibold ${
+                    item.correlation >= 0
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
                   {item.correlation.toFixed(3)}
                 </td>
 
@@ -81,9 +91,9 @@ export default function StrongCorrelationTab() {
                   <StatusBadge
                     label={item.absolute_correlation.toFixed(2)}
                     variant={
-                      item.absolute_correlation >= 0.8
+                      item.absolute_correlation >= 0.90
                         ? "success"
-                        : item.absolute_correlation >= 0.6
+                        : item.absolute_correlation >= 0.70
                         ? "info"
                         : "warning"
                     }

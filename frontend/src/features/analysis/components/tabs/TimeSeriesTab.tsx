@@ -1,20 +1,15 @@
 import { CalendarClock } from "lucide-react";
 
 import EmptyState from "../../../../components/ui/EmptyState";
-import LoadingCard from "../../../../components/ui/LoadingCard";
 import SectionHeader from "../../../../components/ui/SectionHeader";
 import StatusBadge from "../../../../components/ui/StatusBadge";
 
-import { useTimeSeries } from "../../hooks";
+import { useAnalysisData } from "../../context/AnalysisContext";
 
 export default function TimeSeriesTab() {
-  const { data, isLoading, isError } = useTimeSeries();
+  const { timeseries } = useAnalysisData();
 
-  if (isLoading) {
-    return <LoadingCard rows={2} />;
-  }
-
-  if (isError || !data) {
+  if (!timeseries) {
     return (
       <EmptyState
         icon={CalendarClock}
@@ -36,12 +31,12 @@ export default function TimeSeriesTab() {
         <div className="mb-4">
           <StatusBadge
             label={
-              data.has_datetime
+              timeseries.has_datetime
                 ? "Datetime Column Found"
                 : "No Datetime Column"
             }
             variant={
-              data.has_datetime
+              timeseries.has_datetime
                 ? "success"
                 : "warning"
             }
@@ -49,7 +44,7 @@ export default function TimeSeriesTab() {
         </div>
 
         <p className="text-slate-600">
-          {data.message}
+          {timeseries.message}
         </p>
       </div>
     </div>

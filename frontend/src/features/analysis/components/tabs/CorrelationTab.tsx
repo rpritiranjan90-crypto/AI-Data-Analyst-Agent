@@ -1,77 +1,51 @@
 import { Network } from "lucide-react";
 
 import EmptyState from "../../../../components/ui/EmptyState";
-import LoadingCard from "../../../../components/ui/LoadingCard";
 import SectionHeader from "../../../../components/ui/SectionHeader";
 
-import { useCorrelation } from "../../hooks";
+import { useAnalysisData } from "../../context/AnalysisContext";
+
+import CorrelationSummary from "../correlation/CorrelationSummary";
+import CorrelationHeatmap from "../correlation/CorrelationHeatmap";
+import StrongCorrelationTable from "../correlation/StrongCorrelationTable";
 
 export default function CorrelationTab() {
-  const { data, isLoading, isError } = useCorrelation();
+  const { correlation } = useAnalysisData();
 
-  if (isLoading) {
-    return <LoadingCard rows={5} />;
-  }
+  const columns = correlation.numeric_columns;
 
-  if (isError || !data) {
+  if (columns.length === 0) {
     return (
       <EmptyState
         icon={Network}
         title="Correlation Analysis Unavailable"
-        description="Unable to load the correlation matrix."
+        description="No numeric columns are available for correlation analysis."
       />
     );
   }
 
-  const columns = data.numeric_columns;
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <SectionHeader
         icon={Network}
-        title="Correlation Matrix"
-        subtitle={`Method: ${data.method}`}
+        title="Correlation Analysis"
+        subtitle={`Method: ${correlation.method.toUpperCase()}`}
       />
 
-      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <table className="min-w-full text-sm">
-          <thead className="bg-slate-100">
-            <tr>
-              <th className="px-4 py-3 text-left font-semibold">
-                Column
-              </th>
+      <CorrelationSummary
+        method={correlation.method}
+        totalNumericColumns={correlation.total_numeric_columns}
+        correlations={correlation.strong_correlations}
+      />
 
-              {columns.map((column) => (
-                <th
-                  key={column}
-                  className="px-4 py-3 text-center font-semibold"
-                >
-                  {column}
-                </th>
-              ))}
-            </tr>
-          </thead>
+      <CorrelationHeatmap
+        columns={correlation.numeric_columns}
+        matrix={correlation.correlation_matrix}
+      />
 
-          <tbody>
-            {columns.map((row) => (
-              <tr key={row} className="border-t hover:bg-slate-50">
-                <td className="px-4 py-3 font-semibold">
-                  {row}
-                </td>
-
-                {columns.map((column) => (
-                  <td
-                    key={column}
-                    className="px-4 py-3 text-center"
-                  >
-                    {data.correlation_matrix[row][column].toFixed(2)}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <StrongCorrelationTable
+        correlations={correlation.strong_correlations}
+      />
     </div>
   );
 }

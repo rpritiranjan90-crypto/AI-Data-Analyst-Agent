@@ -1,6 +1,11 @@
 import { useState } from "react";
+import { RefreshCcw } from "lucide-react";
 
+import Button from "../../../components/ui/Button";
+import LoadingCard from "../../../components/ui/LoadingCard";
 import PageHeader from "../../../components/ui/PageHeader";
+
+import ErrorState from "../common/ErrorState";
 
 import AIInsightsTab from "../components/tabs/AIInsightsTab";
 import AnalysisTabs from "../components/tabs/AnalysisTabs";
@@ -11,6 +16,9 @@ import OverviewTab from "../components/tabs/OverviewTab";
 import StatisticsTab from "../components/tabs/StatisticsTab";
 import StrongCorrelationTab from "../components/tabs/StrongCorrelationTab";
 import TimeSeriesTab from "../components/tabs/TimeSeriesTab";
+
+import { AnalysisProvider } from "../context/AnalysisContext";
+import { useAnalysisSummary } from "../hooks/useAnalysisSummary";
 
 export type AnalysisTab =
   | "overview"
@@ -25,6 +33,33 @@ export type AnalysisTab =
 export default function AnalysisPage() {
   const [activeTab, setActiveTab] =
     useState<AnalysisTab>("overview");
+
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+  } = useAnalysisSummary();
+
+  if (isLoading) {
+    return (
+      <LoadingCard
+        cards={4}
+        rows={8}
+        showChart
+      />
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <ErrorState
+        title="Unable to Load Analysis"
+        description="We couldn't load your dataset analysis. Please try again."
+        onRetry={() => refetch()}
+      />
+    );
+  }
 
   const renderTab = () => {
     switch (activeTab) {
@@ -58,18 +93,34 @@ export default function AnalysisPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Dataset Analysis"
-        subtitle="Explore statistical summaries, correlations, distributions, categorical analysis, time series, and AI-generated insights."
-      />
+    <AnalysisProvider data={data}>
+      <div className="space-y-6">
 
-      <AnalysisTabs
-        activeTab={activeTab}
-        onChange={setActiveTab}
-      />
+        <PageHeader
+          title="Dataset Analysis"
+          subtitle="Explore statistical summaries, correlations, distributions, categorical analysis, time series, and AI-generated insights."
+          action={
+            <Button
+              variant="secondary"
+              onClick={() => refetch()}
+            >
+              <RefreshCcw
+                size={16}
+                className="mr-2"
+              />
+              Refresh
+            </Button>
+          }
+        />
 
-      {renderTab()}
-    </div>
+        <AnalysisTabs
+          activeTab={activeTab}
+          onChange={setActiveTab}
+        />
+
+        {renderTab()}
+
+      </div>
+    </AnalysisProvider>
   );
 }

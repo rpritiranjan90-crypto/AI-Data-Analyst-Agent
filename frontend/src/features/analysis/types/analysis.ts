@@ -60,6 +60,8 @@ export interface CorrelationResponse {
   total_numeric_columns: number;
 
   correlation_matrix: CorrelationMatrix;
+
+  strong_correlations: StrongCorrelation[];
 }
 
 /* -------------------------------------------------------------------------- */
