@@ -20,14 +20,22 @@ import { useAnalysisData } from "../../context/AnalysisContext";
 import ExecutiveSummaryCard from "../dashboard/ExecutiveSummaryCard";
 import DatasetHealthCard from "../dashboard/DatasetHealthCard";
 
+import CleaningSuggestions from "../cleaning/CleaningSuggestions";
+import { useCleaningReport } from "../../hooks/useCleaningReport";
+
+
 export default function OverviewTab() {
   const { dataset } = useDatasetStore();
 
-  const {
-    correlation,
-    categorical,
-    insights,
-  } = useAnalysisData();
+  const analysis = useAnalysisData();
+
+const {
+  correlation,
+  categorical,
+  insights,
+} = analysis;
+
+const cleaningReport = useCleaningReport();
 
   if (!dataset) {
     return (
@@ -184,7 +192,13 @@ export default function OverviewTab() {
           qualityInsight={qualityInsight}
         />
       </section>
+{/* AI Cleaning Assistant */}
 
+{cleaningReport && (
+  <section>
+    <CleaningSuggestions report={cleaningReport} />
+  </section>
+)}
       {/* Dataset Quality */}
 
       <section>
