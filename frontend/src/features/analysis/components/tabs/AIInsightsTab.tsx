@@ -5,10 +5,14 @@ import SectionHeader from "../../../../components/ui/SectionHeader";
 
 import { useAnalysisData } from "../../context/AnalysisContext";
 
-import AIOverview from "../insights/AIOverview";
-import InsightCards from "../insights/InsightCards";
+import ExecutiveSummary from "../insights/ExecutiveSummary";
+import DatasetScore from "../insights/DatasetScore";
+import MLReadinessCard from "../insights/MLReadinessCard";
 import KeyFindings from "../insights/KeyFindings";
+import FeatureEngineering from "../insights/FeatureEngineering";
+import ModelRecommendations from "../insights/ModelRecommendations";
 import RecommendationPanel from "../insights/RecommendationPanel";
+import InsightCards from "../insights/InsightCards";
 
 export default function AIInsightsTab() {
   const { insights } = useAnalysisData();
@@ -24,20 +28,29 @@ export default function AIInsightsTab() {
   }
 
   return (
-    <div className="space-y-8">
-      <SectionHeader
-        icon={BrainCircuit}
-        title="AI Analytics Assistant"
-        subtitle={`${insights.length} AI-generated insights available`}
-      />
+  <div className="space-y-8">
+    <SectionHeader
+      icon={BrainCircuit}
+      title="AI Analytics Assistant"
+      subtitle="AI-powered dataset interpretation and machine learning guidance"
+    />
 
-      <AIOverview insights={insights} />
+    <ExecutiveSummary insights={insights} />
 
-      <KeyFindings insights={insights} />
-
-      <RecommendationPanel insights={insights} />
-
-      <InsightCards insights={insights} />
+    <div className="grid gap-8 xl:grid-cols-2">
+      <DatasetScore score={92} />
+      <MLReadinessCard score={91} />
     </div>
-  );
+
+    <KeyFindings insights={insights} />
+
+    <FeatureEngineering insights={insights} />
+
+    <ModelRecommendations insights={insights} />
+
+    <RecommendationPanel insights={insights} />
+
+    <InsightCards insights={insights} />
+  </div>
+);
 }
