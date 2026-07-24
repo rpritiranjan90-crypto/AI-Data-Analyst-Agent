@@ -41,6 +41,10 @@ const tabs: {
     id: "insights",
     label: "AI Insights",
   },
+  {
+    id: "report",
+    label: "AI Report",
+  },
 ];
 
 export default function AnalysisTabs({

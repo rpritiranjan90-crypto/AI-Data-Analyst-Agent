@@ -17,6 +17,8 @@ import StatisticsTab from "../components/tabs/StatisticsTab";
 import StrongCorrelationTab from "../components/tabs/StrongCorrelationTab";
 import TimeSeriesTab from "../components/tabs/TimeSeriesTab";
 
+import AIReport from "../components/report/AIReport";
+
 import { AnalysisProvider } from "../context/AnalysisContext";
 import { useAnalysisSummary } from "../hooks/useAnalysisSummary";
 
@@ -28,7 +30,8 @@ export type AnalysisTab =
   | "categorical"
   | "distribution"
   | "timeseries"
-  | "insights";
+  | "insights"
+  | "report";
 
 export default function AnalysisPage() {
   const [activeTab, setActiveTab] =
@@ -87,6 +90,9 @@ export default function AnalysisPage() {
       case "insights":
         return <AIInsightsTab />;
 
+      case "report":
+        return <AIReport />;
+
       default:
         return <OverviewTab />;
     }
@@ -95,10 +101,9 @@ export default function AnalysisPage() {
   return (
     <AnalysisProvider data={data}>
       <div className="space-y-6">
-
         <PageHeader
           title="Dataset Analysis"
-          subtitle="Explore statistical summaries, correlations, distributions, categorical analysis, time series, and AI-generated insights."
+          subtitle="Explore statistical summaries, correlations, distributions, categorical analysis, time series, AI insights, and AI-generated reports."
           action={
             <Button
               variant="secondary"
@@ -119,7 +124,6 @@ export default function AnalysisPage() {
         />
 
         {renderTab()}
-
       </div>
     </AnalysisProvider>
   );
