@@ -6,34 +6,20 @@ import {
 
 import Card from "../../../../components/ui/Card";
 
+import type { DatasetScoreResult } from "../../engine/scoring";
+
 interface DatasetScoreProps {
-  score: number;
+  result: DatasetScoreResult;
 }
 
 export default function DatasetScore({
-  score,
+  result,
 }: DatasetScoreProps) {
-  const grade =
-    score >= 95
-      ? "A+"
-      : score >= 90
-      ? "A"
-      : score >= 80
-      ? "B"
-      : score >= 70
-      ? "C"
-      : "D";
-
-  const status =
-    score >= 95
-      ? "Excellent"
-      : score >= 90
-      ? "Very Good"
-      : score >= 80
-      ? "Good"
-      : score >= 70
-      ? "Fair"
-      : "Needs Improvement";
+  const {
+    score,
+    grade,
+    status,
+  } = result;
 
   const progressColor =
     score >= 90
@@ -93,7 +79,9 @@ export default function DatasetScore({
             <div className="h-3 overflow-hidden rounded-full bg-slate-200">
               <div
                 className={`h-full rounded-full ${progressColor}`}
-                style={{ width: `${score}%` }}
+                style={{
+                  width: `${score}%`,
+                }}
               />
             </div>
           </div>
@@ -111,8 +99,7 @@ export default function DatasetScore({
                 </h4>
 
                 <p className="mt-1 text-sm text-slate-600">
-                  Dataset quality is suitable for
-                  analytical workflows.
+                  Dataset quality is suitable for analytical workflows.
                 </p>
               </div>
             </div>
@@ -129,8 +116,7 @@ export default function DatasetScore({
                 </h4>
 
                 <p className="mt-1 text-sm text-slate-600">
-                  Generated using statistical
-                  characteristics and AI insights.
+                  Generated using statistical characteristics and AI insights.
                 </p>
               </div>
             </div>

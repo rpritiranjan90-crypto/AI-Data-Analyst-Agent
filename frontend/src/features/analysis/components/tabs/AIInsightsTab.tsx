@@ -4,6 +4,7 @@ import EmptyState from "../../../../components/ui/EmptyState";
 import SectionHeader from "../../../../components/ui/SectionHeader";
 
 import { useAnalysisData } from "../../context/AnalysisContext";
+import { useAIAnalysis } from "../../hooks/useAIAnalysis";
 
 import ExecutiveSummary from "../insights/ExecutiveSummary";
 import DatasetScore from "../insights/DatasetScore";
@@ -17,6 +18,8 @@ import InsightCards from "../insights/InsightCards";
 export default function AIInsightsTab() {
   const { insights } = useAnalysisData();
 
+  const ai = useAIAnalysis();
+
   if (!insights || insights.length === 0) {
     return (
       <EmptyState
@@ -28,29 +31,38 @@ export default function AIInsightsTab() {
   }
 
   return (
-  <div className="space-y-8">
-    <SectionHeader
-      icon={BrainCircuit}
-      title="AI Analytics Assistant"
-      subtitle="AI-powered dataset interpretation and machine learning guidance"
-    />
+    <div className="space-y-8">
+      <SectionHeader
+        icon={BrainCircuit}
+        title="AI Analytics Assistant"
+        subtitle="AI-powered dataset interpretation and machine learning guidance"
+      />
 
-    <ExecutiveSummary insights={insights} />
+      <ExecutiveSummary
+  result={ai.executiveSummary}
+/>
 
-    <div className="grid gap-8 xl:grid-cols-2">
-      <DatasetScore score={92} />
-      <MLReadinessCard score={91} />
+      <div className="grid gap-8 xl:grid-cols-2">
+        <DatasetScore result={ai.datasetScore} />
+
+        <MLReadinessCard
+          result={ai.mlReadiness}
+        />
+      </div>
+
+      <KeyFindings insights={insights} />
+
+      <FeatureEngineering
+  recommendations={ai.featureEngineering}
+/>
+
+      <ModelRecommendations
+  models={ai.modelRecommendations}
+/>
+
+      <RecommendationPanel insights={insights} />
+
+      <InsightCards insights={insights} />
     </div>
-
-    <KeyFindings insights={insights} />
-
-    <FeatureEngineering insights={insights} />
-
-    <ModelRecommendations insights={insights} />
-
-    <RecommendationPanel insights={insights} />
-
-    <InsightCards insights={insights} />
-  </div>
-);
+  );
 }

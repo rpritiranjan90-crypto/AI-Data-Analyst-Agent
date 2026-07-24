@@ -6,28 +6,22 @@ import {
 
 import Card from "../../../../components/ui/Card";
 
+import type { MLReadinessResult } from "../../engine/mlReadiness";
+
 interface MLReadinessCardProps {
-  score: number;
+  result: MLReadinessResult;
 }
 
 export default function MLReadinessCard({
-  score,
+  result,
 }: MLReadinessCardProps) {
-  const status =
-    score >= 90
-      ? "Ready"
-      : score >= 80
-      ? "Nearly Ready"
-      : score >= 70
-      ? "Needs Preparation"
-      : "Not Ready";
-
-  const confidence =
-    score >= 90
-      ? "High"
-      : score >= 80
-      ? "Medium"
-      : "Low";
+  const {
+    score,
+    status,
+    confidence,
+    strengths,
+    improvements,
+  } = result;
 
   const progressColor =
     score >= 90
@@ -110,26 +104,48 @@ export default function MLReadinessCard({
             </div>
 
             <p className="mt-4 text-2xl font-bold text-slate-900">
-              {confidence}
+              {confidence}%
             </p>
           </div>
         </div>
 
-        <div className="rounded-xl border border-violet-200 bg-violet-50 p-5">
-          <h3 className="font-semibold text-slate-900">
-            AI Assessment
-          </h3>
+        {strengths.length > 0 && (
+          <div className="rounded-xl border border-green-200 bg-green-50 p-5">
+            <h3 className="font-semibold text-green-800">
+              Strengths
+            </h3>
 
-          <p className="mt-3 leading-7 text-slate-700">
-            {score >= 90
-              ? "The dataset is well prepared for machine learning. Only minor validation is recommended before model training."
-              : score >= 80
-              ? "The dataset is suitable for machine learning after a few preprocessing steps such as handling missing values or encoding categorical features."
-              : score >= 70
-              ? "Additional preprocessing is recommended before training machine learning models."
-              : "Significant data preparation is recommended before using this dataset for predictive modeling."}
-          </p>
-        </div>
+            <ul className="mt-3 space-y-2">
+              {strengths.map((item, index) => (
+                <li
+                  key={index}
+                  className="text-sm text-green-700"
+                >
+                  • {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {improvements.length > 0 && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+            <h3 className="font-semibold text-amber-800">
+              Recommended Improvements
+            </h3>
+
+            <ul className="mt-3 space-y-2">
+              {improvements.map((item, index) => (
+                <li
+                  key={index}
+                  className="text-sm text-amber-700"
+                >
+                  • {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </Card>
   );

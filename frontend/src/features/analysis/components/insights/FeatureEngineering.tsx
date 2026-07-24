@@ -6,63 +6,17 @@ import {
 
 import Card from "../../../../components/ui/Card";
 
-interface FeatureEngineeringProps {
-  insights: string[];
-}
+import type {
+  FeatureRecommendation,
+} from "../../engine/featureEngineering";
 
-interface Recommendation {
-  feature: string;
-  action: string;
-  priority: "High" | "Medium" | "Low";
+interface FeatureEngineeringProps {
+  recommendations: FeatureRecommendation[];
 }
 
 export default function FeatureEngineering({
-  insights,
+  recommendations,
 }: FeatureEngineeringProps) {
-  const recommendations: Recommendation[] = [];
-
-  const text = insights.join(" ").toLowerCase();
-
-  if (text.includes("missing")) {
-    recommendations.push({
-      feature: "Missing Values",
-      action: "Impute or remove missing records.",
-      priority: "High",
-    });
-  }
-
-  if (text.includes("outlier")) {
-    recommendations.push({
-      feature: "Outliers",
-      action: "Review or cap extreme values.",
-      priority: "High",
-    });
-  }
-
-  if (text.includes("categorical")) {
-    recommendations.push({
-      feature: "Categorical Features",
-      action: "Apply One-Hot Encoding.",
-      priority: "Medium",
-    });
-  }
-
-  if (text.includes("skew")) {
-    recommendations.push({
-      feature: "Skewed Features",
-      action: "Apply Log / Yeo-Johnson Transformation.",
-      priority: "Medium",
-    });
-  }
-
-  if (text.includes("scale")) {
-    recommendations.push({
-      feature: "Numeric Features",
-      action: "Standardize before training.",
-      priority: "Low",
-    });
-  }
-
   return (
     <Card>
       <div className="flex items-center gap-3">
@@ -83,7 +37,8 @@ export default function FeatureEngineering({
       </div>
 
       <div className="mt-8 space-y-4">
-        {recommendations.length === 0 ? (
+        {recommendations.length === 1 &&
+        recommendations[0].title === "Dataset Ready" ? (
           <div className="rounded-xl bg-green-50 p-6 text-center">
             <CheckCircle2
               className="mx-auto mb-3 text-green-600"
@@ -91,12 +46,11 @@ export default function FeatureEngineering({
             />
 
             <h3 className="font-semibold">
-              No preprocessing required
+              {recommendations[0].title}
             </h3>
 
             <p className="mt-2 text-sm text-slate-600">
-              The AI assistant did not identify any
-              significant preprocessing requirements.
+              {recommendations[0].reason}
             </p>
           </div>
         ) : (
@@ -107,11 +61,15 @@ export default function FeatureEngineering({
             >
               <div>
                 <h4 className="font-semibold text-slate-900">
-                  {item.feature}
+                  {item.title}
                 </h4>
 
                 <p className="mt-2 text-sm text-slate-600">
                   {item.action}
+                </p>
+
+                <p className="mt-2 text-xs text-slate-500">
+                  {item.reason}
                 </p>
               </div>
 

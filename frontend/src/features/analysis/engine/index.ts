@@ -9,6 +9,10 @@ import {
 } from "./mlReadiness";
 
 import {
+  generateExecutiveSummary,
+} from "./executiveSummary";
+
+import {
   generateFeatureEngineering,
 } from "./featureEngineering";
 
@@ -23,7 +27,6 @@ import {
 export function analyzeDataset(
   data: AnalysisSummaryResponse
 ) {
-
   const datasetScore =
     calculateDatasetScore(data);
 
@@ -32,6 +35,9 @@ export function analyzeDataset(
       data,
       datasetScore
     );
+
+  const executiveSummary =
+    generateExecutiveSummary(data);
 
   const featureEngineering =
     generateFeatureEngineering(data);
@@ -45,6 +51,7 @@ export function analyzeDataset(
   return {
     datasetScore,
     mlReadiness,
+    executiveSummary,
     featureEngineering,
     modelRecommendations,
     confidence,

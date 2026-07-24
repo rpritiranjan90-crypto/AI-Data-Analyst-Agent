@@ -6,55 +6,20 @@ import {
 
 import Card from "../../../../components/ui/Card";
 
+import type { ExecutiveSummaryResult } from "../../engine/executiveSummary";
+
 interface ExecutiveSummaryProps {
-  insights: string[];
+  result: ExecutiveSummaryResult;
 }
 
 export default function ExecutiveSummary({
-  insights,
+  result,
 }: ExecutiveSummaryProps) {
-  const text = insights.join(" ").toLowerCase();
-
-  const hasMissing = text.includes("missing");
-  const hasOutliers = text.includes("outlier");
-  const hasDuplicates = text.includes("duplicate");
-  const hasCorrelation = text.includes("correlation");
-  const hasRecommendation =
-    text.includes("recommend") ||
-    text.includes("should") ||
-    text.includes("consider");
-
-  const issues = [
-    hasMissing,
-    hasOutliers,
-    hasDuplicates,
-  ].filter(Boolean).length;
-
-  const score = Math.max(60, 100 - issues * 10);
-
-  const assessment =
-    score >= 90
-      ? "Excellent"
-      : score >= 80
-      ? "Good"
-      : score >= 70
-      ? "Fair"
-      : "Needs Attention";
-
-  const summary = [
-    hasCorrelation &&
-      "Strong relationships were detected between several variables.",
-    hasMissing &&
-      "Missing values should be handled before model training.",
-    hasOutliers &&
-      "Outliers may influence model performance and should be reviewed.",
-    hasDuplicates &&
-      "Duplicate records should be removed.",
-    hasRecommendation &&
-      "The AI assistant generated preprocessing recommendations.",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const {
+    assessment,
+    score,
+    summary,
+  } = result;
 
   return (
     <Card>
@@ -122,8 +87,7 @@ export default function ExecutiveSummary({
           </div>
 
           <p className="mt-5 leading-7 text-slate-700">
-            {summary ||
-              "The AI assistant did not detect any significant issues in the current dataset."}
+            {summary}
           </p>
         </div>
       </div>

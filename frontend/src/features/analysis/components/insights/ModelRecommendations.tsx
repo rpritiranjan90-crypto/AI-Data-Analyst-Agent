@@ -6,54 +6,17 @@ import {
 
 import Card from "../../../../components/ui/Card";
 
-interface ModelRecommendationsProps {
-  insights: string[];
-}
+import type {
+  RecommendedModel,
+} from "../../engine/modelRecommendation";
 
-interface ModelRecommendation {
-  name: string;
-  rating: number;
-  reason: string;
+interface ModelRecommendationsProps {
+  models: RecommendedModel[];
 }
 
 export default function ModelRecommendations({
-  insights,
+  models,
 }: ModelRecommendationsProps) {
-  const text = insights.join(" ").toLowerCase();
-
-  const models: ModelRecommendation[] = [
-    {
-      name: "Random Forest",
-      rating: 5,
-      reason:
-        "Excellent baseline model for structured datasets and robust to outliers.",
-    },
-    {
-      name: "XGBoost",
-      rating: 5,
-      reason:
-        "High predictive performance on tabular data.",
-    },
-    {
-      name: "CatBoost",
-      rating: text.includes("categorical") ? 5 : 4,
-      reason:
-        "Very effective when categorical features are present.",
-    },
-    {
-      name: "LightGBM",
-      rating: 4,
-      reason:
-        "Fast training with strong performance on large datasets.",
-    },
-    {
-      name: "Logistic Regression",
-      rating: text.includes("skew") ? 3 : 4,
-      reason:
-        "Good interpretable baseline after preprocessing.",
-    },
-  ];
-
   return (
     <Card>
       <div className="flex items-center gap-3">
@@ -81,27 +44,50 @@ export default function ModelRecommendations({
           >
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-slate-900">
-                  {model.name}
-                </h3>
+                <div className="flex items-center gap-3">
+                  <h3 className="text-lg font-semibold text-slate-900">
+                    {model.name}
+                  </h3>
+
+                  <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
+                    {model.category}
+                  </span>
+                </div>
 
                 <p className="mt-2 text-sm leading-6 text-slate-600">
                   {model.reason}
                 </p>
               </div>
 
-              <div className="flex items-center gap-1">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <Star
-                    key={index}
-                    size={18}
-                    className={
-                      index < model.rating
-                        ? "fill-yellow-400 text-yellow-400"
-                        : "text-slate-300"
-                    }
-                  />
-                ))}
+              <div className="text-right">
+                <div className="text-2xl font-bold text-indigo-600">
+                  {model.score}
+                </div>
+
+                <div className="mt-2 flex justify-end gap-1">
+                  {Array.from({ length: 5 }).map((_, index) => {
+                    const rating =
+                      Math.max(
+                        1,
+                        Math.min(
+                          5,
+                          Math.round(model.score / 20)
+                        )
+                      );
+
+                    return (
+                      <Star
+                        key={index}
+                        size={18}
+                        className={
+                          index < rating
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-slate-300"
+                        }
+                      />
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
@@ -116,10 +102,9 @@ export default function ModelRecommendations({
           />
 
           <p className="text-sm leading-7 text-slate-700">
-            These recommendations are based on the current statistical analysis.
-            As we continue developing the platform, this section will become
-            fully data-driven using correlation, distribution, categorical,
-            and data quality metrics instead of keyword matching.
+            Model recommendations are generated automatically using
+            dataset quality, machine learning readiness, missing values,
+            and correlation analysis.
           </p>
         </div>
       </div>
