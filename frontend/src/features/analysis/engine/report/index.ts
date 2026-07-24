@@ -10,6 +10,7 @@ import { calculateConfidence } from "../confidence";
 import { generateFindings } from "../findings";
 import { generateCopilot } from "../copilot";
 import { generateFeatureCards } from "../featureCards";
+import { generateModelCards } from "../modelCards";
 
 export function generateAIReport(
   data: AnalysisSummaryResponse
@@ -51,6 +52,8 @@ export function generateAIReport(
     mlReadiness.score
   );
 
+  const modelCards = generateModelCards(models);
+
   return {
     title: "AI Dataset Analysis Report",
 
@@ -80,6 +83,8 @@ export function generateAIReport(
     findings,
 
     featureCards,
+
+    modelCards,
 
     executiveSummary: {
       title: "Executive Summary",

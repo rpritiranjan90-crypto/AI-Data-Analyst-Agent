@@ -4,6 +4,7 @@ import DatasetHealthCards from "./DatasetHealthCards";
 import ExecutiveDashboard from "./ExecutiveDashboard";
 import FeatureEngineeringCards from "./FeatureEngineeringCards";
 import GaugeGrid from "./GaugeGrid";
+import ModelRecommendationCards from "./ModelRecommendationCards";
 import ReportHeader from "./ReportHeader";
 import ReportKPIs from "./ReportKPIs";
 
@@ -78,6 +79,10 @@ export default function AIReport() {
         cards={report.featureCards}
       />
 
+      <ModelRecommendationCards
+        cards={report.modelCards}
+      />
+
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="mb-3 text-xl font-semibold text-slate-900">
           {report.executiveSummary.title}
@@ -85,16 +90,6 @@ export default function AIReport() {
 
         <p className="whitespace-pre-line leading-7 text-slate-700">
           {report.executiveSummary.content}
-        </p>
-      </section>
-
-      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-3 text-xl font-semibold text-slate-900">
-          {report.modelRecommendations.title}
-        </h2>
-
-        <p className="whitespace-pre-line leading-7 text-slate-700">
-          {report.modelRecommendations.content}
         </p>
       </section>
 
