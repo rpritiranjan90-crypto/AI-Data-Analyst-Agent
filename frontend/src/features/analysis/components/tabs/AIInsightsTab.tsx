@@ -5,6 +5,11 @@ import SectionHeader from "../../../../components/ui/SectionHeader";
 
 import { useAnalysisData } from "../../context/AnalysisContext";
 
+import AIOverview from "../insights/AIOverview";
+import InsightCards from "../insights/InsightCards";
+import KeyFindings from "../insights/KeyFindings";
+import RecommendationPanel from "../insights/RecommendationPanel";
+
 export default function AIInsightsTab() {
   const { insights } = useAnalysisData();
 
@@ -12,39 +17,27 @@ export default function AIInsightsTab() {
     return (
       <EmptyState
         icon={BrainCircuit}
-        title="No Insights"
-        description="No AI insights were generated."
+        title="No AI Insights"
+        description="No AI insights were generated for this dataset."
       />
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <SectionHeader
         icon={BrainCircuit}
-        title="AI Insights"
-        subtitle={`${insights.length} insights generated`}
+        title="AI Analytics Assistant"
+        subtitle={`${insights.length} AI-generated insights available`}
       />
 
-      <div className="space-y-4">
-        {insights.map((insight, index) => (
-          <div
-            key={index}
-            className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
-          >
-            <div className="flex gap-3">
-              <BrainCircuit
-                size={20}
-                className="mt-1 flex-shrink-0 text-blue-600"
-              />
+      <AIOverview insights={insights} />
 
-              <p className="leading-7 text-slate-700">
-                {insight}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
+      <KeyFindings insights={insights} />
+
+      <RecommendationPanel insights={insights} />
+
+      <InsightCards insights={insights} />
     </div>
   );
 }
