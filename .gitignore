@@ -1,49 +1,163 @@
+# =========================================================
+# AI Data Analyst Agent
+# Production .gitignore
+# =========================================================
+
+############################
 # Python
+############################
+
 __pycache__/
 *.py[cod]
-*.pyo
+*$py.class
 
-# Virtual Environment
+.venv/
 venv/
-.env
+env/
+ENV/
 
-# Logs
-logs/
+.python-version
+
+############################
+# FastAPI
+############################
+
+backend/logs/
+backend/uploads/
+backend/metadata/dataset_metadata/
+
 *.log
 
-# Uploads
-uploads/*
-!uploads/.gitkeep
+############################
+# Environment Variables
+############################
 
-# Cleaned Data
-cleaned_data/*
-!cleaned_data/.gitkeep
+.env
+.env.*
+!.env.example
 
-# Reports
-reports/*
-!reports/.gitkeep
+############################
+# VS Code
+############################
 
-# Generated Charts
-generated_charts/*
-!generated_charts/.gitkeep
-
-# Charts
-charts/*
-!charts/.gitkeep
-
-# Cache
-cache/*
-!cache/.gitkeep
-
-# Models (if generated dynamically)
-saved_models/*.pkl
-saved_models/*.joblib
-saved_models/*.onnx
-
-# IDE
 .vscode/
+
+############################
+# JetBrains
+############################
+
 .idea/
 
-# OS
+############################
+# macOS
+############################
+
 .DS_Store
+
+############################
+# Windows
+############################
+
 Thumbs.db
+Desktop.ini
+
+############################
+# Node
+############################
+
+node_modules/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+############################
+# React Build
+############################
+
+frontend/dist/
+dist/
+build/
+
+############################
+# Coverage
+############################
+
+coverage/
+.coverage
+htmlcov/
+
+############################
+# Pytest
+############################
+
+.pytest_cache/
+
+############################
+# Mypy
+############################
+
+.mypy_cache/
+
+############################
+# Ruff
+############################
+
+.ruff_cache/
+
+############################
+# Temporary Files
+############################
+
+*.tmp
+*.temp
+*.bak
+*.swp
+
+############################
+# Archives
+############################
+
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+
+############################
+# Local Database
+############################
+
+*.sqlite
+*.sqlite3
+
+############################
+# Jupyter
+############################
+
+.ipynb_checkpoints/
+
+############################
+# Excel Temporary Files
+############################
+
+~$*.xlsx
+~$*.xls
+
+############################
+# Uploaded Datasets
+############################
+
+*.csv
+*.xlsx
+*.xls
+*.parquet
+*.feather
+
+############################
+# Keep Sample Dataset Folder
+############################
+
+!datasets/
+!datasets/**
