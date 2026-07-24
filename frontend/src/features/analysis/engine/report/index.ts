@@ -7,18 +7,19 @@ import { generateExecutiveSummary } from "../executiveSummary";
 import { generateFeatureEngineering } from "../featureEngineering";
 import { recommendModels } from "../modelRecommendation";
 import { calculateConfidence } from "../confidence";
+import { generateFindings } from "../findings";
+import { generateCopilot } from "../copilot";
+import { generateFeatureCards } from "../featureCards";
 
 export function generateAIReport(
   data: AnalysisSummaryResponse
 ): AIReport {
-  const datasetScore =
-    calculateDatasetScore(data);
+  const datasetScore = calculateDatasetScore(data);
 
-  const mlReadiness =
-    calculateMLReadiness(
-      data,
-      datasetScore
-    );
+  const mlReadiness = calculateMLReadiness(
+    data,
+    datasetScore
+  );
 
   const executiveSummary =
     generateExecutiveSummary(data);
@@ -26,11 +27,29 @@ export function generateAIReport(
   const featureEngineering =
     generateFeatureEngineering(data);
 
-  const models =
-    recommendModels(data);
+  const models = recommendModels(data);
 
   const confidence =
     calculateConfidence(data);
+
+  const findings = generateFindings(
+    datasetScore.score,
+    mlReadiness.score,
+    confidence.score,
+    models.length
+  );
+
+  const copilot = generateCopilot(
+    datasetScore.score,
+    mlReadiness.score,
+    confidence.score,
+    models.length
+  );
+
+  const featureCards = generateFeatureCards(
+    datasetScore.score,
+    mlReadiness.score
+  );
 
   return {
     title: "AI Dataset Analysis Report",
@@ -55,6 +74,12 @@ export function generateAIReport(
         value: models.length,
       },
     ],
+
+    copilot,
+
+    findings,
+
+    featureCards,
 
     executiveSummary: {
       title: "Executive Summary",

@@ -1,4 +1,8 @@
+import AICopilot from "./AICopilot";
+import AIKeyFindings from "./AIKeyFindings";
+import DatasetHealthCards from "./DatasetHealthCards";
 import ExecutiveDashboard from "./ExecutiveDashboard";
+import FeatureEngineeringCards from "./FeatureEngineeringCards";
 import GaugeGrid from "./GaugeGrid";
 import ReportHeader from "./ReportHeader";
 import ReportKPIs from "./ReportKPIs";
@@ -12,19 +16,15 @@ export default function AIReport() {
   const mlReadiness = Number(report.metrics[1]?.value ?? 0);
   const confidence = Number(report.metrics[2]?.value ?? 0);
   const models = Number(report.metrics[3]?.value ?? 0);
-console.log("===== AI REPORT METRICS =====");
 
-console.log(report.metrics);
+  console.log("===== AI REPORT METRICS =====");
+  console.log(report.metrics);
+  console.log("Dataset Score:", datasetScore);
+  console.log("ML Readiness:", mlReadiness);
+  console.log("Confidence:", confidence);
+  console.log("Models:", models);
+  console.log("=============================");
 
-console.log("Dataset Score:", datasetScore);
-
-console.log("ML Readiness:", mlReadiness);
-
-console.log("Confidence:", confidence);
-
-console.log("Models:", models);
-
-console.log("=============================");
   return (
     <div className="space-y-6">
       <ReportHeader
@@ -38,6 +38,8 @@ console.log("=============================");
         confidence={confidence}
         models={models}
       />
+
+      <AICopilot copilot={report.copilot} />
 
       <GaugeGrid
         datasetScore={datasetScore}
@@ -63,33 +65,26 @@ console.log("=============================");
         ]}
       />
 
+      <AIKeyFindings findings={report.findings} />
+
+      <DatasetHealthCards
+        datasetScore={datasetScore}
+        mlReadiness={mlReadiness}
+        confidence={confidence}
+        models={models}
+      />
+
+      <FeatureEngineeringCards
+        cards={report.featureCards}
+      />
+
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="mb-3 text-xl font-semibold text-slate-900">
           {report.executiveSummary.title}
         </h2>
 
-        <p className="leading-7 text-slate-700">
+        <p className="whitespace-pre-line leading-7 text-slate-700">
           {report.executiveSummary.content}
-        </p>
-      </section>
-
-      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-3 text-xl font-semibold text-slate-900">
-          {report.datasetHealth.title}
-        </h2>
-
-        <p className="leading-7 text-slate-700">
-          {report.datasetHealth.content}
-        </p>
-      </section>
-
-      <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-3 text-xl font-semibold text-slate-900">
-          {report.featureEngineering.title}
-        </h2>
-
-        <p className="leading-7 text-slate-700">
-          {report.featureEngineering.content}
         </p>
       </section>
 
@@ -98,7 +93,7 @@ console.log("=============================");
           {report.modelRecommendations.title}
         </h2>
 
-        <p className="leading-7 text-slate-700">
+        <p className="whitespace-pre-line leading-7 text-slate-700">
           {report.modelRecommendations.content}
         </p>
       </section>
@@ -108,7 +103,7 @@ console.log("=============================");
           {report.conclusion.title}
         </h2>
 
-        <p className="leading-7 text-slate-700">
+        <p className="whitespace-pre-line leading-7 text-slate-700">
           {report.conclusion.content}
         </p>
       </section>
