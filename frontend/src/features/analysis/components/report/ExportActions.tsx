@@ -7,20 +7,23 @@ import {
 
 import Button from "../../../../components/ui/Button";
 
+import { exporters } from "../../engine/export";
 import { useAIReport } from "../../hooks/useAIReport";
-import { downloadJSON } from "../../utils/download";
+import { downloadReport } from "../../utils/download";
 
 export default function ExportActions() {
   const report = useAIReport();
 
   return (
     <div className="flex flex-wrap gap-3">
+      {/* PDF */}
       <Button
         variant="primary"
         onClick={() =>
-          downloadJSON(
-            "ai-analysis-report.json",
-            report
+          downloadReport(
+            report,
+            exporters.pdf,
+            "ai-analysis-report"
           )
         }
       >
@@ -31,7 +34,17 @@ export default function ExportActions() {
         Export PDF
       </Button>
 
-      <Button variant="secondary">
+      {/* HTML */}
+      <Button
+        variant="secondary"
+        onClick={() =>
+          downloadReport(
+            report,
+            exporters.html,
+            "ai-analysis-report"
+          )
+        }
+      >
         <Globe
           size={16}
           className="mr-2"
@@ -39,7 +52,17 @@ export default function ExportActions() {
         Export HTML
       </Button>
 
-      <Button variant="secondary">
+      {/* Markdown */}
+      <Button
+        variant="secondary"
+        onClick={() =>
+          downloadReport(
+            report,
+            exporters.markdown,
+            "ai-analysis-report"
+          )
+        }
+      >
         <FileCode
           size={16}
           className="mr-2"
@@ -47,12 +70,14 @@ export default function ExportActions() {
         Export Markdown
       </Button>
 
+      {/* JSON */}
       <Button
         variant="secondary"
         onClick={() =>
-          downloadJSON(
-            "ai-analysis-report.json",
-            report
+          downloadReport(
+            report,
+            exporters.json,
+            "ai-analysis-report"
           )
         }
       >
