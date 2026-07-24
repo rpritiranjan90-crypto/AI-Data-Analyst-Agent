@@ -88,10 +88,10 @@ export default function DataTable<
   if (!data.length) {
     return (
       <EmptyState
-        icon={Database}
-        title="No Data Available"
-        description="There are no records to display."
-      />
+  icon={<Database className="h-10 w-10" />}
+  title="No Data Available"
+  description="There are no records to display."
+/>
     );
   }
 

@@ -15,6 +15,46 @@ interface CorrelationSummaryProps {
   correlations: StrongCorrelation[];
 }
 
+interface SummaryCardProps {
+  icon: React.ReactNode;
+  iconBg: string;
+  title: string;
+  value: React.ReactNode;
+  subtitle: React.ReactNode;
+}
+
+function SummaryCard({
+  icon,
+  iconBg,
+  title,
+  value,
+  subtitle,
+}: SummaryCardProps) {
+  return (
+    <Card className="p-5 h-full">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-sm font-medium text-slate-500">
+            {title}
+          </p>
+
+          <h2 className="mt-3 text-3xl font-bold text-slate-900">
+            {value}
+          </h2>
+
+          <div className="mt-2 text-sm text-slate-500">
+            {subtitle}
+          </div>
+        </div>
+
+        <div className={`rounded-2xl p-3 ${iconBg}`}>
+          {icon}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 export default function CorrelationSummary({
   method,
   totalNumericColumns,
@@ -29,124 +69,76 @@ export default function CorrelationSummary({
     )[0];
 
   return (
-    <Card>
-      <div className="grid gap-6 lg:grid-cols-4">
-        {/* Method */}
+    <div className="grid gap-6 lg:grid-cols-4">
+      <SummaryCard
+        title="Method"
+        value={method.toUpperCase()}
+        subtitle="Correlation Algorithm"
+        icon={
+          <Network
+            size={22}
+            className="text-blue-600"
+          />
+        }
+        iconBg="bg-blue-50"
+      />
 
-        <div>
-          <div className="flex items-center gap-2 text-blue-600">
-            <Network size={18} />
+      <SummaryCard
+        title="Numeric Columns"
+        value={totalNumericColumns}
+        subtitle="Included in Analysis"
+        icon={
+          <Activity
+            size={22}
+            className="text-violet-600"
+          />
+        }
+        iconBg="bg-violet-50"
+      />
 
-            <span className="text-sm font-semibold">
-              Method
-            </span>
-          </div>
+      <SummaryCard
+        title="Strongest Pair"
+        value={
+          strongest
+            ? `${strongest.column_1} ↔ ${strongest.column_2}`
+            : "None"
+        }
+        subtitle={
+          strongest
+            ? `${strongest.direction} (${strongest.correlation.toFixed(
+                2
+              )})`
+            : "No correlation exceeded the threshold."
+        }
+        icon={
+          <TrendingUp
+            size={22}
+            className="text-emerald-600"
+          />
+        }
+        iconBg="bg-emerald-50"
+      />
 
-          <h2 className="mt-3 text-3xl font-bold text-slate-900">
-            {method.toUpperCase()}
-          </h2>
-
-          <p className="mt-1 text-sm text-slate-500">
-            Correlation Algorithm
-          </p>
-        </div>
-
-        {/* Numeric Columns */}
-
-        <div>
-          <div className="flex items-center gap-2 text-violet-600">
-            <Activity size={18} />
-
-            <span className="text-sm font-semibold">
-              Numeric Columns
-            </span>
-          </div>
-
-          <h2 className="mt-3 text-3xl font-bold text-slate-900">
-            {totalNumericColumns}
-          </h2>
-
-          <p className="mt-1 text-sm text-slate-500">
-            Included in Analysis
-          </p>
-        </div>
-
-        {/* Strongest Relationship */}
-
-        <div>
-          <div className="flex items-center gap-2 text-green-600">
-            <TrendingUp size={18} />
-
-            <span className="text-sm font-semibold">
-              Strongest Relationship
-            </span>
-          </div>
-
-          {strongest ? (
-            <>
-              <h2 className="mt-3 text-lg font-bold text-slate-900">
-                {strongest.column_1} ↔ {strongest.column_2}
-              </h2>
-
-              <p className="mt-2 text-2xl font-bold text-green-600">
-                {strongest.correlation.toFixed(2)}
-              </p>
-
-              <p className="mt-2 text-sm text-slate-500">
-                {strongest.direction}
-              </p>
-            </>
-          ) : (
-            <>
-              <h2 className="mt-3 text-lg font-bold text-slate-900">
-                No Strong Relationship
-              </h2>
-
-              <p className="mt-2 text-sm text-slate-500">
-                No correlation exceeded the configured threshold.
-              </p>
-            </>
-          )}
-        </div>
-
-        {/* Highest Correlation */}
-
-        <div>
-          <div className="flex items-center gap-2 text-orange-600">
-            <TrendingDown size={18} />
-
-            <span className="text-sm font-semibold">
-              Highest Correlation
-            </span>
-          </div>
-
-          {strongest ? (
-            <>
-              <h2 className="mt-3 text-3xl font-bold text-slate-900">
-                {strongest.absolute_correlation.toFixed(2)}
-              </h2>
-
-              <p className="mt-1 text-sm text-slate-500">
-                {strongest.column_1} ↔ {strongest.column_2}
-              </p>
-
-              <p className="mt-2 font-medium text-emerald-600">
-                {strongest.interpretation}
-              </p>
-            </>
-          ) : (
-            <>
-              <h2 className="mt-3 text-3xl font-bold text-slate-900">
-                —
-              </h2>
-
-              <p className="mt-1 text-sm text-slate-500">
-                No measurable relationship
-              </p>
-            </>
-          )}
-        </div>
-      </div>
-    </Card>
+      <SummaryCard
+        title="Highest Correlation"
+        value={
+          strongest
+            ? strongest.absolute_correlation.toFixed(2)
+            : "—"
+        }
+        subtitle={
+          strongest
+            ? strongest.interpretation
+            : "No measurable relationship"
+        }
+        icon={
+          <TrendingDown
+            size={22}
+            className="text-orange-600"
+          />
+        }
+        iconBg="bg-orange-50"
+      />
+    </div>
   );
 }

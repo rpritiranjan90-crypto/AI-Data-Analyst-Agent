@@ -1,150 +1,112 @@
 import {
   BarChart3,
-  Brain,
-  FileBarChart2,
+  BrainCircuit,
+  Database,
+  FileSpreadsheet,
   Home,
   Sparkles,
   Upload,
-  Wrench,
-  LineChart,
-  Bot,
+  Wand2,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
-const navigation = [
+const menu = [
   {
-    section: "MAIN",
-    items: [
-      {
-        title: "Dashboard",
-        path: "/dashboard",
-        icon: Home,
-      },
-      {
-        title: "Upload Dataset",
-        path: "/upload",
-        icon: Upload,
-      },
-    ],
+    name: "Dashboard",
+    icon: Home,
+    path: "/dashboard",
   },
   {
-    section: "DATA",
-    items: [
-      {
-        title: "Analysis",
-        path: "/analysis",
-        icon: BarChart3,
-      },
-      {
-        title: "Data Cleaning",
-        path: "/cleaning",
-        icon: Wrench,
-      },
-      {
-        title: "Visualization",
-        path: "/visualization",
-        icon: LineChart,
-      },
-    ],
+    name: "Upload",
+    icon: Upload,
+    path: "/upload",
   },
   {
-    section: "AI",
-    items: [
-      {
-        title: "AI Insights",
-        path: "/ai-insights",
-        icon: Brain,
-      },
-      {
-        title: "Recommendations",
-        path: "/recommendation",
-        icon: Sparkles,
-      },
-      {
-        title: "Machine Learning",
-        path: "/machine-learning",
-        icon: Bot,
-      },
-    ],
+    name: "Analysis",
+    icon: BarChart3,
+    path: "/analysis",
   },
   {
-    section: "REPORTS",
-    items: [
-      {
-        title: "Reports",
-        path: "/reports",
-        icon: FileBarChart2,
-      },
-    ],
+    name: "Cleaning",
+    icon: Wand2,
+    path: "/cleaning",
+  },
+  {
+    name: "Visualization",
+    icon: Sparkles,
+    path: "/visualization",
+  },
+  {
+    name: "Machine Learning",
+    icon: BrainCircuit,
+    path: "/machine-learning",
+  },
+  {
+    name: "Recommendation",
+    icon: Database,
+    path: "/recommendation",
   },
 ];
 
 export default function Sidebar() {
   return (
-    <aside className="flex h-screen w-72 flex-col border-r border-slate-200 bg-white">
+    <aside className="flex h-screen w-72 flex-col border-r border-slate-200 bg-white shadow-sm">
       {/* Logo */}
-      <div className="border-b border-slate-200 px-8 py-7">
+      <div className="flex h-20 items-center border-b border-slate-200 px-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-xl font-bold text-white shadow-sm">
-            AI
+          <div className="rounded-xl bg-blue-600 p-3">
+            <FileSpreadsheet
+              className="text-white"
+              size={22}
+            />
           </div>
 
           <div>
-            <h1 className="text-lg font-bold text-slate-900">
-              AI Data Analyst
-            </h1>
+            <h2 className="text-lg font-bold text-slate-900">
+              AI Analyst
+            </h2>
 
-            <p className="text-sm text-slate-500">
-              Analytics Platform
+            <p className="text-xs text-slate-500">
+              Data Analytics Platform
             </p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-5 py-6">
-        {navigation.map((group) => (
-          <div key={group.section} className="mb-8">
-            <p className="mb-3 px-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
-              {group.section}
-            </p>
+      <nav className="flex-1 space-y-2 p-4">
+        {menu.map((item) => {
+          const Icon = item.icon;
 
-            <ul className="space-y-2">
-              {group.items.map((item) => {
-                const Icon = item.icon;
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                  isActive
+                    ? "bg-blue-600 text-white shadow-md"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                }`
+              }
+            >
+              <Icon size={20} />
 
-                return (
-                  <li key={item.path}>
-                    <NavLink
-                      to={item.path}
-                      className={({ isActive }) =>
-                        `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
-                          isActive
-                            ? "bg-blue-600 text-white shadow-md"
-                            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                        }`
-                      }
-                    >
-                      <Icon size={20} />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+              <span>{item.name}</span>
+            </NavLink>
+          );
+        })}
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-slate-200 p-5">
+      <div className="border-t border-slate-200 p-4">
         <div className="rounded-xl bg-slate-100 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Version
+          <p className="text-xs font-semibold text-slate-900">
+            AI Data Analyst
           </p>
 
-          <p className="mt-1 text-sm font-medium text-slate-900">
-            AI Data Analyst v1.0
+          <p className="mt-1 text-xs text-slate-500">
+            Professional Analytics Dashboard
           </p>
         </div>
       </div>

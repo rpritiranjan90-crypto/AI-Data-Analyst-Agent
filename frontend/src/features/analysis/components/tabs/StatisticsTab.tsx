@@ -1,8 +1,15 @@
 import { useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { BarChart3, Sigma } from "lucide-react";
+import {
+  BarChart3,
+  Sigma,
+  Database,
+  Hash,
+  AlertTriangle,
+} from "lucide-react";
 
 import { DataTable } from "../../../../components/data-table";
+import Card from "../../../../components/ui/Card";
 import EmptyState from "../../../../components/ui/EmptyState";
 import SectionHeader from "../../../../components/ui/SectionHeader";
 
@@ -22,6 +29,28 @@ export default function StatisticsTab() {
       ...stats,
     }));
   }, [descriptive]);
+
+  const summary = useMemo(() => {
+    const totalColumns = tableData.length;
+
+    const totalRecords =
+      tableData.reduce(
+        (sum, item) => sum + item.count,
+        0
+      ) || 0;
+
+    const totalMissing =
+      tableData.reduce(
+        (sum, item) => sum + item.missing_values,
+        0
+      ) || 0;
+
+    return {
+      totalColumns,
+      totalRecords,
+      totalMissing,
+    };
+  }, [tableData]);
 
   const columns = useMemo<ColumnDef<StatisticsRow>[]>(
     () => [
@@ -75,7 +104,7 @@ export default function StatisticsTab() {
   if (tableData.length === 0) {
     return (
       <EmptyState
-        icon={BarChart3}
+        icon={<BarChart3 className="h-10 w-10" />}
         title="Statistics Not Available"
         description="No descriptive statistics were returned."
       />
@@ -85,17 +114,72 @@ export default function StatisticsTab() {
   return (
     <div className="space-y-6">
       <SectionHeader
-        icon={Sigma}
+        icon={<Sigma className="h-6 w-6 text-indigo-600" />}
         title="Descriptive Statistics"
-        subtitle="Statistical summary of all numeric columns."
+        subtitle="Comprehensive statistical summary of every numeric column."
       />
 
-      <DataTable
-        columns={columns}
-        data={tableData}
-        pageSize={10}
-        searchPlaceholder="Search numeric columns..."
-      />
+      {/* Executive Summary */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <SummaryCard
+          icon={<Database className="text-blue-600" size={24} />}
+          title="Numeric Columns"
+          value={summary.totalColumns}
+        />
+
+        <SummaryCard
+          icon={<Hash className="text-emerald-600" size={24} />}
+          title="Total Records"
+          value={summary.totalRecords.toLocaleString()}
+        />
+
+        <SummaryCard
+          icon={<AlertTriangle className="text-orange-600" size={24} />}
+          title="Missing Values"
+          value={summary.totalMissing}
+        />
+      </div>
+
+      <Card className="overflow-hidden">
+        <DataTable
+          columns={columns}
+          data={tableData}
+          pageSize={10}
+          searchPlaceholder="Search numeric columns..."
+        />
+      </Card>
     </div>
+  );
+}
+
+interface SummaryCardProps {
+  icon: React.ReactNode;
+  title: string;
+  value: React.ReactNode;
+}
+
+function SummaryCard({
+  icon,
+  title,
+  value,
+}: SummaryCardProps) {
+  return (
+    <Card className="p-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-slate-500">
+            {title}
+          </p>
+
+          <h2 className="mt-2 text-3xl font-bold text-slate-900">
+            {value}
+          </h2>
+        </div>
+
+        <div className="rounded-2xl bg-slate-100 p-3">
+          {icon}
+        </div>
+      </div>
+    </Card>
   );
 }

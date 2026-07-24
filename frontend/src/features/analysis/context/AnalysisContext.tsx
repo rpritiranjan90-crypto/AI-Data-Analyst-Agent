@@ -6,7 +6,10 @@ import {
 
 import type { AnalysisSummaryResponse } from "../types/analysis";
 
-const AnalysisContext = createContext<AnalysisSummaryResponse | null>(null);
+const AnalysisContext =
+  createContext<AnalysisSummaryResponse | null>(
+    null,
+  );
 
 interface AnalysisProviderProps {
   data: AnalysisSummaryResponse;
@@ -25,11 +28,12 @@ export function AnalysisProvider({
 }
 
 export function useAnalysisData() {
-  const context = useContext(AnalysisContext);
+  const context =
+    useContext(AnalysisContext);
 
   if (!context) {
     throw new Error(
-      "useAnalysisData must be used inside AnalysisProvider"
+      "useAnalysisData must be used inside AnalysisProvider",
     );
   }
 

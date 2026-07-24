@@ -1,22 +1,30 @@
 import type { LucideIcon } from "lucide-react";
+import { isValidElement, type ReactNode } from "react";
 
 interface EmptyStateProps {
   title: string;
   description: string;
-  icon: LucideIcon;
-  action?: React.ReactNode;
+  icon: LucideIcon | ReactNode;
+  action?: ReactNode;
 }
 
 export default function EmptyState({
   title,
   description,
-  icon: Icon,
+  icon,
   action,
 }: EmptyStateProps) {
+  const IconComponent =
+    typeof icon === "function" ? icon : null;
+
   return (
     <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-8 text-center">
       <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-        <Icon size={40} strokeWidth={2} />
+        {IconComponent ? (
+          <IconComponent size={40} strokeWidth={2} />
+        ) : (
+          isValidElement(icon) && icon
+        )}
       </div>
 
       <h2 className="text-2xl font-semibold text-slate-900">
@@ -27,11 +35,7 @@ export default function EmptyState({
         {description}
       </p>
 
-      {action && (
-        <div className="mt-6">
-          {action}
-        </div>
-      )}
+      {action && <div className="mt-6">{action}</div>}
     </div>
   );
 }

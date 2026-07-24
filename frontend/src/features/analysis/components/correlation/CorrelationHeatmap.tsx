@@ -1,3 +1,6 @@
+import { Grid2X2, Info } from "lucide-react";
+
+import Badge from "../../../../components/ui/Badge";
 import Card from "../../../../components/ui/Card";
 import type { CorrelationMatrix } from "../../types/analysis";
 
@@ -7,33 +10,15 @@ interface CorrelationHeatmapProps {
 }
 
 function getCellClass(value: number, diagonal: boolean) {
-  if (diagonal) {
-    return "bg-slate-900 text-white";
-  }
+  if (diagonal) return "bg-slate-900 text-white";
 
-  if (value >= 0.8) {
-    return "bg-emerald-700 text-white";
-  }
+  if (value >= 0.8) return "bg-emerald-700 text-white";
+  if (value >= 0.5) return "bg-emerald-500 text-white";
+  if (value >= 0.2) return "bg-emerald-200 text-emerald-900";
 
-  if (value >= 0.5) {
-    return "bg-emerald-500 text-white";
-  }
-
-  if (value >= 0.2) {
-    return "bg-emerald-200 text-emerald-900";
-  }
-
-  if (value <= -0.8) {
-    return "bg-red-700 text-white";
-  }
-
-  if (value <= -0.5) {
-    return "bg-red-500 text-white";
-  }
-
-  if (value <= -0.2) {
-    return "bg-red-200 text-red-900";
-  }
+  if (value <= -0.8) return "bg-red-700 text-white";
+  if (value <= -0.5) return "bg-red-500 text-white";
+  if (value <= -0.2) return "bg-red-200 text-red-900";
 
   return "bg-slate-100 text-slate-700";
 }
@@ -43,22 +28,39 @@ export default function CorrelationHeatmap({
   matrix,
 }: CorrelationHeatmapProps) {
   return (
-    <Card className="overflow-hidden">
-      <div className="mb-5 flex items-center justify-between">
-        <div>
-          <h3 className="text-xl font-bold text-slate-900">
-            Correlation Heatmap
-          </h3>
+    <Card className="p-6">
+      {/* Header */}
+      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="rounded-2xl bg-indigo-50 p-3">
+            <Grid2X2
+              size={22}
+              className="text-indigo-600"
+            />
+          </div>
 
-          <p className="mt-1 text-sm text-slate-500">
-            Darker colors indicate stronger relationships.
-          </p>
+          <div>
+            <h3 className="text-xl font-bold text-slate-900">
+              Correlation Heatmap
+            </h3>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Explore pairwise relationships between numeric variables.
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-4 text-xs text-slate-600">
+        <Badge variant="info">
+          {columns.length} Variables
+        </Badge>
+      </div>
+
+      {/* Legend */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-slate-50 p-4">
+        <div className="flex flex-wrap items-center gap-6 text-sm">
           <div className="flex items-center gap-2">
             <span className="h-3 w-3 rounded bg-red-600" />
-            Negative
+            Strong Negative
           </div>
 
           <div className="flex items-center gap-2">
@@ -68,12 +70,18 @@ export default function CorrelationHeatmap({
 
           <div className="flex items-center gap-2">
             <span className="h-3 w-3 rounded bg-emerald-600" />
-            Positive
+            Strong Positive
           </div>
+        </div>
+
+        <div className="flex items-center gap-2 text-sm text-slate-500">
+          <Info size={16} />
+          Diagonal values represent self-correlation (1.00).
         </div>
       </div>
 
-      <div className="overflow-auto">
+      {/* Heatmap */}
+      <div className="overflow-auto rounded-2xl border border-slate-200">
         <table className="min-w-full border-separate border-spacing-2">
           <thead>
             <tr>
@@ -121,8 +129,8 @@ export default function CorrelationHeatmap({
                           shadow-sm
                           transition-all
                           duration-200
-                          hover:scale-110
-                          hover:shadow-lg
+                          hover:scale-105
+                          hover:shadow-md
                           ${getCellClass(value, diagonal)}
                         `}
                       >

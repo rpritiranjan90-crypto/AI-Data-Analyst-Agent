@@ -6,8 +6,8 @@ import SectionHeader from "../../../../components/ui/SectionHeader";
 
 import { useAnalysisData } from "../../context/AnalysisContext";
 
-import DistributionSummary from "../distribution/DistributionSummary";
 import DistributionCards from "../distribution/DistributionCards";
+import DistributionSummary from "../distribution/DistributionSummary";
 import OutlierSummary from "../distribution/OutlierSummary";
 
 export default function DistributionTab() {
@@ -21,9 +21,9 @@ export default function DistributionTab() {
   if (columns.length === 0) {
     return (
       <EmptyState
-        icon={Activity}
-        title="No Distribution Data"
-        description="No numeric columns were found."
+        icon={<Activity className="h-10 w-10" />}
+        title="Distribution Analysis Unavailable"
+        description="No numeric columns were found for distribution analysis."
       />
     );
   }
@@ -31,19 +31,24 @@ export default function DistributionTab() {
   return (
     <div className="space-y-8">
       <SectionHeader
-        icon={Activity}
+        icon={<Activity className="h-6 w-6 text-indigo-600" />}
         title="Distribution Analysis"
-        subtitle={`${columns.length} numeric columns analysed`}
+        subtitle={`${columns.length} numeric column${
+          columns.length === 1 ? "" : "s"
+        } analysed`}
       />
 
+      {/* Executive Summary */}
       <DistributionSummary
         distribution={distribution}
       />
 
+      {/* Distribution Cards */}
       <DistributionCards
         distribution={distribution}
       />
 
+      {/* Outlier Analysis */}
       <OutlierSummary
         distribution={distribution}
       />

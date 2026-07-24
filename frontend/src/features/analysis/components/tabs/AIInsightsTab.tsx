@@ -23,7 +23,7 @@ export default function AIInsightsTab() {
   if (!insights || insights.length === 0) {
     return (
       <EmptyState
-        icon={BrainCircuit}
+        icon={<BrainCircuit className="h-10 w-10" />}
         title="No AI Insights"
         description="No AI insights were generated for this dataset."
       />
@@ -33,14 +33,12 @@ export default function AIInsightsTab() {
   return (
     <div className="space-y-8">
       <SectionHeader
-        icon={BrainCircuit}
+        icon={<BrainCircuit className="h-6 w-6 text-indigo-600" />}
         title="AI Analytics Assistant"
         subtitle="AI-powered dataset interpretation and machine learning guidance"
       />
 
-      <ExecutiveSummary
-  result={ai.executiveSummary}
-/>
+      <ExecutiveSummary result={ai.executiveSummary} />
 
       <div className="grid gap-8 xl:grid-cols-2">
         <DatasetScore result={ai.datasetScore} />
@@ -53,12 +51,12 @@ export default function AIInsightsTab() {
       <KeyFindings insights={insights} />
 
       <FeatureEngineering
-  recommendations={ai.featureEngineering}
-/>
+        recommendations={ai.featureEngineering}
+      />
 
       <ModelRecommendations
-  models={ai.modelRecommendations}
-/>
+        models={ai.modelRecommendations}
+      />
 
       <RecommendationPanel insights={insights} />
 

@@ -18,28 +18,34 @@ export default function KPICard({
   icon: Icon,
   color = "bg-blue-500",
   trend = 0,
-  trendLabel = "Since last month",
+  trendLabel = "Compared to previous upload",
 }: KPICardProps) {
   const positive = trend >= 0;
 
   return (
-    <Card className="group cursor-pointer">
+    <Card className="group relative overflow-hidden p-6">
+      {/* Accent Bar */}
+      <div
+        className={`absolute left-0 top-0 h-1 w-full ${color}`}
+      />
+
       <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm font-medium text-slate-500">
+        {/* Left */}
+        <div className="flex-1">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
             {title}
           </p>
 
-          <h2 className="mt-3 text-4xl font-bold tracking-tight text-slate-900">
+          <h2 className="mt-4 text-4xl font-bold tracking-tight text-slate-900">
             {value}
           </h2>
 
-          <div className="mt-4 flex items-center gap-2">
+          <div className="mt-6 flex items-center gap-3">
             <div
-              className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold ${
+              className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${
                 positive
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "bg-red-50 text-red-700"
               }`}
             >
               {positive ? (
@@ -57,10 +63,25 @@ export default function KPICard({
           </div>
         </div>
 
+        {/* Right */}
         <div
-          className={`rounded-2xl p-4 text-white shadow-sm transition-transform duration-300 group-hover:scale-110 ${color}`}
+          className={`
+            flex
+            h-16
+            w-16
+            items-center
+            justify-center
+            rounded-2xl
+            ${color}
+            text-white
+            shadow-lg
+            transition-all
+            duration-300
+            group-hover:scale-105
+            group-hover:rotate-3
+          `}
         >
-          <Icon size={28} />
+          <Icon size={30} strokeWidth={2.2} />
         </div>
       </div>
     </Card>

@@ -1,41 +1,73 @@
 import type { LucideIcon } from "lucide-react";
+import { isValidElement, type ReactNode } from "react";
 
 interface SectionHeaderProps {
+  icon: LucideIcon | ReactNode;
   title: string;
   subtitle?: string;
-  icon?: LucideIcon;
-  action?: React.ReactNode;
+  action?: ReactNode;
 }
 
 export default function SectionHeader({
+  icon,
   title,
   subtitle,
-  icon: Icon,
   action,
 }: SectionHeaderProps) {
-  return (
-    <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-      <div className="flex items-start gap-3">
-        {Icon && (
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-            <Icon size={24} strokeWidth={2.2} />
-          </div>
-        )}
+  const IconComponent =
+    typeof icon === "function" ? icon : null;
 
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900">
+  return (
+    <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+      <div className="flex items-start gap-4">
+        {/* Icon */}
+        <div
+          className="
+            flex
+            h-14
+            w-14
+            items-center
+            justify-center
+            rounded-2xl
+            border
+            border-blue-100
+            bg-gradient-to-br
+            from-blue-50
+            via-indigo-50
+            to-purple-50
+            shadow-sm
+          "
+        >
+          {IconComponent ? (
+            <IconComponent
+              size={26}
+              className="text-blue-600"
+            />
+          ) : (
+            isValidElement(icon) && icon
+          )}
+        </div>
+
+        {/* Title */}
+        <div className="min-w-0">
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900">
             {title}
           </h2>
 
           {subtitle && (
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
               {subtitle}
             </p>
           )}
         </div>
       </div>
 
-      {action && <div>{action}</div>}
+      {/* Right Side */}
+      {action && (
+        <div className="flex items-center gap-3">
+          {action}
+        </div>
+      )}
     </div>
   );
 }
