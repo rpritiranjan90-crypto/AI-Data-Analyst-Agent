@@ -1,6 +1,7 @@
 import type { AICopilot } from "../copilot/types";
 import type { FeatureCard } from "../featureCards/types";
 import type { AIFinding } from "../findings/types";
+import type { AIInsights } from "../insights/types";
 import type { ModelCard } from "../modelCards/types";
 
 export interface ReportMetric {
@@ -21,6 +22,8 @@ export interface AIReport {
   metrics: ReportMetric[];
 
   copilot: AICopilot;
+
+  insights: AIInsights;
 
   findings: AIFinding[];
 

@@ -1,4 +1,5 @@
 import AICopilot from "./AICopilot";
+import AIInsights from "./AIInsights";
 import AIKeyFindings from "./AIKeyFindings";
 import DatasetHealthCards from "./DatasetHealthCards";
 import ExecutiveDashboard from "./ExecutiveDashboard";
@@ -41,6 +42,8 @@ export default function AIReport() {
       />
 
       <AICopilot copilot={report.copilot} />
+
+      <AIInsights insights={report.insights} />
 
       <GaugeGrid
         datasetScore={datasetScore}

@@ -7,10 +7,12 @@ import { generateExecutiveSummary } from "../executiveSummary";
 import { generateFeatureEngineering } from "../featureEngineering";
 import { recommendModels } from "../modelRecommendation";
 import { calculateConfidence } from "../confidence";
-import { generateFindings } from "../findings";
+
 import { generateCopilot } from "../copilot";
+import { generateFindings } from "../findings";
 import { generateFeatureCards } from "../featureCards";
 import { generateModelCards } from "../modelCards";
+import { generateInsights } from "../insights";
 
 export function generateAIReport(
   data: AnalysisSummaryResponse
@@ -33,14 +35,20 @@ export function generateAIReport(
   const confidence =
     calculateConfidence(data);
 
-  const findings = generateFindings(
+  const copilot = generateCopilot(
     datasetScore.score,
     mlReadiness.score,
     confidence.score,
     models.length
   );
 
-  const copilot = generateCopilot(
+  const insights = generateInsights(
+    datasetScore.score,
+    mlReadiness.score,
+    confidence.score
+  );
+
+  const findings = generateFindings(
     datasetScore.score,
     mlReadiness.score,
     confidence.score,
@@ -52,7 +60,9 @@ export function generateAIReport(
     mlReadiness.score
   );
 
-  const modelCards = generateModelCards(models);
+  const modelCards = generateModelCards(
+    models
+  );
 
   return {
     title: "AI Dataset Analysis Report",
@@ -79,6 +89,8 @@ export function generateAIReport(
     ],
 
     copilot,
+
+    insights,
 
     findings,
 
