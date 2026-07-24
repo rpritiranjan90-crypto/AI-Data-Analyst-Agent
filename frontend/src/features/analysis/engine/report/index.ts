@@ -1,5 +1,4 @@
 import type { AIReport } from "./types";
-
 import type { AnalysisSummaryResponse } from "../../types/analysis";
 
 import { calculateDatasetScore } from "../scoring";
@@ -12,7 +11,6 @@ import { calculateConfidence } from "../confidence";
 export function generateAIReport(
   data: AnalysisSummaryResponse
 ): AIReport {
-
   const datasetScore =
     calculateDatasetScore(data);
 
@@ -42,15 +40,15 @@ export function generateAIReport(
     metrics: [
       {
         label: "Dataset Score",
-        value: `${datasetScore.score}/100`,
+        value: datasetScore.score,
       },
       {
         label: "ML Readiness",
-        value: `${mlReadiness.score}/100`,
+        value: mlReadiness.score,
       },
       {
         label: "Confidence",
-        value: `${confidence.score}/100`,
+        value: confidence.score,
       },
       {
         label: "Recommended Models",
@@ -73,24 +71,22 @@ export function generateAIReport(
 
     featureEngineering: {
       title: "Feature Engineering",
-      content:
-        featureEngineering
-          .map(
-            (item) =>
-              `• ${item.title}: ${item.action}`
-          )
-          .join("\n"),
+      content: featureEngineering
+        .map(
+          (item) =>
+            `• ${item.title}: ${item.action}`
+        )
+        .join("\n"),
     },
 
     modelRecommendations: {
       title: "Recommended Models",
-      content:
-        models
-          .map(
-            (model) =>
-              `• ${model.name} (${model.score}/100) - ${model.reason}`
-          )
-          .join("\n"),
+      content: models
+        .map(
+          (model) =>
+            `• ${model.name} (${model.score}/100) - ${model.reason}`
+        )
+        .join("\n"),
     },
 
     conclusion: {

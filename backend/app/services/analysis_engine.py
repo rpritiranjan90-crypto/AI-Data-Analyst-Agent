@@ -150,9 +150,15 @@ class AnalysisEngine:
 
         df = cls._get_dataset()
 
+        correlation = CorrelationService.analyze(df)
+
+        correlation["strong_correlations"] = (
+            CorrelationService.strong_correlations(df)
+        )
+
         result = {
             "descriptive": DescriptiveService.analyze(df),
-            "correlation": CorrelationService.analyze(df),
+            "correlation": correlation,
             "categorical": CategoricalService.analyze(df),
             "distribution": DistributionService.analyze(df),
             "timeseries": TimeSeriesService.analyze(df),
