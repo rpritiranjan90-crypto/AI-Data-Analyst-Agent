@@ -10,34 +10,34 @@ interface MetricCardProps {
 
 const colors = {
   blue: {
-    border: "border-blue-200",
-    bg: "bg-blue-50",
-    icon: "bg-blue-100 text-blue-600",
-    value: "text-blue-700",
+    border: "border-blue-300 dark:border-blue-800",
+    bg: "bg-white dark:bg-slate-900",
+    icon: "bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400",
+    value: "text-blue-700 dark:text-blue-400",
   },
   green: {
-    border: "border-green-200",
-    bg: "bg-green-50",
-    icon: "bg-green-100 text-green-600",
-    value: "text-green-700",
+    border: "border-emerald-300 dark:border-emerald-800",
+    bg: "bg-white dark:bg-slate-900",
+    icon: "bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400",
+    value: "text-emerald-700 dark:text-emerald-400",
   },
   orange: {
-    border: "border-orange-200",
-    bg: "bg-orange-50",
-    icon: "bg-orange-100 text-orange-600",
-    value: "text-orange-700",
+    border: "border-amber-300 dark:border-amber-800",
+    bg: "bg-white dark:bg-slate-900",
+    icon: "bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400",
+    value: "text-amber-700 dark:text-amber-400",
   },
   red: {
-    border: "border-red-200",
-    bg: "bg-red-50",
-    icon: "bg-red-100 text-red-600",
-    value: "text-red-700",
+    border: "border-red-300 dark:border-red-800",
+    bg: "bg-white dark:bg-slate-900",
+    icon: "bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400",
+    value: "text-red-700 dark:text-red-400",
   },
   purple: {
-    border: "border-purple-200",
-    bg: "bg-purple-50",
-    icon: "bg-purple-100 text-purple-600",
-    value: "text-purple-700",
+    border: "border-purple-300 dark:border-purple-800",
+    bg: "bg-white dark:bg-slate-900",
+    icon: "bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400",
+    value: "text-purple-700 dark:text-purple-400",
   },
 };
 
@@ -54,11 +54,11 @@ export default function MetricCard({
     <div
       className={`
         rounded-2xl
-        border
+        border-2
         ${style.border}
         ${style.bg}
         p-5
-        shadow-sm
+        shadow-md shadow-slate-300/40 dark:shadow-none
         transition-all
         duration-300
         hover:-translate-y-1
@@ -67,18 +67,18 @@ export default function MetricCard({
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-500">
+          <p className="text-xs font-black uppercase tracking-wider text-black dark:text-slate-200">
             {title}
           </p>
 
           <h2
-            className={`mt-2 text-4xl font-bold ${style.value}`}
+            className={`mt-2 text-3xl font-black ${style.value}`}
           >
             {value}
           </h2>
 
           {subtitle && (
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-xs font-semibold text-gray-800 dark:text-slate-400">
               {subtitle}
             </p>
           )}
@@ -87,15 +87,15 @@ export default function MetricCard({
         <div
           className={`
             flex
-            h-14
-            w-14
+            h-13
+            w-13
             items-center
             justify-center
             rounded-xl
             ${style.icon}
           `}
         >
-          <Icon size={28} strokeWidth={2.2} />
+          <Icon size={26} strokeWidth={2.2} />
         </div>
       </div>
     </div>

@@ -18,30 +18,30 @@ export default function SectionHeader({
     typeof icon === "function" ? icon : null;
 
   return (
-    <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-      <div className="flex items-start gap-4">
+    <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-2xl p-4 shadow-md shadow-slate-300/40 dark:shadow-none">
+      <div className="flex items-center gap-4">
         {/* Icon */}
         <div
           className="
             flex
-            h-14
-            w-14
+            h-12
+            w-12
             items-center
             justify-center
-            rounded-2xl
+            rounded-xl
             border
-            border-blue-100
-            bg-gradient-to-br
-            from-blue-50
-            via-indigo-50
-            to-purple-50
+            border-blue-200
+            bg-blue-50
+            dark:bg-slate-800
+            dark:border-slate-700
             shadow-sm
+            shrink-0
           "
         >
           {IconComponent ? (
             <IconComponent
-              size={26}
-              className="text-blue-600"
+              size={24}
+              className="text-blue-600 dark:text-blue-400"
             />
           ) : (
             isValidElement(icon) && icon
@@ -50,12 +50,12 @@ export default function SectionHeader({
 
         {/* Title */}
         <div className="min-w-0">
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+          <h2 className="text-xl font-black tracking-tight text-black dark:text-white leading-tight">
             {title}
           </h2>
 
           {subtitle && (
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+            <p className="mt-1 text-xs font-semibold text-gray-800 dark:text-slate-300 leading-relaxed">
               {subtitle}
             </p>
           )}
@@ -64,7 +64,7 @@ export default function SectionHeader({
 
       {/* Right Side */}
       {action && (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           {action}
         </div>
       )}

@@ -60,12 +60,12 @@ export default function DatasetHealthCard({
 
   const scoreColor =
     score >= 90
-      ? "text-emerald-600"
+      ? "text-emerald-600 dark:text-emerald-400"
       : score >= 75
-      ? "text-sky-600"
+      ? "text-sky-600 dark:text-sky-400"
       : score >= 50
-      ? "text-amber-600"
-      : "text-red-600";
+      ? "text-amber-600 dark:text-amber-400"
+      : "text-red-600 dark:text-red-400";
 
   const progressColor =
     score >= 90
@@ -83,17 +83,17 @@ export default function DatasetHealthCard({
     numericColumns > 0;
 
   return (
-    <Card>
+    <Card className="p-6 border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-md shadow-slate-300/40 dark:shadow-none">
       <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-6">
-          <div className="flex h-28 w-28 items-center justify-center rounded-full border-8 border-slate-100 bg-slate-50">
-            <span className={`text-3xl font-bold ${scoreColor}`}>
+          <div className="flex h-28 w-28 items-center justify-center rounded-full border-8 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 shadow-inner">
+            <span className={`text-3xl font-black ${scoreColor}`}>
               {score}%
             </span>
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold text-slate-900">
+            <h2 className="text-2xl font-black text-black dark:text-white">
               Dataset Health
             </h2>
 
@@ -104,7 +104,7 @@ export default function DatasetHealthCard({
               />
             </div>
 
-            <p className="mt-4 max-w-xl text-sm leading-6 text-slate-600">
+            <p className="mt-3 max-w-xl text-xs font-semibold leading-relaxed text-gray-800 dark:text-slate-300">
               {qualityInsight ||
                 "Overall dataset quality has been calculated from completeness, duplicate records, and data balance."}
             </p>
@@ -112,12 +112,12 @@ export default function DatasetHealthCard({
         </div>
 
         <div className="w-full max-w-md">
-          <div className="mb-2 flex justify-between text-sm font-medium text-slate-600">
+          <div className="mb-2 flex justify-between text-xs font-bold text-black dark:text-slate-200">
             <span>Health Score</span>
             <span>{score}%</span>
           </div>
 
-          <div className="h-3 overflow-hidden rounded-full bg-slate-200">
+          <div className="h-3.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
             <div
               className={`h-full rounded-full ${progressColor} transition-all duration-500`}
               style={{ width: `${score}%` }}
@@ -127,61 +127,61 @@ export default function DatasetHealthCard({
       </div>
 
       <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <div className="rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm">
           <div className="mb-2 flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-amber-500" />
-            <span className="font-semibold">Missing Data</span>
+            <span className="font-extrabold text-black dark:text-white text-xs uppercase tracking-wider">Missing Data</span>
           </div>
 
-          <p className="text-2xl font-bold">{missingPercent}%</p>
+          <p className="text-2xl font-black text-black dark:text-white">{missingPercent}%</p>
 
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-xs font-semibold text-gray-800 dark:text-slate-400">
             {missingValues.toLocaleString()} missing values
           </p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <div className="rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm">
           <div className="mb-2 flex items-center gap-2">
             <Database className="h-5 w-5 text-red-500" />
-            <span className="font-semibold">Duplicates</span>
+            <span className="font-extrabold text-black dark:text-white text-xs uppercase tracking-wider">Duplicates</span>
           </div>
 
-          <p className="text-2xl font-bold">{duplicatePercent}%</p>
+          <p className="text-2xl font-black text-black dark:text-white">{duplicatePercent}%</p>
 
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-xs font-semibold text-gray-800 dark:text-slate-400">
             {duplicateRows.toLocaleString()} duplicate rows
           </p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <div className="rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm">
           <div className="mb-2 flex items-center gap-2">
             <Brain className="h-5 w-5 text-violet-500" />
-            <span className="font-semibold">ML Readiness</span>
+            <span className="font-extrabold text-black dark:text-white text-xs uppercase tracking-wider">ML Readiness</span>
           </div>
 
           <p
-            className={`text-2xl font-bold ${
-              mlReady ? "text-emerald-600" : "text-amber-600"
+            className={`text-2xl font-black ${
+              mlReady ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"
             }`}
           >
             {mlReady ? "Ready" : "Needs Cleaning"}
           </p>
 
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-xs font-semibold text-gray-800 dark:text-slate-400">
             Suitable for model training
           </p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <div className="rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm">
           <div className="mb-2 flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-emerald-500" />
-            <span className="font-semibold">Recommendation</span>
+            <span className="font-extrabold text-black dark:text-white text-xs uppercase tracking-wider">Recommendation</span>
           </div>
 
-          <div className="flex items-center gap-2 text-emerald-600">
+          <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
             <CheckCircle2 className="h-5 w-5" />
 
-            <span className="font-semibold">
+            <span className="font-black text-sm">
               {score >= 90
                 ? "Excellent"
                 : score >= 75
@@ -192,7 +192,7 @@ export default function DatasetHealthCard({
             </span>
           </div>
 
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-1.5 text-xs font-semibold text-gray-800 dark:text-slate-400">
             {mlReady
               ? "Dataset is ready for advanced analytics and machine learning."
               : "Improve data quality before training predictive models."}

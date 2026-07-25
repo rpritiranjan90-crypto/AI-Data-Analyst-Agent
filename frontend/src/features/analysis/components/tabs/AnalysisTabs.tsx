@@ -37,7 +37,7 @@ export default function AnalysisTabs({
   onChange,
 }: AnalysisTabsProps) {
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200/80 bg-slate-100/70 p-2 backdrop-blur-sm shadow-xs">
+    <div className="flex flex-wrap items-center gap-2 rounded-2xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 shadow-md shadow-slate-300/50 dark:shadow-none">
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = activeTab === tab.id;
@@ -45,10 +45,10 @@ export default function AnalysisTabs({
           <button
             key={tab.id}
             onClick={() => onChange(tab.id)}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all duration-200 ${
+            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-extrabold transition-all duration-200 ${
               isActive
                 ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20"
-                : "text-slate-600 hover:bg-white/80 hover:text-slate-900"
+                : "text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white"
             }`}
           >
             <Icon size={15} />
