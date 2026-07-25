@@ -1,14 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  Database,
   Sparkles,
   Lightbulb,
   CheckCircle2,
   AlertTriangle,
   BarChart2,
   TrendingUp,
-  PlayCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,6 +14,7 @@ import PageHeader from "../../components/ui/PageHeader";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Spinner from "../../components/ui/Spinner";
+import ExecutiveEmptyStateBanner from "../../components/ui/ExecutiveEmptyStateBanner";
 import { useDatasetStore } from "../../store/datasetStore";
 import { getAutoRecommendations } from "../../services/recommendationService";
 
@@ -79,23 +78,13 @@ export default function RecommendationPage() {
           title="Smart Recommendations"
           subtitle="AI-driven recommendations for data cleaning, chart choices, and predictive modeling."
         />
-        <Card className="flex flex-col items-center justify-center p-12 text-center bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-lg">
-          <div className="rounded-2xl bg-amber-500/10 p-4 text-amber-500 mb-4 border border-amber-500/20">
-            <Database size={42} />
-          </div>
-          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">No Active Dataset</h3>
-          <p className="mt-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 max-w-md">
-            Please upload a CSV or Excel dataset to receive AI recommendations for cleaning, charts, and ML tasks.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link to="/upload">
-              <Button variant="primary">Upload Dataset</Button>
-            </Link>
-            <Button variant="secondary" onClick={loadDemoDataset} className="flex items-center gap-2">
-              <PlayCircle size={16} /> Load Demo Dataset
-            </Button>
-          </div>
-        </Card>
+        <ExecutiveEmptyStateBanner
+          badgeText="Automated AI Guidance System"
+          title="Smart Recommendations"
+          subtitle="Automated AI advice for dataset cleaning, recommended visualization engines, and machine learning opportunities."
+          actionText="Upload First Dataset"
+          onLoadDemo={loadDemoDataset}
+        />
       </div>
     );
   }

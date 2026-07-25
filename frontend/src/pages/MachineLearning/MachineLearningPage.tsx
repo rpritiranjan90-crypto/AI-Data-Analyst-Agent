@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import {
   BrainCircuit,
   Cpu,
@@ -7,7 +6,6 @@ import {
   Sliders,
   Play,
   RotateCcw,
-  PlayCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,6 +14,7 @@ import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Select from "../../components/ui/Select";
 import Spinner from "../../components/ui/Spinner";
+import ExecutiveEmptyStateBanner from "../../components/ui/ExecutiveEmptyStateBanner";
 import { useDatasetStore } from "../../store/datasetStore";
 import {
   getAvailableModels,
@@ -118,23 +117,13 @@ export default function MachineLearningPage() {
           title="Machine Learning Studio"
           subtitle="Train classification and regression models, evaluate performance metrics, and predict outcomes."
         />
-        <Card className="flex flex-col items-center justify-center p-12 text-center bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-lg">
-          <div className="rounded-2xl bg-purple-500/10 p-4 text-purple-500 mb-4 border border-purple-500/20">
-            <BrainCircuit size={42} />
-          </div>
-          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">No Active Dataset</h3>
-          <p className="mt-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 max-w-md">
-            Please upload a CSV or Excel dataset to train Random Forest, XGBoost, or Logistic Regression models.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link to="/upload">
-              <Button variant="primary">Upload Dataset</Button>
-            </Link>
-            <Button variant="secondary" onClick={loadDemoDataset} className="flex items-center gap-2">
-              <PlayCircle size={16} /> Load Demo Dataset
-            </Button>
-          </div>
-        </Card>
+        <ExecutiveEmptyStateBanner
+          badgeText="Automated Predictive Modeling Studio"
+          title="Machine Learning Studio"
+          subtitle="Train Random Forest, XGBoost, and Logistic Regression models with automated cross-validation metrics."
+          actionText="Upload First Dataset"
+          onLoadDemo={loadDemoDataset}
+        />
       </div>
     );
   }

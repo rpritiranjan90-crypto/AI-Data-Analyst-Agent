@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import {
-  Wand2,
   Trash2,
   Sparkles,
   RefreshCw,
   Sliders,
   ShieldCheck,
   Zap,
-  PlayCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -17,6 +14,7 @@ import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Select from "../../components/ui/Select";
 import Spinner from "../../components/ui/Spinner";
+import ExecutiveEmptyStateBanner from "../../components/ui/ExecutiveEmptyStateBanner";
 import { useDatasetStore } from "../../store/datasetStore";
 import {
   autoCleanDataset,
@@ -177,23 +175,13 @@ export default function CleaningPage() {
           title="Data Cleaning Studio"
           subtitle="Clean missing values, handle outliers, drop duplicates, and optimize dataset data types."
         />
-        <Card className="flex flex-col items-center justify-center p-12 text-center bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-lg">
-          <div className="rounded-2xl bg-purple-500/10 p-4 text-purple-500 mb-4 border border-purple-500/20">
-            <Wand2 size={42} />
-          </div>
-          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">No Active Dataset</h3>
-          <p className="mt-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 max-w-md">
-            Please upload a CSV or Excel dataset to perform 1-Click Auto Clean, missing value imputation, and outlier filters.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link to="/upload">
-              <Button variant="primary">Upload Dataset</Button>
-            </Link>
-            <Button variant="secondary" onClick={loadDemoDataset} className="flex items-center gap-2">
-              <PlayCircle size={16} /> Load Demo Dataset
-            </Button>
-          </div>
-        </Card>
+        <ExecutiveEmptyStateBanner
+          badgeText="Data Quality & Preprocessing Studio"
+          title="Data Cleaning Studio"
+          subtitle="Automated 1-Click data cleaning, missing value imputation, outlier detection, and duplicate purging."
+          actionText="Upload First Dataset"
+          onLoadDemo={loadDemoDataset}
+        />
       </div>
     );
   }

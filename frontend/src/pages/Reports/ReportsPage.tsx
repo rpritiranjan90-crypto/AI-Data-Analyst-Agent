@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import {
   FileText,
   Sparkles,
@@ -8,7 +7,6 @@ import {
   Bot,
   User,
   Zap,
-  PlayCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,6 +14,7 @@ import PageHeader from "../../components/ui/PageHeader";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Spinner from "../../components/ui/Spinner";
+import ExecutiveEmptyStateBanner from "../../components/ui/ExecutiveEmptyStateBanner";
 import { useDatasetStore } from "../../store/datasetStore";
 import {
   generateReport,
@@ -171,23 +170,13 @@ export default function ReportsPage() {
           title="Reports & AI Assistant"
           subtitle="Generate PDF reports, explore AI-generated dataset insights, and chat with your data."
         />
-        <Card className="flex flex-col items-center justify-center p-12 text-center bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-lg">
-          <div className="rounded-2xl bg-indigo-500/10 p-4 text-indigo-500 mb-4 border border-indigo-500/20">
-            <FileText size={42} />
-          </div>
-          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">No Active Dataset</h3>
-          <p className="mt-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 max-w-md">
-            Please upload a CSV or Excel dataset to compile executive PDF reports and chat with AI insights.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link to="/upload">
-              <Button variant="primary">Upload Dataset</Button>
-            </Link>
-            <Button variant="secondary" onClick={loadDemoDataset} className="flex items-center gap-2">
-              <PlayCircle size={16} /> Load Demo Dataset
-            </Button>
-          </div>
-        </Card>
+        <ExecutiveEmptyStateBanner
+          badgeText="Executive Analytics Workspace"
+          title="Reports & AI Assistant"
+          subtitle="Automated executive PDF reporting, AI natural language assistant, and dataset synthesis."
+          actionText="Upload First Dataset"
+          onLoadDemo={loadDemoDataset}
+        />
       </div>
     );
   }

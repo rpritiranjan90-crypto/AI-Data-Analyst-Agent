@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import {
   Sparkles,
   Download,
   Image as ImageIcon,
   Zap,
   RotateCcw,
-  PlayCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -15,6 +13,7 @@ import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Select from "../../components/ui/Select";
 import Spinner from "../../components/ui/Spinner";
+import ExecutiveEmptyStateBanner from "../../components/ui/ExecutiveEmptyStateBanner";
 import { useDatasetStore } from "../../store/datasetStore";
 import {
   autoVisualize,
@@ -141,23 +140,13 @@ export default function VisualizationPage() {
           title="Visualization Studio"
           subtitle="Generate high-resolution professional charts, graphs, heatmaps, and distribution plots."
         />
-        <Card className="flex flex-col items-center justify-center p-12 text-center bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-lg">
-          <div className="rounded-2xl bg-blue-500/10 p-4 text-blue-500 mb-4 border border-blue-500/20">
-            <Sparkles size={42} />
-          </div>
-          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">No Active Dataset</h3>
-          <p className="mt-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 max-w-md">
-            Please upload a CSV or Excel dataset to render 19+ interactive chart types, histograms, and heatmaps.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link to="/upload">
-              <Button variant="primary">Upload Dataset</Button>
-            </Link>
-            <Button variant="secondary" onClick={loadDemoDataset} className="flex items-center gap-2">
-              <PlayCircle size={16} /> Load Demo Dataset
-            </Button>
-          </div>
-        </Card>
+        <ExecutiveEmptyStateBanner
+          badgeText="Interactive Chart & Graphics Engine"
+          title="Visualization Studio"
+          subtitle="Render 19+ interactive chart types, correlation heatmaps, histograms, and violin plots with high-res PNG export."
+          actionText="Upload First Dataset"
+          onLoadDemo={loadDemoDataset}
+        />
       </div>
     );
   }
