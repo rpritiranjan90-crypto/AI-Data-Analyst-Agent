@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   Table2,
   Tags,
+  Sparkles,
 } from "lucide-react";
 
 import EmptyState from "../../../../components/ui/EmptyState";
@@ -219,9 +220,14 @@ export default function OverviewTab() {
           {insights.map((insight, index) => (
             <div
               key={index}
-              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+              className="rounded-2xl border border-slate-200 bg-white dark:bg-slate-900 p-5 shadow-xs transition-shadow hover:shadow-md flex items-start gap-4"
             >
-              {insight}
+              <div className="rounded-xl bg-indigo-50 dark:bg-indigo-950/60 p-2.5 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5">
+                <Sparkles size={18} />
+              </div>
+              <p className="font-semibold text-slate-800 dark:text-slate-100 text-sm leading-relaxed">
+                {insight}
+              </p>
             </div>
           ))}
         </div>
