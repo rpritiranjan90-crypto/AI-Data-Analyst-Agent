@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { MessageSquare, Sparkles, Send, Code, Table } from "lucide-react";
+import { useState, useRef } from "react";
+import { MessageSquare, Sparkles, Send, Code, Table, Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
 import Card from "../../../../components/ui/Card";
 import Button from "../../../../components/ui/Button";
@@ -9,13 +9,66 @@ import { runNaturalLanguageQuery } from "../../../../services/analysisService";
 export default function NLQueryWidget() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const [queryResult, setQueryResult] = useState<any>(null);
+  const recognitionRef = useRef<any>(null);
 
   const sampleChips = [
     "Show top 10 records",
     "List missing values per column",
     "Show highest records by first numeric column",
   ];
+
+  function toggleVoiceInput() {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      toast.error("Voice input is not supported in this browser. Please use Chrome or Edge.");
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = "en-US";
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        toast.info("Listening... Speak your CSV question now.");
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setQuery(transcript);
+        toast.success(`Voice captured: "${transcript}"`);
+        handleSearch(transcript);
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error("Speech recognition error:", event.error);
+        toast.error("Voice input error. Please try again.");
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      toast.error("Failed to start voice recognition.");
+      setIsListening(false);
+    }
+  }
 
   async function handleSearch(qToRun?: string) {
     const q = qToRun || query;
@@ -42,7 +95,7 @@ export default function NLQueryWidget() {
           </div>
           <div>
             <h3 className="font-extrabold text-base text-white">Talk to your CSV (Natural Language Query)</h3>
-            <p className="text-xs text-slate-400">Ask any question in plain English & convert to DuckDB SQL / Pandas</p>
+            <p className="text-xs text-slate-400">Ask any question in plain English or voice & convert to DuckDB SQL</p>
           </div>
         </div>
 
@@ -68,7 +121,7 @@ export default function NLQueryWidget() {
         ))}
       </div>
 
-      {/* Search Bar */}
+      {/* Search Bar with Mic Button */}
       <div className="flex gap-2">
         <div className="relative flex-1">
           <MessageSquare size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -78,8 +131,20 @@ export default function NLQueryWidget() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            className="w-full rounded-xl border border-slate-700 bg-slate-800/90 py-2.5 pl-10 pr-4 text-xs text-white placeholder-slate-400 focus:border-indigo-500 focus:outline-none"
+            className="w-full rounded-xl border border-slate-700 bg-slate-800/90 py-2.5 pl-10 pr-10 text-xs text-white placeholder-slate-400 focus:border-indigo-500 focus:outline-none"
           />
+          <button
+            type="button"
+            onClick={toggleVoiceInput}
+            title={isListening ? "Stop Voice Input" : "Speak Query"}
+            className={`absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 transition ${
+              isListening
+                ? "bg-red-500/20 text-red-400 animate-pulse border border-red-500/30"
+                : "text-slate-400 hover:text-white hover:bg-slate-700"
+            }`}
+          >
+            {isListening ? <MicOff size={15} /> : <Mic size={15} />}
+          </button>
         </div>
         <Button onClick={() => handleSearch()} disabled={loading || !query.trim()} variant="primary">
           {loading ? <Spinner size={16} /> : <Send size={15} />}
