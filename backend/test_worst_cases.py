@@ -19,7 +19,7 @@ client = TestClient(app)
 
 def run_worst_case_audit():
     print("=" * 75)
-    print("🔥 WORST-CASE CHAOS & EDGE CASE AUDIT: AI DATA ANALYST AGENT")
+    print("🔥 EXTREME WORST-CASE CHAOS & EDGE CASE AUDIT (ALL FEATURES)")
     print("=" * 75)
 
     audit_results = []
@@ -107,7 +107,7 @@ def run_worst_case_audit():
         audit_results.append(("Brute Force Rate Limiting (12 Login Floods)", "FAILED [X]", "No protection"))
 
     # -------------------------------------------------------------
-    # Case 7: Invalid ML Target Column Request
+    # Case 7: Non-Existent Target ML Request
     # -------------------------------------------------------------
     res = client.post("/ml/recommendation", json={"data": [{"a": 1}], "target": "non_existent_col"})
     if res.status_code in [400, 404, 422]:
@@ -115,8 +115,35 @@ def run_worst_case_audit():
     else:
         audit_results.append(("Non-Existent Target ML Request", "FAILED [X]", f"HTTP {res.status_code}"))
 
+    # -------------------------------------------------------------
+    # Case 8: PowerPoint Exporter Worst Case (/generate-pptx)
+    # -------------------------------------------------------------
+    res = client.get("/generate-pptx")
+    if res.status_code in [200, 400]:
+        audit_results.append(("1-Click PowerPoint Deck Exporter", "HANDLED GRACEFULLY [OK]", f"HTTP {res.status_code}"))
+    else:
+        audit_results.append(("1-Click PowerPoint Deck Exporter", "FAILED [X]", f"HTTP {res.status_code}"))
+
+    # -------------------------------------------------------------
+    # Case 9: Isolation Forest Anomaly Radar Worst Case
+    # -------------------------------------------------------------
+    res = client.post("/ml/detect-anomalies?contamination=0.5")
+    if res.status_code in [200, 400]:
+        audit_results.append(("Isolation Forest Anomaly Radar", "HANDLED GRACEFULLY [OK]", f"HTTP {res.status_code}"))
+    else:
+        audit_results.append(("Isolation Forest Anomaly Radar", "FAILED [X]", f"HTTP {res.status_code}"))
+
+    # -------------------------------------------------------------
+    # Case 10: Multi-Agent AI Swarm Audit Worst Case
+    # -------------------------------------------------------------
+    res = client.post("/webhooks/swarm-audit")
+    if res.status_code == 200:
+        audit_results.append(("Multi-Agent AI Swarm Audit (/webhooks/swarm-audit)", "HANDLED GRACEFULLY [OK]", "HTTP 200"))
+    else:
+        audit_results.append(("Multi-Agent AI Swarm Audit (/webhooks/swarm-audit)", "FAILED [X]", f"HTTP {res.status_code}"))
+
     # Output Chaos Test Summary Table
-    print("\n🔥 WORST-CASE EDGE CASE AUDIT SUMMARY:")
+    print("\n🔥 EXTREME WORST-CASE EDGE CASE AUDIT SUMMARY:")
     print("-" * 75)
     print(f" {'Chaos Scenario / Edge Case':<48} | {'Status':<22} | Detail")
     print("-" * 75)
@@ -125,7 +152,7 @@ def run_worst_case_audit():
     for scenario, status, detail in audit_results:
         print(f" * {scenario:<47} | {status:<22} | {detail}")
     print("=" * 75)
-    print(f"🔥 CHAOS TEST VERDICT: {passed_count}/{total_count} WORST-CASE SCENARIOS PASSED ({passed_count/total_count*100:.0f}% STABILITY)")
+    print(f"🔥 CHAOS TEST VERDICT: {passed_count}/{total_count} WORST-CASE SCENARIOS PASSED ({passed_count/total_count*100:.0f}% STABILITY SCORE)")
     print("=" * 75)
 
 if __name__ == "__main__":
