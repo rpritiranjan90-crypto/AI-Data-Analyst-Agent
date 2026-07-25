@@ -80,20 +80,25 @@ export default function PricingPage() {
 
   return (
     <div className="space-y-8 pb-12">
-      {/* Header */}
-      <div className="text-center space-y-4 max-w-3xl mx-auto pt-4">
+      {/* High-Contrast Executive Header Card */}
+      <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/90 backdrop-blur-xl p-8 text-center space-y-4 max-w-3xl mx-auto shadow-md shadow-slate-200/30 dark:shadow-none">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border border-indigo-500/20">
           <Shield size={14} /> SaaS Subscription Plans
         </span>
+        
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
-          Flexible Pricing for <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:via-indigo-300 dark:to-purple-300 bg-clip-text text-transparent">Analysts & Enterprise Teams</span>
+          Flexible Pricing for{" "}
+          <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 dark:from-blue-400 dark:via-indigo-400 dark:to-violet-400 bg-clip-text text-transparent">
+            Analysts & Enterprise Teams
+          </span>
         </h1>
-        <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
+        
+        <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
           Scale your automated analytics pipeline from free dataset profiling to multi-agent AI swarms and PowerPoint board decks.
         </p>
 
-        {/* Monthly / Yearly Toggle */}
-        <div className="flex items-center justify-center gap-3 pt-2">
+        {/* Monthly / Yearly Billing Toggle */}
+        <div className="flex items-center justify-center gap-3 pt-4 border-t border-slate-100 dark:border-slate-800/80 mt-4">
           <span className={`text-xs font-extrabold ${billingCycle === "monthly" ? "text-slate-900 dark:text-white" : "text-slate-500 dark:text-slate-400"}`}>
             Monthly Billing
           </span>
@@ -108,7 +113,10 @@ export default function PricingPage() {
             />
           </button>
           <span className={`text-xs font-extrabold ${billingCycle === "yearly" ? "text-slate-900 dark:text-white" : "text-slate-500 dark:text-slate-400"}`}>
-            Yearly Billing <span className="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded font-extrabold ml-1">Save 20%</span>
+            Yearly Billing{" "}
+            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full font-extrabold ml-1">
+              Save 20%
+            </span>
           </span>
         </div>
       </div>
@@ -125,7 +133,7 @@ export default function PricingPage() {
               className={`relative flex flex-col justify-between p-6 transition-all duration-300 ${
                 plan.highlight
                   ? "border-2 border-indigo-500/80 shadow-xl shadow-indigo-500/20 dark:bg-slate-900/95 scale-[1.02] animated-border-glow"
-                  : "border border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80"
+                  : "border border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-slate-900/90"
               }`}
             >
               {plan.highlight && (
