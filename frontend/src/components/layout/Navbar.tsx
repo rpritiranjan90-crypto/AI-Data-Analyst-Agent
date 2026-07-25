@@ -66,23 +66,23 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
 
         {/* Active Dataset Pill */}
         {metadata ? (
-          <div className="flex items-center gap-2.5 rounded-2xl border border-blue-200/70 dark:border-blue-800/50 bg-blue-50/80 dark:bg-blue-950/40 backdrop-blur-sm px-3.5 py-2 shadow-xs transition-all duration-300">
+          <div className="flex items-center gap-2.5 rounded-2xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 shadow-md shadow-slate-300/50 dark:shadow-none transition-all duration-300">
             <div className="relative">
-              <FileSpreadsheet className="text-blue-600 dark:text-blue-400" size={16} />
+              <FileSpreadsheet className="text-blue-600 dark:text-blue-400" size={18} />
               <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-500 border border-white dark:border-slate-900 pulse-glow" />
             </div>
             <div className="hidden sm:block">
-              <span className="text-xs font-bold text-slate-800 dark:text-slate-100 leading-none">
+              <span className="text-xs font-black text-black dark:text-white leading-none">
                 {metadata.filename.length > 22
                   ? metadata.filename.slice(0, 22) + "…"
                   : metadata.filename}
               </span>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                <span className="text-[10px] font-extrabold text-slate-800 dark:text-slate-200">
                   {metadata.rows.toLocaleString()} rows
                 </span>
-                <span className="text-slate-300 dark:text-slate-600">•</span>
-                <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                <span className="text-slate-400 dark:text-slate-500">•</span>
+                <span className="text-[10px] font-extrabold text-slate-800 dark:text-slate-200">
                   {metadata.columns} cols
                 </span>
               </div>
@@ -90,9 +90,9 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
             <button
               onClick={clearDataset}
               title="Clear Active Dataset"
-              className="ml-1 rounded-lg p-1 text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-500 transition-all duration-150"
+              className="ml-1 rounded-lg p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-700 transition-all duration-150"
             >
-              <Trash2 size={13} />
+              <Trash2 size={14} />
             </button>
           </div>
         ) : (
