@@ -12,7 +12,6 @@ import {
 import EmptyState from "../../../../components/ui/EmptyState";
 import MetricCard from "../../../../components/ui/MetricCard";
 import SectionHeader from "../../../../components/ui/SectionHeader";
-import StatusBadge from "../../../../components/ui/StatusBadge";
 
 import { useDatasetStore } from "../../../../store/datasetStore";
 import { useAnalysisData } from "../../context/AnalysisContext";
@@ -22,6 +21,7 @@ import DatasetHealthCard from "../dashboard/DatasetHealthCard";
 
 import CleaningSuggestions from "../cleaning/CleaningSuggestions";
 import { useCleaningReport } from "../../hooks/useCleaningReport";
+import NLQueryWidget from "../nl-query/NLQueryWidget";
 
 
 export default function OverviewTab() {
@@ -29,13 +29,13 @@ export default function OverviewTab() {
 
   const analysis = useAnalysisData();
 
-const {
-  correlation,
-  categorical,
-  insights,
-} = analysis;
+  const {
+    correlation,
+    categorical,
+    insights,
+  } = analysis;
 
-const cleaningReport = useCleaningReport();
+  const cleaningReport = useCleaningReport();
 
   if (!dataset) {
     return (
@@ -79,6 +79,11 @@ const cleaningReport = useCleaningReport();
 
   return (
     <div className="space-y-10">
+      {/* Natural Language Query Widget (Talk to CSV Engine) */}
+      <section>
+        <NLQueryWidget />
+      </section>
+
       {/* Executive Summary */}
 
       <section>
@@ -192,35 +197,14 @@ const cleaningReport = useCleaningReport();
           qualityInsight={qualityInsight}
         />
       </section>
-{/* AI Cleaning Assistant */}
 
-{cleaningReport && (
-  <section>
-    <CleaningSuggestions report={cleaningReport} />
-  </section>
-)}
-      {/* Dataset Quality */}
+      {/* AI Cleaning Assistant */}
 
-      <section>
-        <SectionHeader
-          icon={ShieldCheck}
-          title="Dataset Quality"
-          subtitle="Overall quality assessment."
-        />
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <StatusBadge
-            label={qualityLabel}
-            variant={qualityVariant}
-          />
-
-          {qualityInsight && (
-            <p className="mt-4 text-slate-600">
-              {qualityInsight}
-            </p>
-          )}
-        </div>
-      </section>
+      {cleaningReport && (
+        <section>
+          <CleaningSuggestions report={cleaningReport} />
+        </section>
+      )}
 
       {/* AI Insights */}
 

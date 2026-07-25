@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Callable, Literal
 
 from fastapi import APIRouter
+from pydantic import BaseModel
 
 from app.common.logger import get_logger
 from app.common.timing import measure_time
@@ -15,6 +16,7 @@ from app.exceptions.base import (
 )
 
 from app.services.analysis_engine import AnalysisEngine
+from app.services.nl_query_service import NaturalLanguageQueryService
 
 logger = get_logger(__name__)
 
@@ -22,6 +24,10 @@ router = APIRouter(
     prefix="/analysis",
     tags=["Analysis"],
 )
+
+
+class NLQueryRequest(BaseModel):
+    query: str
 
 
 @measure_time
@@ -178,3 +184,13 @@ def insights() -> Any:
     return execute(
         AnalysisEngine.insights,
     )
+
+
+@router.post(
+    "/nl-query",
+    summary="Natural Language Data Querying (Talk to CSV)",
+    description="Convert plain text natural language queries into Pandas & DuckDB SQL results.",
+)
+def nl_query(req: NLQueryRequest) -> Any:
+    df = AnalysisEngine._get_dataset()
+    return NaturalLanguageQueryService.process_query(df, req.query)
