@@ -3,10 +3,11 @@ import {
   FileSpreadsheet,
   Menu,
   Plus,
-  UserCircle2,
   Trash2,
   Sun,
   Moon,
+  Bell,
+  ChevronDown,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Button from "../ui/Button";
@@ -25,6 +26,14 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
     return localStorage.getItem("theme_mode") === "dark";
   });
 
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add("dark");
@@ -36,72 +45,116 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   }, [isDarkMode]);
 
   return (
-    <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-slate-200/80 bg-white/90 dark:bg-slate-900/90 dark:border-slate-800 px-6 backdrop-blur-md transition-colors">
-      {/* Left section - Mobile Menu & Active Dataset Indicator */}
+    <header
+      className={`nav-glass sticky top-0 z-30 flex h-[68px] items-center justify-between px-5 transition-all duration-300 ${
+        scrolled ? "shadow-md shadow-slate-900/5" : ""
+      }`}
+    >
+      {/* Gradient accent line at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent pointer-events-none" />
+
+      {/* ── LEFT SECTION ── */}
       <div className="flex items-center gap-4">
+        {/* Mobile menu toggle */}
         <button
           onClick={onMenuToggle}
-          className="rounded-xl border border-slate-200 dark:border-slate-700 p-2 text-slate-600 dark:text-slate-300 transition hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden"
+          className="rounded-xl border border-slate-200/80 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/70 p-2 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 hover:text-slate-900 dark:hover:text-white transition-all duration-200 md:hidden shadow-xs"
+          aria-label="Toggle menu"
         >
-          <Menu size={20} />
+          <Menu size={18} />
         </button>
 
+        {/* Active Dataset Pill */}
         {metadata ? (
-          <div className="flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50/60 dark:bg-slate-800 dark:border-slate-700 px-3.5 py-2">
-            <FileSpreadsheet className="text-blue-600 dark:text-blue-400" size={18} />
-            <div className="hidden sm:block text-xs">
-              <span className="font-bold text-slate-800 dark:text-slate-200">
-                {metadata.filename}
+          <div className="flex items-center gap-2.5 rounded-2xl border border-blue-200/70 dark:border-blue-800/50 bg-blue-50/80 dark:bg-blue-950/40 backdrop-blur-sm px-3.5 py-2 shadow-xs transition-all duration-300">
+            <div className="relative">
+              <FileSpreadsheet className="text-blue-600 dark:text-blue-400" size={16} />
+              <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-500 border border-white dark:border-slate-900 pulse-glow" />
+            </div>
+            <div className="hidden sm:block">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-100 leading-none">
+                {metadata.filename.length > 22
+                  ? metadata.filename.slice(0, 22) + "…"
+                  : metadata.filename}
               </span>
-              <span className="ml-2 text-slate-500 dark:text-slate-400">
-                ({metadata.rows.toLocaleString()} rows, {metadata.columns} cols)
-              </span>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                  {metadata.rows.toLocaleString()} rows
+                </span>
+                <span className="text-slate-300 dark:text-slate-600">•</span>
+                <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                  {metadata.columns} cols
+                </span>
+              </div>
             </div>
             <button
               onClick={clearDataset}
               title="Clear Active Dataset"
-              className="ml-1 rounded-lg p-1 text-slate-400 hover:bg-blue-100 hover:text-red-600 dark:hover:bg-slate-700 transition"
+              className="ml-1 rounded-lg p-1 text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-500 transition-all duration-150"
             >
-              <Trash2 size={14} />
+              <Trash2 size={13} />
             </button>
           </div>
         ) : (
-          <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-400">
-            <span className="h-2 w-2 rounded-full bg-amber-400" />
+          <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-400 dark:text-slate-500 px-3 py-2 rounded-xl border border-slate-200/60 dark:border-slate-800/60 bg-slate-50/60 dark:bg-slate-800/30">
+            <span className="h-2 w-2 rounded-full bg-amber-400/80 animate-pulse" />
             No dataset loaded
           </div>
         )}
       </div>
 
-      {/* Right section - Theme Switcher, Actions & User Avatar */}
-      <div className="flex items-center gap-3">
-        {/* Dark/Light Mode Switcher */}
+      {/* ── RIGHT SECTION ── */}
+      <div className="flex items-center gap-2">
+        {/* Notification Bell */}
+        <button
+          title="Notifications"
+          className="relative rounded-xl border border-slate-200/80 dark:border-slate-700/60 bg-white/60 dark:bg-slate-800/60 p-2 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-200 transition-all duration-200 shadow-xs"
+        >
+          <Bell size={17} />
+          <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-blue-500" />
+        </button>
+
+        {/* Dark / Light Toggle */}
         <button
           onClick={() => setIsDarkMode(!isDarkMode)}
           title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+          className="rounded-xl border border-slate-200/80 dark:border-slate-700/60 bg-white/60 dark:bg-slate-800/60 p-2 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all duration-200 shadow-xs"
         >
-          {isDarkMode ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} className="text-slate-600" />}
+          {isDarkMode ? (
+            <Sun size={17} className="text-amber-400 transition-transform duration-300 rotate-0 hover:rotate-45" />
+          ) : (
+            <Moon size={17} className="text-slate-600 transition-transform duration-300" />
+          )}
         </button>
 
-        <Button variant="primary" onClick={() => navigate("/upload")}>
-          <Plus size={17} />
-          <span className="ml-1.5 hidden sm:inline font-semibold">New Dataset</span>
+        {/* New Dataset CTA */}
+        <Button
+          variant="primary"
+          onClick={() => navigate("/upload")}
+          className="hidden sm:inline-flex shadow-md shadow-blue-500/20"
+        >
+          <Plus size={16} />
+          <span className="ml-1 font-bold">New Dataset</span>
         </Button>
 
-        <div className="flex items-center gap-3 border-l border-slate-200 dark:border-slate-800 pl-3">
-          <div className="flex items-center gap-2.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 px-3 py-1.5">
-            <UserCircle2 size={32} className="text-slate-600 dark:text-slate-400" />
-            <div className="hidden md:block text-left">
-              <p className="text-xs font-bold text-slate-900 dark:text-slate-100 leading-none">
-                Data Analyst
-              </p>
-              <p className="text-[10px] font-medium text-slate-400 leading-tight">
-                Admin Workspace
-              </p>
-            </div>
+        {/* Divider */}
+        <div className="h-8 w-px bg-slate-200/80 dark:bg-slate-700/60 mx-1" />
+
+        {/* User Avatar */}
+        <button className="flex items-center gap-2.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/70 px-3 py-1.5 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 shadow-xs group">
+          <div className="h-7 w-7 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white text-xs font-extrabold shadow-sm shadow-indigo-500/30 ring-2 ring-indigo-100 dark:ring-indigo-900/50">
+            DA
           </div>
-        </div>
+          <div className="hidden md:block text-left">
+            <p className="text-xs font-bold text-slate-900 dark:text-slate-100 leading-none">
+              Data Analyst
+            </p>
+            <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 leading-tight mt-0.5">
+              Admin Workspace
+            </p>
+          </div>
+          <ChevronDown size={13} className="hidden md:block text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-transform group-hover:rotate-180 duration-200" />
+        </button>
       </div>
     </header>
   );
