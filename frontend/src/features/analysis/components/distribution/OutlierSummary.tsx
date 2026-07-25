@@ -100,7 +100,7 @@ export default function OutlierSummary({
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <div className="rounded-xl bg-slate-50 dark:bg-slate-800/60 p-4 border border-slate-200/60 dark:border-slate-700/60">
+              <div className="rounded-xl bg-slate-100 dark:bg-slate-800/90 p-4 border border-slate-200 dark:border-slate-700">
                 <div className="mb-2 flex items-center gap-2 text-red-600 dark:text-red-400">
                   <ArrowDown size={18} />
                   <span className="font-bold">
@@ -113,7 +113,7 @@ export default function OutlierSummary({
                 </p>
               </div>
 
-              <div className="rounded-xl bg-slate-50 dark:bg-slate-800/60 p-4 border border-slate-200/60 dark:border-slate-700/60">
+              <div className="rounded-xl bg-slate-100 dark:bg-slate-800/90 p-4 border border-slate-200 dark:border-slate-700">
                 <div className="mb-2 flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
                   <ArrowUp size={18} />
                   <span className="font-bold">
