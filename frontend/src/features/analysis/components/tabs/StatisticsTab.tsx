@@ -20,14 +20,23 @@ interface StatisticsRow extends NumericColumnStatistics {
   column: string;
 }
 
+function formatNum(val: unknown, decimals: number = 2): string {
+  if (val === null || val === undefined) return "N/A";
+  const n = Number(val);
+  return isNaN(n) ? "N/A" : n.toFixed(decimals);
+}
+
 export default function StatisticsTab() {
   const { descriptive } = useAnalysisData();
 
   const tableData = useMemo<StatisticsRow[]>(() => {
-    return Object.entries(descriptive).map(([column, stats]) => ({
-      column,
-      ...stats,
-    }));
+    if (!descriptive || typeof descriptive !== "object") return [];
+    return Object.entries(descriptive)
+      .filter(([_, stats]) => stats && typeof stats === "object")
+      .map(([column, stats]) => ({
+        column,
+        ...stats,
+      }));
   }, [descriptive]);
 
   const summary = useMemo(() => {
@@ -35,13 +44,13 @@ export default function StatisticsTab() {
 
     const totalRecords =
       tableData.reduce(
-        (sum, item) => sum + item.count,
+        (sum, item) => sum + (item.count || 0),
         0
       ) || 0;
 
     const totalMissing =
       tableData.reduce(
-        (sum, item) => sum + item.missing_values,
+        (sum, item) => sum + (item.missing_values || 0),
         0
       ) || 0;
 
@@ -61,41 +70,47 @@ export default function StatisticsTab() {
       {
         accessorKey: "count",
         header: "Count",
+        cell: ({ row }) => row.original.count ?? "0",
       },
       {
         accessorKey: "mean",
         header: "Mean",
-        cell: ({ row }) => row.original.mean.toFixed(2),
+        cell: ({ row }) => formatNum(row.original.mean, 2),
       },
       {
         accessorKey: "standard_deviation",
         header: "Std Dev",
-        cell: ({ row }) =>
-          row.original.standard_deviation.toFixed(2),
+        cell: ({ row }) => formatNum(row.original.standard_deviation, 2),
       },
       {
         accessorKey: "minimum",
         header: "Min",
+        cell: ({ row }) => formatNum(row.original.minimum, 2),
       },
       {
         accessorKey: "q1",
         header: "Q1",
+        cell: ({ row }) => formatNum(row.original.q1, 2),
       },
       {
         accessorKey: "q2",
         header: "Median",
+        cell: ({ row }) => formatNum(row.original.q2 ?? row.original.median, 2),
       },
       {
         accessorKey: "q3",
         header: "Q3",
+        cell: ({ row }) => formatNum(row.original.q3, 2),
       },
       {
         accessorKey: "maximum",
         header: "Max",
+        cell: ({ row }) => formatNum(row.original.maximum, 2),
       },
       {
         accessorKey: "missing_values",
         header: "Missing",
+        cell: ({ row }) => row.original.missing_values ?? 0,
       },
     ],
     []
@@ -106,7 +121,7 @@ export default function StatisticsTab() {
       <EmptyState
         icon={<BarChart3 className="h-10 w-10" />}
         title="Statistics Not Available"
-        description="No descriptive statistics were returned."
+        description="No descriptive statistics were returned for numeric columns."
       />
     );
   }

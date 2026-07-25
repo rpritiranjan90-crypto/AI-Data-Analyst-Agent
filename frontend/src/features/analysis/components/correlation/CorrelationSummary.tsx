@@ -10,9 +10,9 @@ import Card from "../../../../components/ui/Card";
 import type { StrongCorrelation } from "../../types/analysis";
 
 interface CorrelationSummaryProps {
-  method: string;
-  totalNumericColumns: number;
-  correlations: StrongCorrelation[];
+  method?: string;
+  totalNumericColumns?: number;
+  correlations?: StrongCorrelation[];
 }
 
 interface SummaryCardProps {
@@ -56,23 +56,24 @@ function SummaryCard({
 }
 
 export default function CorrelationSummary({
-  method,
-  totalNumericColumns,
-  correlations,
+  method = "pearson",
+  totalNumericColumns = 0,
+  correlations = [],
 }: CorrelationSummaryProps) {
-  const strongest = correlations
+  const safeList = Array.isArray(correlations) ? correlations : [];
+  const strongest = safeList
     .slice()
     .sort(
       (a, b) =>
-        b.absolute_correlation -
-        a.absolute_correlation
+        (b?.absolute_correlation ?? 0) -
+        (a?.absolute_correlation ?? 0)
     )[0];
 
   return (
     <div className="grid gap-6 lg:grid-cols-4">
       <SummaryCard
         title="Method"
-        value={method.toUpperCase()}
+        value={(method || "pearson").toUpperCase()}
         subtitle="Correlation Algorithm"
         icon={
           <Network
@@ -105,7 +106,7 @@ export default function CorrelationSummary({
         }
         subtitle={
           strongest
-            ? `${strongest.direction} (${strongest.correlation.toFixed(
+            ? `${strongest.direction ?? "Positive"} (${(strongest.correlation ?? 0).toFixed(
                 2
               )})`
             : "No correlation exceeded the threshold."
@@ -123,12 +124,12 @@ export default function CorrelationSummary({
         title="Highest Correlation"
         value={
           strongest
-            ? strongest.absolute_correlation.toFixed(2)
+            ? (strongest.absolute_correlation ?? Math.abs(strongest.correlation ?? 0)).toFixed(2)
             : "—"
         }
         subtitle={
           strongest
-            ? strongest.interpretation
+            ? (strongest.interpretation || "Strong correlation detected")
             : "No measurable relationship"
         }
         icon={

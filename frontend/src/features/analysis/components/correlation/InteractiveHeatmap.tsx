@@ -21,55 +21,57 @@ interface InteractiveHeatmapProps {
   correlation: CorrelationResponse;
 }
 
-
 export default function InteractiveHeatmap({
   correlation,
 }: InteractiveHeatmapProps) {
   const [search, setSearch] = useState("");
   const [threshold, setThreshold] = useState(0.7);
 
-  
+  const safeStrongCorrelations = useMemo(() => {
+    return Array.isArray(correlation?.strong_correlations)
+      ? correlation.strong_correlations
+      : [];
+  }, [correlation]);
+
+  const safeNumericColumns = useMemo(() => {
+    return Array.isArray(correlation?.numeric_columns)
+      ? correlation.numeric_columns
+      : [];
+  }, [correlation]);
 
   const strongCorrelations = useMemo(() => {
-    return correlation.strong_correlations.filter((item) => {
+    return safeStrongCorrelations.filter((item) => {
+      const col1 = item?.column_1 ?? "";
+      const col2 = item?.column_2 ?? "";
       const matchesSearch =
-        item.column_1
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        item.column_2
-          .toLowerCase()
-          .includes(search.toLowerCase());
+        col1.toLowerCase().includes(search.toLowerCase()) ||
+        col2.toLowerCase().includes(search.toLowerCase());
 
       return (
         matchesSearch &&
-        Math.abs(item.correlation) >= threshold
+        Math.abs(item?.correlation ?? 0) >= threshold
       );
     });
-  }, [correlation, search, threshold]);
+  }, [safeStrongCorrelations, search, threshold]);
 
   const visibleCells = useMemo(() => {
-    const cols = correlation.numeric_columns.length;
-
+    const cols = safeNumericColumns.length;
     return cols * cols;
-  }, [correlation]);
+  }, [safeNumericColumns]);
 
   const averageCorrelation = useMemo(() => {
-    if (
-      correlation.strong_correlations.length === 0
-    ) {
+    if (safeStrongCorrelations.length === 0) {
       return 0;
     }
 
     return (
-      correlation.strong_correlations.reduce(
+      safeStrongCorrelations.reduce(
         (sum, item) =>
-          sum +
-          Math.abs(item.correlation),
-        0,
-      ) /
-      correlation.strong_correlations.length
+          sum + Math.abs(item?.correlation ?? 0),
+        0
+      ) / safeStrongCorrelations.length
     );
-  }, [correlation]);
+  }, [safeStrongCorrelations]);
 
   return (
     <div
@@ -82,10 +84,7 @@ export default function InteractiveHeatmap({
         subtitle="Professional AI powered correlation analysis"
       />
 
-      {/* ========================= */}
       {/* Toolbar */}
-      {/* ========================= */}
-
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="relative w-full xl:max-w-md">
@@ -124,7 +123,7 @@ export default function InteractiveHeatmap({
                 value={threshold}
                 onChange={(e) =>
                   setThreshold(
-                    Number(e.target.value),
+                    Number(e.target.value)
                   )
                 }
                 className="w-32"
@@ -140,10 +139,7 @@ export default function InteractiveHeatmap({
         </div>
       </div>
 
-      {/* ========================= */}
       {/* KPI Cards */}
-      {/* ========================= */}
-
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-5 text-white shadow-lg">
           <p className="text-sm opacity-90">
@@ -151,7 +147,7 @@ export default function InteractiveHeatmap({
           </p>
 
           <h2 className="mt-2 text-3xl font-bold">
-            {correlation.total_numeric_columns}
+            {correlation?.total_numeric_columns ?? safeNumericColumns.length}
           </h2>
         </div>
 
@@ -185,26 +181,18 @@ export default function InteractiveHeatmap({
           </h2>
         </div>
       </div>
-            {/* ========================= */}
-      {/* Legend */}
-      {/* ========================= */}
 
+      {/* Legend */}
       <CorrelationLegend />
 
-      {/* ========================= */}
       {/* Heatmap */}
-      {/* ========================= */}
-
       <HeatmapGrid
         correlation={correlation}
         search={search}
         threshold={threshold}
       />
 
-      {/* ========================= */}
       {/* AI Details */}
-      {/* ========================= */}
-
       <div className="grid gap-6 xl:grid-cols-2">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center gap-2">
@@ -222,7 +210,7 @@ export default function InteractiveHeatmap({
             <p>
               Total Numeric Columns :
               <strong className="ml-2">
-                {correlation.total_numeric_columns}
+                {correlation?.total_numeric_columns ?? safeNumericColumns.length}
               </strong>
             </p>
 
@@ -270,7 +258,7 @@ export default function InteractiveHeatmap({
                 .map(
                   (
                     item: StrongCorrelation,
-                    index,
+                    index
                   ) => (
                     <div
                       key={index}
@@ -291,16 +279,16 @@ export default function InteractiveHeatmap({
 
                         <div
                           className={`rounded-lg px-3 py-2 text-sm font-bold ${
-                            item.correlation >= 0
+                            (item.correlation ?? 0) >= 0
                               ? "bg-green-100 text-green-700"
                               : "bg-red-100 text-red-700"
                           }`}
                         >
-                          {item.correlation.toFixed(2)}
+                          {(item.correlation ?? 0).toFixed(2)}
                         </div>
                       </div>
                     </div>
-                  ),
+                  )
                 )}
             </div>
           )}
