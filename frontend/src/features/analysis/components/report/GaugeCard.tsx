@@ -75,7 +75,7 @@ export default function GaugeCard({
 
   return (
     <Card className="flex flex-col items-center justify-center p-6">
-      <h3 className="mb-4 text-lg font-semibold text-slate-800">
+      <h3 className="mb-4 text-lg font-bold text-slate-800 dark:text-slate-100">
         {title}
       </h3>
 
@@ -89,7 +89,8 @@ export default function GaugeCard({
             cx="72"
             cy="72"
             r={radius}
-            stroke="#E5E7EB"
+            stroke="currentColor"
+            className="text-slate-200 dark:text-slate-700"
             strokeWidth={stroke}
             fill="none"
           />
@@ -112,12 +113,12 @@ export default function GaugeCard({
         </svg>
 
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-bold text-slate-900">
+          <span className="text-3xl font-extrabold text-slate-900 dark:text-slate-50">
             {safeValue}%
           </span>
 
           <span
-            className="mt-1 text-sm font-medium"
+            className="mt-1 text-sm font-bold"
             style={{
               color: status.color,
             }}

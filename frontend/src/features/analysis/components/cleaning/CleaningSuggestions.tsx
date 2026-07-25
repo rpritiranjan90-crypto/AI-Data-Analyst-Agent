@@ -49,42 +49,42 @@ export default function CleaningSuggestions({
 
       <Card className="p-6">
         <div className="grid gap-4 md:grid-cols-4">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-            <p className="text-sm font-medium text-slate-500">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 p-5">
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
               Cleaning Score
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold text-slate-900">
+            <h2 className="mt-2 text-3xl font-extrabold text-slate-900 dark:text-slate-50">
               {report.summary.score}%
             </h2>
           </div>
 
-          <div className="rounded-xl border border-red-200 bg-red-50 p-5">
-            <p className="text-sm font-medium text-red-600">
+          <div className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/50 p-5">
+            <p className="text-sm font-semibold text-red-700 dark:text-red-300">
               Critical
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold text-red-700">
+            <h2 className="mt-2 text-3xl font-extrabold text-red-700 dark:text-red-400">
               {critical}
             </h2>
           </div>
 
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
-            <p className="text-sm font-medium text-amber-600">
+          <div className="rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/50 p-5">
+            <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
               Warnings
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold text-amber-700">
+            <h2 className="mt-2 text-3xl font-extrabold text-amber-700 dark:text-amber-400">
               {warning}
             </h2>
           </div>
 
-          <div className="rounded-xl border border-blue-200 bg-blue-50 p-5">
-            <p className="text-sm font-medium text-blue-600">
+          <div className="rounded-xl border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/50 p-5">
+            <p className="text-sm font-semibold text-blue-700 dark:text-blue-300">
               Information
             </p>
 
-            <h2 className="mt-2 text-3xl font-bold text-blue-700">
+            <h2 className="mt-2 text-3xl font-extrabold text-blue-700 dark:text-blue-400">
               {info}
             </h2>
           </div>
