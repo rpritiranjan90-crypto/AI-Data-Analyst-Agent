@@ -2,6 +2,7 @@ import type { ExportFormat } from "../../types/export";
 
 import { exportCSV } from "./exporters/csv";
 import { exportExcel } from "./exporters/excel";
+import { exportPDF } from "../../utils/pdf/exportPDF";
 
 export interface ExportRequest {
   format: ExportFormat;
@@ -62,9 +63,12 @@ class ExportService {
   }
 
   private static async exportPDF(
-    _request: ExportRequest,
+    request: ExportRequest,
   ): Promise<void> {
-    console.info("PDF export is not implemented yet.");
+    await exportPDF({
+      elementId: "analysis-report",
+      filename: `${request.fileName}.pdf`,
+    });
   }
 
   private static async exportPNG(

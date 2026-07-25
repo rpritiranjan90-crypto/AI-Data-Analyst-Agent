@@ -13,17 +13,19 @@ import OutlierSummary from "../distribution/OutlierSummary";
 export default function DistributionTab() {
   const { distribution } = useAnalysisData();
 
-  const columns = useMemo(
-    () => Object.entries(distribution),
-    [distribution]
-  );
+  const columns = useMemo(() => {
+    if (!distribution || typeof distribution !== "object") return [];
+    return Object.entries(distribution).filter(
+      ([col, val]) => col !== "message" && val && typeof val === "object"
+    );
+  }, [distribution]);
 
   if (columns.length === 0) {
     return (
       <EmptyState
-        icon={<Activity className="h-10 w-10" />}
+        icon={Activity}
         title="Distribution Analysis Unavailable"
-        description="No numeric columns were found for distribution analysis."
+        description="No numeric columns were found for distribution analysis in this dataset."
       />
     );
   }
@@ -31,7 +33,7 @@ export default function DistributionTab() {
   return (
     <div className="space-y-8">
       <SectionHeader
-        icon={<Activity className="h-6 w-6 text-indigo-600" />}
+        icon={Activity}
         title="Distribution Analysis"
         subtitle={`${columns.length} numeric column${
           columns.length === 1 ? "" : "s"
@@ -39,19 +41,13 @@ export default function DistributionTab() {
       />
 
       {/* Executive Summary */}
-      <DistributionSummary
-        distribution={distribution}
-      />
+      <DistributionSummary distribution={distribution} />
 
       {/* Distribution Cards */}
-      <DistributionCards
-        distribution={distribution}
-      />
+      <DistributionCards distribution={distribution} />
 
       {/* Outlier Analysis */}
-      <OutlierSummary
-        distribution={distribution}
-      />
+      <OutlierSummary distribution={distribution} />
     </div>
   );
 }

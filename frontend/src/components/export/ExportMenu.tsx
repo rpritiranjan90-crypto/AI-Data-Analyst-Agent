@@ -71,7 +71,10 @@ export default function ExportMenu({
           <button
             key={item.id}
             type="button"
-            onClick={() => onSelect(item.id)}
+            onClick={() => {
+  console.log("STEP 1:", item.id);
+  onSelect(item.id);
+}}
             className="
               flex
               w-full

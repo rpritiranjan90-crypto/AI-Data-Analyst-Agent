@@ -5,9 +5,9 @@ import SectionHeader from "../../../../components/ui/SectionHeader";
 
 import { useAnalysisData } from "../../context/AnalysisContext";
 
-import CorrelationHeatmap from "../correlation/CorrelationHeatmap";
 import CorrelationSummary from "../correlation/CorrelationSummary";
 import StrongCorrelationTable from "../correlation/StrongCorrelationTable";
+import InteractiveHeatmap from "../correlation/InteractiveHeatmap";
 
 export default function CorrelationTab() {
   const { correlation } = useAnalysisData();
@@ -29,25 +29,26 @@ export default function CorrelationTab() {
       <SectionHeader
         icon={<Network className="h-6 w-6 text-indigo-600" />}
         title="Correlation Analysis"
-        subtitle={`Method: ${correlation?.method?.toUpperCase() ?? "Unknown"}`}
+        subtitle={`Method: ${
+          correlation?.method?.toUpperCase() ?? "Unknown"
+        }`}
       />
 
       {/* Executive Summary */}
       <CorrelationSummary
-        method={correlation?.method ?? ""}
-        totalNumericColumns={correlation?.total_numeric_columns ?? 0}
-        correlations={correlation?.strong_correlations ?? []}
+        method={correlation.method}
+        totalNumericColumns={correlation.total_numeric_columns}
+        correlations={correlation.strong_correlations}
       />
 
-      {/* Correlation Matrix */}
-      <CorrelationHeatmap
-        columns={columns}
-        matrix={correlation?.correlation_matrix ?? {}}
-      />
+      {/* New Interactive Explorer */}
+      <InteractiveHeatmap correlation={correlation} />
+
+     
 
       {/* Strong Correlations */}
       <StrongCorrelationTable
-        correlations={correlation?.strong_correlations ?? []}
+        correlations={correlation.strong_correlations}
       />
     </div>
   );

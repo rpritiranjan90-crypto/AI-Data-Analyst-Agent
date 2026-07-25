@@ -14,7 +14,6 @@ import type { ExportFormat } from "../../../../types/export";
 interface ReportHeaderProps {
   title: string;
   generatedAt: string;
-
   onExportClick?: () => void;
   showExportMenu?: boolean;
   onExportSelect?: (format: ExportFormat) => void;
@@ -28,7 +27,7 @@ export default function ReportHeader({
   onExportSelect,
 }: ReportHeaderProps) {
   return (
-    <Card className="relative overflow-hidden border-0 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-900 p-0 text-white shadow-xl">
+    <Card className="relative border-0 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-900 p-0 text-white shadow-xl">
       {/* Decorative Background */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute -top-20 -right-20 h-72 w-72 rounded-full bg-white blur-3xl" />
@@ -73,7 +72,6 @@ export default function ReportHeader({
 
               <div className="mt-5 flex items-center gap-2 text-sm text-slate-300">
                 <CalendarDays size={16} />
-
                 <span>
                   Generated on{" "}
                   {new Date(generatedAt).toLocaleString()}
@@ -109,10 +107,8 @@ export default function ReportHeader({
               </button>
 
               {showExportMenu && onExportSelect && (
-                <div className="absolute right-0 top-full z-50 mt-3">
-                  <ExportMenu
-                    onSelect={onExportSelect}
-                  />
+                <div className="absolute bottom-full right-0 z-[9999] mb-3">
+                  <ExportMenu onSelect={onExportSelect} />
                 </div>
               )}
             </div>

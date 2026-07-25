@@ -1,69 +1,58 @@
-import Card from "../../../../components/ui/Card";
-
-const legendItems = [
-  {
-    label: "Strong Positive",
-    range: "+0.80 to +1.00",
-    color: "bg-green-600",
-  },
-  {
-    label: "Moderate Positive",
-    range: "+0.50 to +0.79",
-    color: "bg-green-400",
-  },
-  {
-    label: "Weak / Neutral",
-    range: "-0.49 to +0.49",
-    color: "bg-slate-300",
-  },
-  {
-    label: "Moderate Negative",
-    range: "-0.79 to -0.50",
-    color: "bg-red-400",
-  },
-  {
-    label: "Strong Negative",
-    range: "-1.00 to -0.80",
-    color: "bg-red-600",
-  },
-];
-
 export default function CorrelationLegend() {
+  const legend = [
+    {
+      label: "Strong Negative",
+      color: "bg-red-700",
+      value: "-1.0",
+    },
+    {
+      label: "Moderate Negative",
+      color: "bg-red-400",
+      value: "-0.5",
+    },
+    {
+      label: "No Correlation",
+      color: "bg-slate-100 border border-slate-300",
+      value: "0.0",
+    },
+    {
+      label: "Moderate Positive",
+      color: "bg-blue-400",
+      value: "+0.5",
+    },
+    {
+      label: "Strong Positive",
+      color: "bg-blue-700",
+      value: "+1.0",
+    },
+  ];
+
   return (
-    <Card>
-      <div className="mb-5">
-        <h3 className="text-lg font-bold text-slate-900">
-          Correlation Legend
-        </h3>
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h3 className="mb-4 text-lg font-semibold text-slate-800">
+        Correlation Legend
+      </h3>
 
-        <p className="mt-1 text-sm text-slate-500">
-          Color intensity represents the strength and direction of the
-          relationship between two numeric variables.
-        </p>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {legendItems.map((item) => (
+      <div className="flex flex-wrap gap-4">
+        {legend.map((item) => (
           <div
             key={item.label}
-            className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4"
+            className="flex items-center gap-2"
           >
             <div
-              className={`h-5 w-5 rounded-full ${item.color} flex-shrink-0`}
+              className={`h-5 w-5 rounded ${item.color}`}
             />
 
-            <div>
-              <p className="text-sm font-semibold text-slate-800">
-                {item.label}
-              </p>
+            <span className="text-sm text-slate-700">
+              {item.label}
+            </span>
 
-              <p className="text-xs text-slate-500">
-                {item.range}
-              </p>
-            </div>
+            <span className="text-xs font-medium text-slate-500">
+              ({item.value})
+            </span>
           </div>
         ))}
       </div>
-    </Card>
+    </div>
   );
 }

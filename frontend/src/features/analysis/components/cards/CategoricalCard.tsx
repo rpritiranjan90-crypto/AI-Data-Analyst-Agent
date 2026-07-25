@@ -1,5 +1,9 @@
 import { useMemo } from "react";
-import { PieChart, Tags } from "lucide-react";
+import {
+  PieChart,
+  Tags,
+  ListFilter,
+} from "lucide-react";
 
 import EmptyState from "../../../../components/ui/EmptyState";
 import MetricCard from "../../../../components/ui/MetricCard";
@@ -31,9 +35,12 @@ export default function CategoricalCard({
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <SectionHeader
-        title={column}
-        subtitle="Column Summary"
-      />
+  icon={
+    <ListFilter className="h-6 w-6 text-indigo-600" />
+  }
+  title={column}
+  subtitle="Categorical feature analysis"
+/>
 
       {/* KPI Cards */}
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">

@@ -3,6 +3,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   variant?: "primary" | "secondary" | "danger";
+  size?: "sm" | "md" | "lg";
 }
 
 const variantClasses = {
@@ -14,15 +15,22 @@ const variantClasses = {
     "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
 };
 
+const sizeClasses = {
+  sm: "px-3 py-1.5 text-xs",
+  md: "px-4 py-2.5 text-sm",
+  lg: "px-5 py-3 text-base",
+};
+
 export default function Button({
   children,
   variant = "primary",
+  size = "md",
   className = "",
   ...props
 }: ButtonProps) {
   return (
     <button
-      className={`inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${variantClasses[variant]} ${className}`}
+      className={`inline-flex items-center justify-center rounded-xl font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
       {...props}
     >
       {children}

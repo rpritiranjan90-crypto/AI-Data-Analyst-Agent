@@ -1,4 +1,15 @@
 import type { AnalysisTab } from "../../pages/AnalysisPage";
+import {
+  LayoutDashboard,
+  Calculator,
+  GitCommit,
+  Zap,
+  Tags,
+  Activity,
+  CalendarClock,
+  Sparkles,
+  FileText,
+} from "lucide-react";
 
 interface AnalysisTabsProps {
   activeTab: AnalysisTab;
@@ -8,43 +19,17 @@ interface AnalysisTabsProps {
 const tabs: {
   id: AnalysisTab;
   label: string;
+  icon: any;
 }[] = [
-  {
-    id: "overview",
-    label: "Overview",
-  },
-  {
-    id: "statistics",
-    label: "Statistics",
-  },
-  {
-    id: "correlation",
-    label: "Correlation",
-  },
-  {
-    id: "strong-correlation",
-    label: "Strong Correlation",
-  },
-  {
-    id: "categorical",
-    label: "Categorical",
-  },
-  {
-    id: "distribution",
-    label: "Distribution",
-  },
-  {
-    id: "timeseries",
-    label: "Time Series",
-  },
-  {
-    id: "insights",
-    label: "AI Insights",
-  },
-  {
-    id: "report",
-    label: "AI Report",
-  },
+  { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "statistics", label: "Statistics", icon: Calculator },
+  { id: "correlation", label: "Correlation", icon: GitCommit },
+  { id: "strong-correlation", label: "Strong Correlations", icon: Zap },
+  { id: "categorical", label: "Categorical", icon: Tags },
+  { id: "distribution", label: "Distribution", icon: Activity },
+  { id: "timeseries", label: "Time Series", icon: CalendarClock },
+  { id: "insights", label: "AI Insights", icon: Sparkles },
+  { id: "report", label: "AI Report", icon: FileText },
 ];
 
 export default function AnalysisTabs({
@@ -52,20 +37,25 @@ export default function AnalysisTabs({
   onChange,
 }: AnalysisTabsProps) {
   return (
-    <div className="flex flex-wrap gap-3">
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          onClick={() => onChange(tab.id)}
-          className={`rounded-xl px-5 py-2 text-sm font-medium transition-all duration-200 ${
-            activeTab === tab.id
-              ? "bg-blue-600 text-white shadow-md"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-          }`}
-        >
-          {tab.label}
-        </button>
-      ))}
+    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200/80 bg-slate-100/70 p-2 backdrop-blur-sm shadow-xs">
+      {tabs.map((tab) => {
+        const Icon = tab.icon;
+        const isActive = activeTab === tab.id;
+        return (
+          <button
+            key={tab.id}
+            onClick={() => onChange(tab.id)}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all duration-200 ${
+              isActive
+                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20"
+                : "text-slate-600 hover:bg-white/80 hover:text-slate-900"
+            }`}
+          >
+            <Icon size={15} />
+            <span>{tab.label}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

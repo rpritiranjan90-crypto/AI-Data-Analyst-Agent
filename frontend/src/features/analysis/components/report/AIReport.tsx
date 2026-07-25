@@ -76,7 +76,10 @@ export default function AIReport() {
   };
 
   return (
-    <div className="space-y-6">
+    <div
+      id="analysis-report"
+      className="space-y-6"
+    >
       <ReportHeader
         title={report.title}
         generatedAt={report.generatedAt}

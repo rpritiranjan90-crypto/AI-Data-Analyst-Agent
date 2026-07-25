@@ -1,330 +1,406 @@
+import { useMemo, useState } from "react";
 import {
-  Activity,
-  AlertTriangle,
   BarChart3,
   Brain,
-  Sigma,
-  TrendingUp,
+  Box,
+  Filter,
 } from "lucide-react";
 
 import Card from "../../../../components/ui/Card";
-import MetricCard from "../../../../components/ui/MetricCard";
-import StatusBadge from "../../../../components/ui/StatusBadge";
 
-import { formatCompactNumber } from "../../utils/numberFormat";
 import type { DistributionResponse } from "../../types/analysis";
 
-interface DistributionCardsProps {
+interface DistributionChartsProps {
   distribution: DistributionResponse;
 }
 
-function getRecommendation(
-  normal: boolean,
-  skewness: number,
-  outliers: number
-) {
-  if (normal && outliers === 0) {
-    return {
-      title: "Excellent",
-      message:
-        "This feature is well suited for most statistical methods and machine learning algorithms without additional preprocessing.",
-    };
-  }
-
-  if (outliers > 0 && Math.abs(skewness) > 1) {
-    return {
-      title: "Transformation Recommended",
-      message:
-        "Consider log, Box-Cox or Yeo-Johnson transformation before linear modelling. Tree-based models can usually handle this feature directly.",
-    };
-  }
-
-  if (outliers > 0) {
-    return {
-      title: "Review Outliers",
-      message:
-        "Investigate detected outliers before modelling. They may represent data quality issues or important rare events.",
-    };
-  }
-
-  return {
-    title: "Moderate",
-    message:
-      "This feature is usable, but review its distribution before selecting statistical techniques.",
-  };
-}
-
-export default function DistributionCards({
+export default function DistributionCharts({
   distribution,
-}: DistributionCardsProps) {
-  const columns = Object.entries(distribution);
+}: DistributionChartsProps) {
+  const columns = Object.keys(distribution);
+
+  const [selectedColumn, setSelectedColumn] =
+    useState(columns[0] ?? "");
+
+  const stats = useMemo(() => {
+    return distribution[selectedColumn];
+  }, [distribution, selectedColumn]);
+
+  if (!stats) {
+    return null;
+  }
+
+  const histogramData = [
+    {
+      label: "Minimum",
+      value: stats.minimum,
+    },
+    {
+      label: "Q1",
+      value: stats.q1,
+    },
+    {
+      label: "Median",
+      value: stats.median,
+    },
+    {
+      label: "Q3",
+      value: stats.q3,
+    },
+    {
+      label: "Maximum",
+      value: stats.maximum,
+    },
+  ];
 
   return (
-    <div className="space-y-8">
-      {columns.map(([column, stats]) => {
-        const recommendation = getRecommendation(
-          stats.normal_distribution,
-          stats.skewness,
-          stats.outliers.count
-        );
+    <div className="space-y-6">
+      {/* Toolbar */}
 
-        return (
-          <Card key={column}>
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900">
+      <Card>
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">
+              Distribution Visual Explorer
+            </h2>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Explore statistical distributions for every numeric
+              feature.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Filter
+              size={18}
+              className="text-indigo-600"
+            />
+
+            <select
+              value={selectedColumn}
+              onChange={(e) =>
+                setSelectedColumn(e.target.value)
+              }
+              className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+            >
+              {columns.map((column) => (
+                <option
+                  key={column}
+                  value={column}
+                >
                   {column}
-                </h2>
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </Card>
 
-                <p className="mt-1 text-sm text-slate-500">
-                  Distribution Analysis
+      {/* Charts */}
+
+      <div className="grid gap-6 lg:grid-cols-2">
+
+        <Card>
+
+          <div className="mb-5 flex items-center gap-2">
+            <BarChart3
+              size={20}
+              className="text-blue-600"
+            />
+
+            <h3 className="text-lg font-semibold">
+              Histogram Preview
+            </h3>
+          </div>
+
+          <div className="flex h-72 items-end justify-between gap-3">
+
+            {histogramData.map((item) => {
+
+              const height =
+                ((item.value - stats.minimum) /
+                  (stats.maximum -
+                    stats.minimum || 1)) *
+                100;
+
+              return (
+                <div
+                  key={item.label}
+                  className="flex flex-1 flex-col items-center"
+                >
+                  <div
+                    className="w-full rounded-t-xl bg-blue-500 transition-all duration-500 hover:bg-blue-600"
+                    style={{
+                      height: `${Math.max(
+                        height,
+                        5,
+                      )}%`,
+                    }}
+                  />
+
+                  <span className="mt-3 text-xs font-medium">
+                    {item.label}
+                  </span>
+                </div>
+              );
+            })}
+
+          </div>
+
+        </Card>
+                <Card>
+          <div className="mb-5 flex items-center gap-2">
+            <Box
+              size={20}
+              className="text-violet-600"
+            />
+
+            <h3 className="text-lg font-semibold">
+              Box Plot Summary
+            </h3>
+          </div>
+
+          <div className="space-y-5">
+
+            <div className="relative h-20">
+
+              <div className="absolute top-9 left-0 right-0 h-1 rounded-full bg-slate-200" />
+
+              <div
+                className="absolute top-6 h-8 rounded-lg border-2 border-violet-500 bg-violet-200"
+                style={{
+                  left: "25%",
+                  width: "50%",
+                }}
+              />
+
+              <div
+                className="absolute top-2 h-16 w-1 bg-violet-700"
+                style={{
+                  left: "50%",
+                }}
+              />
+
+              <div
+                className="absolute top-8 h-2 w-12 bg-slate-700"
+                style={{
+                  left: "5%",
+                }}
+              />
+
+              <div
+                className="absolute top-8 h-2 w-12 bg-slate-700"
+                style={{
+                  right: "5%",
+                }}
+              />
+            </div>
+
+            <div className="grid grid-cols-5 gap-3 text-center text-xs">
+
+              <div>
+                <p className="text-slate-500">
+                  Min
+                </p>
+
+                <p className="font-semibold">
+                  {stats.minimum.toFixed(2)}
                 </p>
               </div>
 
-              <StatusBadge
-                label={
-                  stats.normal_distribution
+              <div>
+                <p className="text-slate-500">
+                  Q1
+                </p>
+
+                <p className="font-semibold">
+                  {stats.q1.toFixed(2)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-slate-500">
+                  Median
+                </p>
+
+                <p className="font-semibold">
+                  {stats.median.toFixed(2)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-slate-500">
+                  Q3
+                </p>
+
+                <p className="font-semibold">
+                  {stats.q3.toFixed(2)}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-slate-500">
+                  Max
+                </p>
+
+                <p className="font-semibold">
+                  {stats.maximum.toFixed(2)}
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </Card>
+
+      </div>
+
+      <Card>
+
+        <div className="mb-5 flex items-center gap-2">
+          <Brain
+            size={20}
+            className="text-emerald-600"
+          />
+
+          <h3 className="text-lg font-semibold">
+            AI Distribution Insights
+          </h3>
+        </div>
+
+        <div className="grid gap-5 lg:grid-cols-2">
+
+          <div className="rounded-xl bg-slate-50 p-5">
+
+            <h4 className="mb-4 font-semibold">
+              Statistical Summary
+            </h4>
+
+            <div className="space-y-3 text-sm">
+
+              <div className="flex justify-between">
+                <span>Mean</span>
+
+                <strong>
+                  {stats.mean.toFixed(3)}
+                </strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Median</span>
+
+                <strong>
+                  {stats.median.toFixed(3)}
+                </strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Std. Deviation</span>
+
+                <strong>
+                  {stats.standard_deviation.toFixed(3)}
+                </strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Variance</span>
+
+                <strong>
+                  {stats.variance.toFixed(3)}
+                </strong>
+              </div>
+
+              <div className="flex justify-between">
+                <span>Outliers</span>
+
+                <strong>
+                  {stats.outliers.count}
+                </strong>
+              </div>
+
+            </div>
+          </div>
+                    <div className="rounded-xl bg-emerald-50 p-5">
+            <h4 className="mb-4 font-semibold">
+              AI Recommendation
+            </h4>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-600">
+                  Distribution
+                </span>
+
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    stats.normal_distribution
+                      ? "bg-green-100 text-green-700"
+                      : "bg-orange-100 text-orange-700"
+                  }`}
+                >
+                  {stats.normal_distribution
                     ? "Normal"
-                    : "Non-Normal"
-                }
-                variant={
-                  stats.normal_distribution
-                    ? "success"
-                    : "warning"
-                }
-              />
-            </div>
-
-            <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <MetricCard
-                title="Mean"
-                value={formatCompactNumber(stats.mean)}
-                subtitle="Average"
-                icon={BarChart3}
-                color="blue"
-              />
-
-              <MetricCard
-                title="Median"
-                value={formatCompactNumber(stats.median)}
-                subtitle="Middle Value"
-                icon={Activity}
-                color="green"
-              />
-
-              <MetricCard
-                title="Std Dev"
-                value={formatCompactNumber(
-                  stats.standard_deviation
-                )}
-                subtitle="Dispersion"
-                icon={TrendingUp}
-                color="orange"
-              />
-
-              <MetricCard
-                title="Outliers"
-                value={stats.outliers.count}
-                subtitle="Detected"
-                icon={AlertTriangle}
-                color={
-                  stats.outliers.count > 0
-                    ? "red"
-                    : "green"
-                }
-              />
-            </div>
-
-            <div className="mt-8 rounded-2xl border border-blue-100 bg-blue-50 p-5">
-              <div className="mb-4 flex items-center gap-2">
-                <Brain
-                  size={20}
-                  className="text-blue-600"
-                />
-
-                <h3 className="text-lg font-semibold text-slate-900">
-                  Quick Facts
-                </h3>
+                    : "Non-Normal"}
+                </span>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-slate-500">
-                    Skew Type
-                  </p>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-600">
+                  Skewness
+                </span>
 
-                  <p className="mt-1 font-semibold text-slate-900">
-                    {stats.skewness_type}
-                  </p>
-                </div>
+                <strong>
+                  {stats.skewness.toFixed(3)}
+                </strong>
+              </div>
 
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-slate-500">
-                    Kurtosis
-                  </p>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-600">
+                  Kurtosis
+                </span>
 
-                  <p className="mt-1 font-semibold text-slate-900">
-                    {stats.kurtosis_type}
-                  </p>
-                </div>
+                <strong>
+                  {stats.kurtosis.toFixed(3)}
+                </strong>
+              </div>
 
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-slate-500">
-                    Variation
-                  </p>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-600">
+                  ML Readiness
+                </span>
 
-                  <p className="mt-1 font-semibold text-slate-900">
-                    {stats.coefficient_of_variation.toFixed(2)}%
-                  </p>
-                </div>
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    stats.normal_distribution &&
+                    stats.outliers.count === 0
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
+                  }`}
+                >
+                  {stats.normal_distribution &&
+                  stats.outliers.count === 0
+                    ? "Ready"
+                    : "Needs Review"}
+                </span>
+              </div>
 
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-slate-500">
-                    ML Readiness
-                  </p>
-
-                  <p className="mt-1 font-semibold text-slate-900">
-                    {stats.normal_distribution
-                      ? "Ready"
-                      : "Review"}
-                  </p>
-                </div>
+              <div className="rounded-xl border border-emerald-200 bg-white p-4">
+                <p className="text-sm leading-7 text-slate-700">
+                  {stats.normal_distribution &&
+                  stats.outliers.count === 0
+                    ? "This feature is well suited for statistical analysis and most machine learning algorithms without additional preprocessing."
+                    : stats.outliers.count > 0 &&
+                      Math.abs(stats.skewness) > 1
+                    ? "Consider applying logarithmic, Box-Cox, or Yeo-Johnson transformation before linear modelling. Investigate extreme values prior to training."
+                    : stats.outliers.count > 0
+                    ? "Outliers were detected. Verify whether they represent data quality issues or genuine rare observations."
+                    : "The distribution is not perfectly normal. Consider feature scaling or transformation depending on the algorithm you plan to use."}
+                </p>
               </div>
             </div>
-                        <div className="mt-8 grid gap-6 lg:grid-cols-2">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                <div className="mb-4 flex items-center gap-2">
-                  <BarChart3
-                    size={18}
-                    className="text-blue-600"
-                  />
-                  <h3 className="text-lg font-semibold text-slate-900">
-                    Statistics
-                  </h3>
-                </div>
+          </div>
 
-                <div className="space-y-3 text-sm">
-                  {[
-                    ["Minimum", formatCompactNumber(stats.minimum)],
-                    ["Maximum", formatCompactNumber(stats.maximum)],
-                    ["Range", formatCompactNumber(stats.range)],
-                    ["Variance", formatCompactNumber(stats.variance)],
-                  ].map(([label, value]) => (
-                    <div
-                      key={label}
-                      className="flex items-center justify-between border-b border-slate-200 pb-2 last:border-b-0"
-                    >
-                      <span className="text-slate-600">{label}</span>
-
-                      <span className="font-semibold text-slate-900 text-right">
-                        {value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                <div className="mb-4 flex items-center gap-2">
-                  <Sigma
-                    size={18}
-                    className="text-violet-600"
-                  />
-
-                  <h3 className="text-lg font-semibold text-slate-900">
-                    Shape Analysis
-                  </h3>
-                </div>
-
-                <div className="space-y-3 text-sm">
-                  {[
-                    [
-                      "Skewness",
-                      stats.skewness.toFixed(3),
-                    ],
-                    [
-                      "Skew Type",
-                      stats.skewness_type,
-                    ],
-                    [
-                      "Kurtosis",
-                      stats.kurtosis.toFixed(3),
-                    ],
-                    [
-                      "Kurtosis Type",
-                      stats.kurtosis_type,
-                    ],
-                  ].map(([label, value]) => (
-                    <div
-                      key={label}
-                      className="flex items-center justify-between border-b border-slate-200 pb-2 last:border-b-0"
-                    >
-                      <span className="text-slate-600">{label}</span>
-
-                      <span className="font-semibold text-slate-900 text-right">
-                        {value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-              <div className="flex items-start gap-3">
-                <Brain
-                  size={22}
-                  className="mt-1 text-emerald-600"
-                />
-
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-slate-900">
-                    AI Recommendation
-                  </h3>
-
-                  <div className="mt-4 grid gap-4 md:grid-cols-3">
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-slate-500">
-                        Status
-                      </p>
-
-                      <p className="mt-1 font-semibold text-slate-900">
-                        {recommendation.title}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-slate-500">
-                        Distribution
-                      </p>
-
-                      <p className="mt-1 font-semibold text-slate-900">
-                        {stats.normal_distribution
-                          ? "Normal"
-                          : "Non-Normal"}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-slate-500">
-                        Outliers
-                      </p>
-
-                      <p className="mt-1 font-semibold text-slate-900">
-                        {stats.outliers.count}
-                      </p>
-                    </div>
-                  </div>
-
-                  <p className="mt-5 text-sm leading-7 text-slate-700">
-                    {recommendation.message}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </Card>
-        );
-      })}
+        </div>
+      </Card>
     </div>
   );
 }

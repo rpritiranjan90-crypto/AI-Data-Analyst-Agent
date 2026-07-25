@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ai-analyst-backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - VITE_API_URL=http://127.0.0.1:8000
+    volumes:
+      - ./backend/datasets:/app/datasets
+      - ./backend/reports:/app/reports
+      - ./backend/generated_charts:/app/generated_charts
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ai-analyst-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend

@@ -10,7 +10,6 @@ import { useDatasetStore } from "../../store/datasetStore";
 
 export default function RecentUploads() {
   const dataset = useDatasetStore((state) => state.dataset);
-
   const metadata = dataset?.metadata;
 
   return (
@@ -124,9 +123,9 @@ export default function RecentUploads() {
                   </p>
 
                   <p className="font-semibold text-slate-900">
-                    {new Date(
-                      metadata.upload_time
-                    ).toLocaleString()}
+                    {metadata.upload_time
+                      ? new Date(metadata.upload_time).toLocaleString()
+                      : "Just now"}
                   </p>
                 </div>
               </div>

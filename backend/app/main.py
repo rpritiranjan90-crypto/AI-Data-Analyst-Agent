@@ -13,6 +13,7 @@ from app.exceptions.handlers import register_exception_handlers
 from app.routes.ai import router as ai_router
 from app.routes.ai_insights import router as ai_insights_router
 from app.routes.analysis import router as analysis_router
+from app.routes.auth import router as auth_router
 from app.routes.chart_recommendation import (
     router as chart_recommendation_router,
 )
@@ -74,6 +75,7 @@ Features
 • Machine Learning
 • Recommendation Engine
 • Report Generation
+• JWT Authentication & Security
 """,
     docs_url="/docs",
     redoc_url="/redoc",
@@ -92,7 +94,7 @@ register_exception_handlers(app)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Restrict in production
+    allow_origins=["*"],  # Restrict in production environment
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -103,6 +105,7 @@ app.add_middleware(
 # ------------------------------------------------------------------
 
 app.include_router(home_router)
+app.include_router(auth_router)
 app.include_router(upload_router)
 app.include_router(analysis_router)
 app.include_router(cleaning_router)
