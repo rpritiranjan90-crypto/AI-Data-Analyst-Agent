@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   BarChart2,
   TrendingUp,
+  PlayCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -19,7 +20,7 @@ import { useDatasetStore } from "../../store/datasetStore";
 import { getAutoRecommendations } from "../../services/recommendationService";
 
 export default function RecommendationPage() {
-  const { dataset } = useDatasetStore();
+  const { dataset, setDataset } = useDatasetStore();
   const metadata = dataset?.metadata;
 
   const [loading, setLoading] = useState(false);
@@ -30,6 +31,34 @@ export default function RecommendationPage() {
       fetchRecommendations();
     }
   }, [metadata]);
+
+  function loadDemoDataset() {
+    const mockDemo = {
+      filename: "HR_Analytics_Demo.csv",
+      filepath: "uploads/HR_Analytics_Demo.csv",
+      extension: ".csv",
+      rows: 1500,
+      columns: 5,
+      missing_values: 12,
+      duplicate_rows: 3,
+      memory_usage_mb: 0.12,
+      file_size_bytes: 125000,
+      column_names: ["employee_id", "age", "salary", "department", "churned"],
+      columns_detail: [
+        { name: "employee_id", type: "string" },
+        { name: "age", type: "number" },
+        { name: "salary", type: "number" },
+        { name: "department", type: "string" },
+        { name: "churned", type: "number" },
+      ],
+      head: [
+        { employee_id: "EMP_001", age: 34, salary: 75000, department: "IT", churned: 0 },
+        { employee_id: "EMP_002", age: 42, salary: 92000, department: "Sales", churned: 1 },
+      ],
+    };
+    setDataset({ metadata: mockDemo, success: true, message: "Loaded demo" });
+    toast.success("Loaded HR Analytics Demo dataset!");
+  }
 
   async function fetchRecommendations() {
     try {
@@ -50,15 +79,22 @@ export default function RecommendationPage() {
           title="Smart Recommendations"
           subtitle="AI-driven recommendations for data cleaning, chart choices, and predictive modeling."
         />
-        <Card className="flex flex-col items-center justify-center p-12 text-center">
-          <Database size={48} className="mb-4 text-slate-300" />
-          <h3 className="text-lg font-bold text-slate-800">No Active Dataset</h3>
-          <p className="mt-1 text-sm text-slate-500">
-            Please upload a dataset first to generate recommendations.
+        <Card className="flex flex-col items-center justify-center p-12 text-center bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-lg">
+          <div className="rounded-2xl bg-amber-500/10 p-4 text-amber-500 mb-4 border border-amber-500/20">
+            <Database size={42} />
+          </div>
+          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">No Active Dataset</h3>
+          <p className="mt-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 max-w-md">
+            Please upload a CSV or Excel dataset to receive AI recommendations for cleaning, charts, and ML tasks.
           </p>
-          <Link to="/upload" className="mt-6">
-            <Button variant="primary">Upload Dataset</Button>
-          </Link>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <Link to="/upload">
+              <Button variant="primary">Upload Dataset</Button>
+            </Link>
+            <Button variant="secondary" onClick={loadDemoDataset} className="flex items-center gap-2">
+              <PlayCircle size={16} /> Load Demo Dataset
+            </Button>
+          </div>
         </Card>
       </div>
     );
@@ -81,7 +117,7 @@ export default function RecommendationPage() {
             <Spinner size={16} label="Analyzing..." />
           ) : (
             <>
-              <Sparkles size={16} className="mr-2 text-indigo-600" />
+              <Sparkles size={16} className="mr-2 text-indigo-600 dark:text-indigo-400" />
               Refresh Recommendations
             </>
           )}
@@ -96,32 +132,32 @@ export default function RecommendationPage() {
         <div className="grid gap-6 md:grid-cols-2">
           {/* Card 1: Data Cleaning Actions */}
           <Card className="p-6 space-y-4">
-            <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
-              <div className="rounded-xl bg-amber-50 p-2.5 text-amber-600">
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="rounded-xl bg-amber-50 dark:bg-slate-800 p-2.5 text-amber-600 dark:text-amber-400">
                 <AlertTriangle size={22} />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900">Data Cleaning Advice</h3>
-                <p className="text-xs text-slate-500">Recommended preprocessing steps</p>
+                <h3 className="font-bold text-slate-900 dark:text-white">Data Cleaning Advice</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Recommended preprocessing steps</p>
               </div>
             </div>
 
             <ul className="space-y-3">
               {metadata.missing_values > 0 ? (
-                <li className="flex items-start gap-3 text-xs text-slate-700 bg-amber-50/60 p-3 rounded-xl border border-amber-100">
-                  <Lightbulb size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                <li className="flex items-start gap-3 text-xs text-slate-700 dark:text-slate-200 bg-amber-50/60 dark:bg-slate-800/60 p-3 rounded-xl border border-amber-100 dark:border-slate-700">
+                  <Lightbulb size={16} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                   <span>Found <strong>{metadata.missing_values} missing values</strong>. Head to the Data Cleaning Studio to impute mean/median for numerical columns.</span>
                 </li>
               ) : (
-                <li className="flex items-start gap-3 text-xs text-slate-700 bg-emerald-50/60 p-3 rounded-xl border border-emerald-100">
-                  <CheckCircle2 size={16} className="text-emerald-600 shrink-0 mt-0.5" />
+                <li className="flex items-start gap-3 text-xs text-slate-700 dark:text-slate-200 bg-emerald-50/60 dark:bg-slate-800/60 p-3 rounded-xl border border-emerald-100 dark:border-slate-700">
+                  <CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                   <span>No missing values detected. Dataset structure is clean!</span>
                 </li>
               )}
 
               {metadata.duplicate_rows > 0 && (
-                <li className="flex items-start gap-3 text-xs text-slate-700 bg-red-50/60 p-3 rounded-xl border border-red-100">
-                  <Lightbulb size={16} className="text-red-600 shrink-0 mt-0.5" />
+                <li className="flex items-start gap-3 text-xs text-slate-700 dark:text-slate-200 bg-red-50/60 dark:bg-slate-800/60 p-3 rounded-xl border border-red-100 dark:border-slate-700">
+                  <Lightbulb size={16} className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
                   <span>Detected <strong>{metadata.duplicate_rows} duplicate rows</strong>. Purge duplicates to avoid bias.</span>
                 </li>
               )}
@@ -134,23 +170,23 @@ export default function RecommendationPage() {
 
           {/* Card 2: Recommended Charts */}
           <Card className="p-6 space-y-4">
-            <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
-              <div className="rounded-xl bg-blue-50 p-2.5 text-blue-600">
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="rounded-xl bg-blue-50 dark:bg-slate-800 p-2.5 text-blue-600 dark:text-blue-400">
                 <BarChart2 size={22} />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900">Suggested Visualizations</h3>
-                <p className="text-xs text-slate-500">Best chart choices for this dataset</p>
+                <h3 className="font-bold text-slate-900 dark:text-white">Suggested Visualizations</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Best chart choices for this dataset</p>
               </div>
             </div>
 
-            <ul className="space-y-3 text-xs text-slate-700">
-              <li className="flex items-start gap-3 bg-blue-50/50 p-3 rounded-xl border border-blue-100">
-                <Sparkles size={16} className="text-blue-600 shrink-0 mt-0.5" />
+            <ul className="space-y-3 text-xs text-slate-700 dark:text-slate-200">
+              <li className="flex items-start gap-3 bg-blue-50/50 dark:bg-slate-800/60 p-3 rounded-xl border border-blue-100 dark:border-slate-700">
+                <Sparkles size={16} className="text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                 <span>Use a <strong>Histogram</strong> on numerical columns to observe value distributions and skewness.</span>
               </li>
-              <li className="flex items-start gap-3 bg-blue-50/50 p-3 rounded-xl border border-blue-100">
-                <Sparkles size={16} className="text-blue-600 shrink-0 mt-0.5" />
+              <li className="flex items-start gap-3 bg-blue-50/50 dark:bg-slate-800/60 p-3 rounded-xl border border-blue-100 dark:border-slate-700">
+                <Sparkles size={16} className="text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                 <span>Generate a <strong>Correlation Heatmap</strong> to spot strong linear relationships between variables.</span>
               </li>
             </ul>
@@ -162,26 +198,26 @@ export default function RecommendationPage() {
 
           {/* Card 3: Machine Learning Potential */}
           <Card className="p-6 space-y-4 md:col-span-2">
-            <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
-              <div className="rounded-xl bg-purple-50 p-2.5 text-purple-600">
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="rounded-xl bg-purple-50 dark:bg-slate-800 p-2.5 text-purple-600 dark:text-purple-400">
                 <TrendingUp size={22} />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900">Predictive Modeling Opportunities</h3>
-                <p className="text-xs text-slate-500">Recommended machine learning tasks</p>
+                <h3 className="font-bold text-slate-900 dark:text-white">Predictive Modeling Opportunities</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Recommended machine learning tasks</p>
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 text-xs text-slate-700">
-              <div className="p-4 rounded-xl border border-purple-100 bg-purple-50/40 space-y-1.5">
-                <span className="font-bold text-purple-900 text-sm">Classification Task</span>
-                <p className="text-slate-600">
+            <div className="grid gap-4 sm:grid-cols-2 text-xs text-slate-700 dark:text-slate-200">
+              <div className="p-4 rounded-xl border border-purple-100 dark:border-slate-700 bg-purple-50/40 dark:bg-slate-800/50 space-y-1.5">
+                <span className="font-bold text-purple-900 dark:text-purple-300 text-sm">Classification Task</span>
+                <p className="text-slate-600 dark:text-slate-400">
                   Select a categorical target column to train a Random Forest or Logistic Regression classifier.
                 </p>
               </div>
-              <div className="p-4 rounded-xl border border-purple-100 bg-purple-50/40 space-y-1.5">
-                <span className="font-bold text-purple-900 text-sm">Regression Task</span>
-                <p className="text-slate-600">
+              <div className="p-4 rounded-xl border border-purple-100 dark:border-slate-700 bg-purple-50/40 dark:bg-slate-800/50 space-y-1.5">
+                <span className="font-bold text-purple-900 dark:text-purple-300 text-sm">Regression Task</span>
+                <p className="text-slate-600 dark:text-slate-400">
                   Select a numerical target column to train a Linear Regression or Random Forest Regressor.
                 </p>
               </div>

@@ -8,6 +8,7 @@ import {
   Sliders,
   ShieldCheck,
   Zap,
+  PlayCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,7 +29,7 @@ import {
 } from "../../services/cleaningService";
 
 export default function CleaningPage() {
-  const { dataset } = useDatasetStore();
+  const { dataset, setDataset } = useDatasetStore();
   const metadata = dataset?.metadata;
 
   const [qualityData, setQualityData] = useState<any>(null);
@@ -58,6 +59,34 @@ export default function CleaningPage() {
       }
     }
   }, [metadata]);
+
+  function loadDemoDataset() {
+    const mockDemo = {
+      filename: "HR_Analytics_Demo.csv",
+      filepath: "uploads/HR_Analytics_Demo.csv",
+      extension: ".csv",
+      rows: 1500,
+      columns: 5,
+      missing_values: 12,
+      duplicate_rows: 3,
+      memory_usage_mb: 0.12,
+      file_size_bytes: 125000,
+      column_names: ["employee_id", "age", "salary", "department", "churned"],
+      columns_detail: [
+        { name: "employee_id", type: "string" },
+        { name: "age", type: "number" },
+        { name: "salary", type: "number" },
+        { name: "department", type: "string" },
+        { name: "churned", type: "number" },
+      ],
+      head: [
+        { employee_id: "EMP_001", age: 34, salary: 75000, department: "IT", churned: 0 },
+        { employee_id: "EMP_002", age: 42, salary: 92000, department: "Sales", churned: 1 },
+      ],
+    };
+    setDataset({ metadata: mockDemo, success: true, message: "Loaded demo" });
+    toast.success("Loaded HR Analytics Demo dataset!");
+  }
 
   async function fetchQuality() {
     try {
@@ -148,15 +177,22 @@ export default function CleaningPage() {
           title="Data Cleaning Studio"
           subtitle="Clean missing values, handle outliers, drop duplicates, and optimize dataset data types."
         />
-        <Card className="flex flex-col items-center justify-center p-12 text-center">
-          <Wand2 size={48} className="mb-4 text-slate-300" />
-          <h3 className="text-lg font-bold text-slate-800">No Active Dataset</h3>
-          <p className="mt-1 text-sm text-slate-500">
-            Please upload a dataset first to start cleaning operations.
+        <Card className="flex flex-col items-center justify-center p-12 text-center bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-lg">
+          <div className="rounded-2xl bg-purple-500/10 p-4 text-purple-500 mb-4 border border-purple-500/20">
+            <Wand2 size={42} />
+          </div>
+          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">No Active Dataset</h3>
+          <p className="mt-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 max-w-md">
+            Please upload a CSV or Excel dataset to perform 1-Click Auto Clean, missing value imputation, and outlier filters.
           </p>
-          <Link to="/upload" className="mt-6">
-            <Button variant="primary">Upload Dataset</Button>
-          </Link>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <Link to="/upload">
+              <Button variant="primary">Upload Dataset</Button>
+            </Link>
+            <Button variant="secondary" onClick={loadDemoDataset} className="flex items-center gap-2">
+              <PlayCircle size={16} /> Load Demo Dataset
+            </Button>
+          </div>
         </Card>
       </div>
     );
@@ -188,48 +224,48 @@ export default function CleaningPage() {
 
       {/* Dataset Quality & Quick Summary */}
       <div className="grid gap-6 md:grid-cols-3">
-        <Card className="p-6 bg-gradient-to-br from-blue-50/50 to-indigo-50/30 border-blue-100">
+        <Card className="p-6 bg-gradient-to-br from-blue-50/50 to-indigo-50/30 dark:from-slate-800 dark:to-slate-900 border-blue-100 dark:border-slate-800">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-700">
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">
               Quality Rating
             </span>
-            <ShieldCheck size={24} className="text-blue-600" />
+            <ShieldCheck size={24} className="text-blue-600 dark:text-blue-400" />
           </div>
           <div className="mt-3">
-            <p className="text-3xl font-extrabold text-slate-900">
+            <p className="text-3xl font-extrabold text-slate-900 dark:text-white">
               {qualityData?.quality_score ?? 95}%
             </p>
-            <p className="mt-1 text-xs text-slate-500">Overall Dataset Health</p>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Overall Dataset Health</p>
           </div>
         </Card>
 
         <Card className="p-6">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-amber-700">
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
               Missing Values
             </span>
             <span className="h-2 w-2 rounded-full bg-amber-500" />
           </div>
           <div className="mt-3">
-            <p className="text-3xl font-extrabold text-slate-900">
-              {metadata.missing_values.toLocaleString()}
+            <p className="text-3xl font-extrabold text-slate-900 dark:text-white">
+              {(metadata.missing_values ?? 0).toLocaleString()}
             </p>
-            <p className="mt-1 text-xs text-slate-500">Across all columns</p>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Across all columns</p>
           </div>
         </Card>
 
         <Card className="p-6">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-red-700">
+            <span className="text-xs font-bold uppercase tracking-wider text-red-700 dark:text-red-400">
               Duplicates
             </span>
             <Trash2 size={20} className="text-red-500" />
           </div>
           <div className="mt-3">
-            <p className="text-3xl font-extrabold text-slate-900">
-              {metadata.duplicate_rows.toLocaleString()}
+            <p className="text-3xl font-extrabold text-slate-900 dark:text-white">
+              {(metadata.duplicate_rows ?? 0).toLocaleString()}
             </p>
-            <p className="mt-1 text-xs text-slate-500">Duplicate rows found</p>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Duplicate rows found</p>
           </div>
         </Card>
       </div>
@@ -238,13 +274,13 @@ export default function CleaningPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* 1. Missing Values Handler */}
         <Card className="p-6 space-y-4">
-          <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
-            <div className="rounded-xl bg-amber-50 p-2.5 text-amber-600">
+          <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="rounded-xl bg-amber-50 dark:bg-slate-800 p-2.5 text-amber-600 dark:text-amber-400">
               <Sparkles size={20} />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900">Missing Values Handler</h3>
-              <p className="text-xs text-slate-500">Fill or impute missing data</p>
+              <h3 className="font-bold text-slate-900 dark:text-white">Missing Values Handler</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Fill or impute missing data</p>
             </div>
           </div>
 
@@ -273,7 +309,7 @@ export default function CleaningPage() {
 
             {missingMethod === "constant" && (
               <div>
-                <label className="block text-xs font-semibold uppercase text-slate-600 mb-1">
+                <label className="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   Constant Value
                 </label>
                 <input
@@ -281,7 +317,7 @@ export default function CleaningPage() {
                   placeholder="e.g. Unknown or 0"
                   value={missingValue}
                   onChange={(e) => setMissingValue(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm"
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white"
                 />
               </div>
             )}
@@ -302,13 +338,13 @@ export default function CleaningPage() {
 
         {/* 2. Outliers Handler */}
         <Card className="p-6 space-y-4">
-          <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
-            <div className="rounded-xl bg-blue-50 p-2.5 text-blue-600">
+          <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="rounded-xl bg-blue-50 dark:bg-slate-800 p-2.5 text-blue-600 dark:text-blue-400">
               <Sliders size={20} />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900">Outlier Detection & Removal</h3>
-              <p className="text-xs text-slate-500">Filter numerical extremes</p>
+              <h3 className="font-bold text-slate-900 dark:text-white">Outlier Detection & Removal</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Filter numerical extremes</p>
             </div>
           </div>
 
@@ -332,7 +368,7 @@ export default function CleaningPage() {
 
             {outlierMethod === "zscore" && (
               <div>
-                <label className="block text-xs font-semibold uppercase text-slate-600 mb-1">
+                <label className="block text-xs font-semibold uppercase text-slate-600 dark:text-slate-400 mb-1">
                   Z-Score Threshold (default: 3.0)
                 </label>
                 <input
@@ -340,7 +376,7 @@ export default function CleaningPage() {
                   step="0.5"
                   value={zThreshold}
                   onChange={(e) => setZThreshold(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm"
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm text-slate-900 dark:text-white"
                 />
               </div>
             )}
@@ -362,17 +398,17 @@ export default function CleaningPage() {
 
         {/* 3. Duplicate Removal */}
         <Card className="p-6 space-y-4">
-          <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
-            <div className="rounded-xl bg-red-50 p-2.5 text-red-600">
+          <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="rounded-xl bg-red-50 dark:bg-slate-800 p-2.5 text-red-600 dark:text-red-400">
               <Trash2 size={20} />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900">Duplicate Records</h3>
-              <p className="text-xs text-slate-500">Drop identical dataset rows</p>
+              <h3 className="font-bold text-slate-900 dark:text-white">Duplicate Records</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Drop identical dataset rows</p>
             </div>
           </div>
 
-          <p className="text-xs text-slate-600 leading-relaxed">
+          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
             Identifies and removes exact duplicate rows across all columns.
           </p>
 
@@ -392,13 +428,13 @@ export default function CleaningPage() {
 
         {/* 4. Type Converter */}
         <Card className="p-6 space-y-4">
-          <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
-            <div className="rounded-xl bg-purple-50 p-2.5 text-purple-600">
+          <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="rounded-xl bg-purple-50 dark:bg-slate-800 p-2.5 text-purple-600 dark:text-purple-400">
               <RefreshCw size={20} />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900">Datatype Converter</h3>
-              <p className="text-xs text-slate-500">Convert column data types</p>
+              <h3 className="font-bold text-slate-900 dark:text-white">Datatype Converter</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Convert column data types</p>
             </div>
           </div>
 
