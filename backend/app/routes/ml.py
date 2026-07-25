@@ -1,22 +1,14 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Body
+import pandas as pd
 
-from app.services.ml.automl_service import (
-    AutoMLService,
-)
-from app.services.ml.explainability_service import (
-    ExplainabilityService,
-)
-from app.services.ml.model_registry import (
-    ModelRegistry,
-)
-from app.services.ml.prediction_service import (
-    PredictionService,
-)
-from app.services.ml.recommendation_service import (
-    RecommendationService,
-)
+from app.services.ml.automl_service import AutoMLService
+from app.services.ml.explainability_service import ExplainabilityService
+from app.services.ml.model_registry import ModelRegistry
+from app.services.ml.prediction_service import PredictionService
+from app.services.ml.recommendation_service import RecommendationService
+from app.services.anomaly_detection_service import AnomalyDetectionService
 
 router = APIRouter(
     prefix="/ml",
@@ -29,16 +21,13 @@ router = APIRouter(
     summary="Machine Learning Service Status",
 )
 async def ml_status():
-    """
-    Return the overall ML service status.
-    """
-
     return {
         "status": "ready",
         "services": {
             "automl": AutoMLService.service_status(),
             "recommendation": RecommendationService.recommendation_status(),
             "explainability": ExplainabilityService.service_status(),
+            "anomaly_detection": "ready",
         },
     }
 
@@ -48,219 +37,94 @@ async def ml_status():
     summary="List Saved Models",
 )
 async def list_models():
-    """
-    List all saved models.
-    """
-
     try:
         return ModelRegistry.registry_summary()
-
     except Exception as error:
-        raise HTTPException(
-            status_code=500,
-            detail=str(error),
-        )
+        raise HTTPException(status_code=500, detail=str(error))
 
 
 @router.get(
     "/models/{model_name}",
     summary="Model Information",
 )
-async def model_info(
-    model_name: str,
-):
-    """
-    Return information about a saved model.
-    """
-
+async def model_info(model_name: str):
     try:
-        return ModelRegistry.model_info(
-            model_name
-        )
-
+        return ModelRegistry.model_info(model_name)
     except Exception as error:
-        raise HTTPException(
-            status_code=404,
-            detail=str(error),
-        )
+        raise HTTPException(status_code=404, detail=str(error))
 
 
 @router.delete(
     "/models/{model_name}",
     summary="Delete Model",
 )
-async def delete_model(
-    model_name: str,
-):
-    """
-    Delete a saved model.
-    """
-
+async def delete_model(model_name: str):
     try:
-        return ModelRegistry.delete_model(
-            model_name
-        )
-
+        return ModelRegistry.delete_model(model_name)
     except Exception as error:
-        raise HTTPException(
-            status_code=404,
-            detail=str(error),
-        )
+        raise HTTPException(status_code=404, detail=str(error))
 
 
 @router.post(
     "/models/{model_name}/load",
     summary="Load Model",
 )
-async def load_model(
-    model_name: str,
-):
-    """
-    Load a saved model into the registry.
-    """
-
+async def load_model(model_name: str):
     try:
-        ModelRegistry.load_model(
-            model_name
-        )
-
-        return {
-            "success": True,
-            "message": f"Model '{model_name}' loaded successfully.",
-        }
-
+        ModelRegistry.load_model(model_name)
+        return {"success": True, "message": f"Model '{model_name}' loaded successfully."}
     except Exception as error:
-        raise HTTPException(
-            status_code=404,
-            detail=str(error),
-        )
-from fastapi import Body
-
-import pandas as pd
+        raise HTTPException(status_code=404, detail=str(error))
 
 
 @router.post(
     "/automl",
     summary="Run AutoML",
 )
-async def run_automl(
-    payload: dict = Body(...),
-):
-    """
-    Automatically preprocess, train, compare,
-    and select the best machine learning model.
-    """
-
+async def run_automl(payload: dict = Body(...)):
     try:
-
-        dataframe = pd.DataFrame(
-            payload["data"]
-        )
-
+        dataframe = pd.DataFrame(payload["data"])
         target = payload["target"]
-
-        return AutoMLService.compare_models(
-            dataframe,
-            target,
-        )
-
+        return AutoMLService.compare_models(dataframe, target)
     except Exception as error:
-
-        raise HTTPException(
-            status_code=400,
-            detail=str(error),
-        )
+        raise HTTPException(status_code=400, detail=str(error))
 
 
 @router.post(
     "/recommendation",
     summary="Generate Recommendations",
 )
-async def recommendation(
-    payload: dict = Body(...),
-):
-    """
-    Generate preprocessing and model
-    recommendations.
-    """
-
+async def recommendation(payload: dict = Body(...)):
     try:
-
-        dataframe = pd.DataFrame(
-            payload["data"]
-        )
-
+        dataframe = pd.DataFrame(payload["data"])
         target = payload["target"]
-
-        return RecommendationService.recommend(
-            dataframe,
-            target,
-        )
-
+        return RecommendationService.recommend(dataframe, target)
     except Exception as error:
-
-        raise HTTPException(
-            status_code=400,
-            detail=str(error),
-        )
+        raise HTTPException(status_code=400, detail=str(error))
 
 
 @router.post(
     "/predict",
     summary="Predict",
 )
-async def predict(
-    payload: dict = Body(...),
-):
-    """
-    Predict using the currently loaded model.
-    """
-
+async def predict(payload: dict = Body(...)):
     try:
-
-        dataframe = pd.DataFrame(
-            payload["data"]
-        )
-
-        return PredictionService.predict_registered(
-            dataframe
-        )
-
+        dataframe = pd.DataFrame(payload["data"])
+        return PredictionService.predict_registered(dataframe)
     except Exception as error:
-
-        raise HTTPException(
-            status_code=400,
-            detail=str(error),
-        )
+        raise HTTPException(status_code=400, detail=str(error))
 
 
 @router.post(
     "/explain",
     summary="Explain Prediction",
 )
-async def explain_prediction(
-    payload: dict = Body(...),
-):
-    """
-    Generate prediction explanations.
-    """
-
+async def explain_prediction(payload: dict = Body(...)):
     try:
-
-        dataframe = pd.DataFrame(
-            payload["data"]
-        )
-
-        return ExplainabilityService.local_explanation(
-            dataframe
-        )
-
+        dataframe = pd.DataFrame(payload["data"])
+        return ExplainabilityService.local_explanation(dataframe)
     except Exception as error:
-
-        raise HTTPException(
-            status_code=400,
-            detail=str(error),
-        )
+        raise HTTPException(status_code=400, detail=str(error))
 
 
 @router.get(
@@ -268,98 +132,46 @@ async def explain_prediction(
     summary="Explainability Summary",
 )
 async def explainability():
-    """
-    Return explainability information.
-    """
-
     try:
-
-        return (
-            ExplainabilityService.explainability_summary()
-        )
-
+        return ExplainabilityService.explainability_summary()
     except Exception as error:
+        raise HTTPException(status_code=400, detail=str(error))
 
-        raise HTTPException(
-            status_code=400,
-            detail=str(error),
-        )
+
 @router.post(
     "/models/{model_name}/save",
     summary="Save Current Model",
 )
-async def save_model(
-    model_name: str,
-):
-    """
-    Save the currently loaded model.
-    """
-
+async def save_model(model_name: str):
     try:
-
-        return ModelRegistry.save_registered_model(
-            model_name
-        )
-
+        return ModelRegistry.save_registered_model(model_name)
     except Exception as error:
+        raise HTTPException(status_code=400, detail=str(error))
 
-        raise HTTPException(
-            status_code=400,
-            detail=str(error),
-        )
+
 @router.get(
     "/leaderboard",
     summary="Available AutoML Models",
 )
 async def leaderboard():
-    """
-    Return all supported AutoML models.
-    """
-
     try:
-
         return {
-            "classification": (
-                AutoMLService.available_models(
-                    "classification"
-                )
-            ),
-            "regression": (
-                AutoMLService.available_models(
-                    "regression"
-                )
-            ),
+            "classification": AutoMLService.available_models("classification"),
+            "regression": AutoMLService.available_models("regression"),
         }
-
     except Exception as error:
+        raise HTTPException(status_code=500, detail=str(error))
 
-        raise HTTPException(
-            status_code=500,
-            detail=str(error),
-        )
 
 @router.get(
     "/recommendations",
     summary="Available Recommendations",
 )
 async def available_recommendations():
-    """
-    Return all supported recommendation types.
-    """
-
     try:
-
-        return {
-            "recommendations":
-            RecommendationService.available_recommendations()
-        }
-
+        return {"recommendations": RecommendationService.available_recommendations()}
     except Exception as error:
-
-        raise HTTPException(
-            status_code=500,
-            detail=str(error),
-        )
+        raise HTTPException(status_code=500, detail=str(error))
 
 
 @router.get(
@@ -367,10 +179,6 @@ async def available_recommendations():
     summary="ML Health Check",
 )
 async def health():
-    """
-    Machine Learning module health check.
-    """
-
     return {
         "status": "healthy",
         "router": "ml",
@@ -380,8 +188,20 @@ async def health():
             "prediction": "ready",
             "explainability": "ready",
             "model_registry": "ready",
+            "anomaly_detection": "ready",
         },
     }
+
+
+@router.post(
+    "/detect-anomalies",
+    summary="Isolation Forest Anomaly & Fraud Detection Radar",
+)
+async def detect_anomalies(contamination: float = 0.05):
+    try:
+        return AnomalyDetectionService.detect_anomalies(contamination)
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=str(error))
 
 
 @router.get(
@@ -389,10 +209,6 @@ async def health():
     summary="ML Module Summary",
 )
 async def summary():
-    """
-    Return an overview of the Machine Learning module.
-    """
-
     return {
         "module": "Machine Learning",
         "status": "ready",
@@ -402,9 +218,11 @@ async def summary():
             "recommendation": True,
             "explainability": True,
             "model_registry": True,
+            "anomaly_detection": True,
         },
         "supported_problem_types": [
             "classification",
             "regression",
+            "anomaly_detection",
         ],
     }

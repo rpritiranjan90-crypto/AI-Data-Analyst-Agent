@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 # Configure matplotlib before importing plotting modules
 from app.common import matplotlib_config  # noqa: F401
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.common.logger import get_logger
@@ -63,20 +63,14 @@ Enterprise AI-powered Data Analytics Platform.
 
 Features
 
-• Dataset Upload
-• Dataset Profiling
-• Data Cleaning
-• Descriptive Analytics
-• Correlation Analysis
-• Distribution Analysis
-• Time-Series Analysis
-• AI Insights
-• Visualization
-• Chart Recommendation
-• Machine Learning
-• Recommendation Engine
-• Report Generation
-• JWT Authentication & Security
+• Dataset Upload & Multi-File Joiner
+• Dataset Profiling & DuckDB SQL
+• Data Cleaning & Outlier Removal
+• Descriptive & Categorical Analytics
+• Visualization & Chart Exporters
+• Machine Learning & Isolation Forest Anomaly Radar
+• PowerPoint (.pptx) Slide Deck Compiler
+• Real-time WebSocket Collaboration
 • Webhook Alerts & Multi-Agent Swarms
 """,
     docs_url="/docs",
@@ -96,7 +90,7 @@ register_exception_handlers(app)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Restrict in production environment
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -120,6 +114,27 @@ app.include_router(ml_router)
 app.include_router(ml_pipeline_router)
 app.include_router(report_router)
 app.include_router(webhooks_router)
+
+
+# ------------------------------------------------------------------
+# WebSocket Real-Time Collaboration
+# ------------------------------------------------------------------
+
+connected_clients: list[WebSocket] = []
+
+@app.websocket("/ws/collaborate")
+async def websocket_collaborate(websocket: WebSocket):
+    await websocket.accept()
+    connected_clients.append(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            # Broadcast dataset edit / cursor action to all analyst peers
+            for client in connected_clients:
+                if client != websocket:
+                    await client.send_text(data)
+    except WebSocketDisconnect:
+        connected_clients.remove(websocket)
 
 
 # ------------------------------------------------------------------
