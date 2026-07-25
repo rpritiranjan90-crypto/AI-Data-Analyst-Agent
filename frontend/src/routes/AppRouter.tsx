@@ -9,6 +9,7 @@ import VisualizationPage from "../pages/Visualization/VisualizationPage";
 import RecommendationPage from "../pages/Recommendation/RecommendationPage";
 import MachineLearningPage from "../pages/MachineLearning/MachineLearningPage";
 import ReportsPage from "../pages/Reports/ReportsPage";
+import PricingPage from "../pages/Pricing/PricingPage";
 import PrivacyPolicyPage from "../pages/Legal/PrivacyPolicyPage";
 import TermsOfServicePage from "../pages/Legal/TermsOfServicePage";
 import NotFoundPage from "../pages/NotFound/NotFoundPage";
@@ -27,6 +28,7 @@ export default function AppRouter() {
           <Route path="/recommendation" element={<RecommendationPage />} />
           <Route path="/machine-learning" element={<MachineLearningPage />} />
           <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/terms-of-service" element={<TermsOfServicePage />} />
         </Route>

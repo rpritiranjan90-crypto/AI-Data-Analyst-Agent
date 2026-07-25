@@ -10,6 +10,7 @@ import {
   FileText,
   X,
   Layers,
+  CreditCard,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useDatasetStore } from "../../store/datasetStore";
@@ -57,6 +58,11 @@ const analyticsSection = [
     name: "Reports & AI",
     icon: FileText,
     path: "/reports",
+  },
+  {
+    name: "Pricing & Plans",
+    icon: CreditCard,
+    path: "/pricing",
   },
 ];
 
@@ -137,7 +143,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         <div>
           <div className="px-3 mb-2 flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">
             <Sparkles size={12} />
-            <span>Analytics & AI Studios</span>
+            <span>Analytics & Enterprise</span>
           </div>
           <div className="space-y-1">
             {analyticsSection.map((item) => {
