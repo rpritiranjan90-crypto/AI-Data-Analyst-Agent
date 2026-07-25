@@ -96,8 +96,8 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
             </button>
           </div>
         ) : (
-          <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-400 dark:text-slate-500 px-3 py-2 rounded-xl border border-slate-200/60 dark:border-slate-800/60 bg-slate-50/60 dark:bg-slate-800/30">
-            <span className="h-2 w-2 rounded-full bg-amber-400/80 animate-pulse" />
+          <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-400 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/30">
+            <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
             No dataset loaded
           </div>
         )}
@@ -108,7 +108,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         {/* Notification Bell */}
         <button
           title="Notifications"
-          className="relative rounded-xl border border-slate-200/80 dark:border-slate-700/60 bg-white/60 dark:bg-slate-800/60 p-2 text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-200 transition-all duration-200 shadow-xs"
+          className="relative rounded-xl border border-slate-300 dark:border-slate-700/60 bg-white dark:bg-slate-800/60 p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition-all duration-200 shadow-xs"
         >
           <Bell size={17} />
           <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-blue-500" />
@@ -118,7 +118,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         <button
           onClick={() => setIsDarkMode(!isDarkMode)}
           title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          className="rounded-xl border border-slate-200/80 dark:border-slate-700/60 bg-white/60 dark:bg-slate-800/60 p-2 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all duration-200 shadow-xs"
+          className="rounded-xl border border-slate-300 dark:border-slate-700/60 bg-white dark:bg-slate-800/60 p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all duration-200 shadow-xs"
         >
           {isDarkMode ? (
             <Sun size={17} className="text-amber-400 transition-transform duration-300 rotate-0 hover:rotate-45" />
@@ -141,15 +141,15 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         <div className="h-8 w-px bg-slate-200/80 dark:bg-slate-700/60 mx-1" />
 
         {/* User Avatar */}
-        <button className="flex items-center gap-2.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/70 px-3 py-1.5 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 shadow-xs group">
+        <button className="flex items-center gap-2.5 rounded-2xl border border-slate-300 dark:border-slate-700/60 bg-white dark:bg-slate-800/70 px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-400 dark:hover:border-slate-600 transition-all duration-200 shadow-xs group">
           <div className="h-7 w-7 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white text-xs font-extrabold shadow-sm shadow-indigo-500/30 ring-2 ring-indigo-100 dark:ring-indigo-900/50">
             DA
           </div>
           <div className="hidden md:block text-left">
-            <p className="text-xs font-bold text-slate-900 dark:text-slate-100 leading-none">
+            <p className="text-xs font-bold text-slate-800 dark:text-slate-100 leading-none">
               Data Analyst
             </p>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 leading-tight mt-0.5">
+            <p className="text-[10px] font-medium text-slate-500 dark:text-slate-500 leading-tight mt-0.5">
               Admin Workspace
             </p>
           </div>

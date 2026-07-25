@@ -27,7 +27,7 @@ export default function PageHeader({
               className={`text-xl sm:text-2xl font-extrabold tracking-tight leading-tight ${
                 gradient
                   ? "gradient-text"
-                  : "text-slate-900 dark:text-white"
+                  : "text-slate-800 dark:text-white"
               }`}
             >
               {title}
@@ -40,7 +40,7 @@ export default function PageHeader({
             )}
           </div>
           {subtitle && (
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed">
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
               {subtitle}
             </p>
           )}

@@ -86,24 +86,24 @@ export default function MainLayout() {
 
             {/* Footer */}
             <footer className="mx-auto max-w-7xl w-full mt-12 pt-5 pb-2">
-              <div className="rounded-2xl border border-slate-200/70 dark:border-slate-800/60 bg-white/60 dark:bg-slate-900/40 backdrop-blur-sm px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 dark:text-slate-500 gap-3">
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/40 backdrop-blur-sm px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-600 dark:text-slate-500 gap-3 shadow-xs">
                 <div className="flex items-center gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 pulse-glow" />
-                  <p className="font-medium">
+                  <p className="font-medium text-slate-600 dark:text-slate-500">
                     © {new Date().getFullYear()} AI Data Analyst Agent · All rights reserved
                   </p>
                 </div>
 
                 <div className="flex items-center gap-5 font-semibold">
-                  <Link to="/privacy-policy" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-150">
+                  <Link to="/privacy-policy" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-150">
                     Privacy Policy
                   </Link>
-                  <Link to="/terms-of-service" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-150">
+                  <Link to="/terms-of-service" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-150">
                     Terms of Service
                   </Link>
                   <button
                     onClick={() => setBugModalOpen(true)}
-                    className="flex items-center gap-1.5 text-indigo-500 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-bold transition-colors duration-150"
+                    className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-bold transition-colors duration-150"
                   >
                     <Bug size={13} /> Report Bug
                   </button>

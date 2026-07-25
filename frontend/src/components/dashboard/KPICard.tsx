@@ -28,17 +28,17 @@ export default function KPICard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
     >
-      <Card className="group relative overflow-hidden p-6 glass-card">
+      <Card className="group relative overflow-hidden p-6" hoverEffect>
         {/* Glowing Top Accent */}
         <div className={`absolute left-0 top-0 h-1.5 w-full ${color}`} />
 
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <p className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-400">
               {title}
             </p>
 
-            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
+            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
               {typeof value === "number" ? value.toLocaleString() : value}
             </h2>
 
