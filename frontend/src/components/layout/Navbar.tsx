@@ -96,7 +96,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
             </button>
           </div>
         ) : (
-          <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-400 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100/80 dark:bg-slate-800/30">
+          <div className="hidden sm:flex items-center gap-2 text-xs font-bold text-black dark:text-white px-3 py-2 rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-md shadow-slate-300/50 dark:shadow-none">
             <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
             No dataset loaded
           </div>

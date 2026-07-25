@@ -86,24 +86,24 @@ export default function MainLayout() {
 
             {/* Footer */}
             <footer className="mx-auto max-w-7xl w-full mt-12 pt-5 pb-2">
-              <div className="rounded-2xl border border-slate-200 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/40 backdrop-blur-sm px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-600 dark:text-slate-500 gap-3 shadow-xs">
+              <div className="rounded-2xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-xs gap-3 shadow-md shadow-slate-300/50 dark:shadow-none">
                 <div className="flex items-center gap-2">
-                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 pulse-glow" />
-                  <p className="font-medium text-slate-600 dark:text-slate-500">
+                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 pulse-glow" />
+                  <p className="font-bold text-black dark:text-white">
                     © {new Date().getFullYear()} AI Data Analyst Agent · All rights reserved
                   </p>
                 </div>
 
-                <div className="flex items-center gap-5 font-semibold">
-                  <Link to="/privacy-policy" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-150">
+                <div className="flex items-center gap-5 font-bold">
+                  <Link to="/privacy-policy" className="text-slate-800 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-150">
                     Privacy Policy
                   </Link>
-                  <Link to="/terms-of-service" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-150">
+                  <Link to="/terms-of-service" className="text-slate-800 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-150">
                     Terms of Service
                   </Link>
                   <button
                     onClick={() => setBugModalOpen(true)}
-                    className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-bold transition-colors duration-150"
+                    className="flex items-center gap-1.5 text-indigo-700 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-extrabold transition-colors duration-150"
                   >
                     <Bug size={13} /> Report Bug
                   </button>
