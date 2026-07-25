@@ -29,13 +29,6 @@ class VisualizationPipeline:
     ) -> dict:
         """
         Execute the visualization pipeline.
-
-        Args:
-            chart_type: Registered chart name.
-            **kwargs: Chart-specific parameters.
-
-        Returns:
-            Standardized response dictionary.
         """
 
         output_path = kwargs.pop(
@@ -48,6 +41,12 @@ class VisualizationPipeline:
 
         if dataframe is not None and not dataframe.empty:
             kwargs.setdefault("dataframe", dataframe)
+
+        # Alias resolution: ensure both column and x_column are set if one is provided
+        if "x_column" in kwargs and "column" not in kwargs:
+            kwargs["column"] = kwargs["x_column"]
+        elif "column" in kwargs and "x_column" not in kwargs:
+            kwargs["x_column"] = kwargs["column"]
 
         chart_path: Path = ChartFactory.create(
             chart_type=chart_type,

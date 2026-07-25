@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -21,36 +22,30 @@ class BarChartService(BaseChart):
     def create(
         cls,
         dataframe: pd.DataFrame,
-        column: str,
         output_path: Path,
+        column: str | None = None,
+        x_column: str | None = None,
         title: str = "Bar Chart",
         top_n: int = 10,
         palette: str | None = None,
+        **kwargs: Any,
     ) -> Path:
         """
         Generate a bar chart.
-
-        Args:
-            dataframe: Source DataFrame.
-            column: Categorical column to visualize.
-            output_path: Output image path.
-            title: Chart title.
-            top_n: Number of top categories to display.
-            palette: Optional matplotlib color palette.
-
-        Returns:
-            Path to the saved chart image.
         """
+        target_column = x_column or column
+        if not target_column:
+            target_column = dataframe.columns[0]
 
         counts = CategoricalBuilder.prepare(
             dataframe=dataframe,
-            column=column,
+            column=target_column,
             top_n=top_n,
         )
 
         cls.configure(
             title=title,
-            xlabel=column,
+            xlabel=target_column,
             ylabel="Count",
         )
 
