@@ -18,7 +18,7 @@ export default function Card({
       className={`rounded-2xl border ${
         glass
           ? "glass-card"
-          : "border-slate-200/80 bg-white shadow-sm shadow-slate-200/50"
+          : "border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900/90 text-slate-900 dark:text-white shadow-sm shadow-slate-200/50 dark:shadow-none"
       } ${hoverEffect ? "card-hover" : ""} ${className}`}
       {...props}
     >
