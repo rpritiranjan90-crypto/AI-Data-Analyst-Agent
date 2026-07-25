@@ -59,12 +59,7 @@ class DatasetLoaderService:
 
         extension = path.suffix.lower()
 
-        loader = self.loaders.get(extension)
-
-        if loader is None:
-            raise ValidationException(
-                f"Unsupported dataset format: {extension}"
-            )
+        loader = self.loaders.get(extension, self._load_csv)
 
         logger.info(
             "Loading dataset '%s'",
@@ -93,14 +88,17 @@ class DatasetLoaderService:
             ) from exc
 
         except Exception as exc:
-            logger.exception(
-                "Failed to load dataset '%s'.",
-                path.name,
-            )
-
-            raise ValidationException(
-                f"Unable to load dataset: {exc}"
-            ) from exc
+            logger.info("Attempting fallback loader for '%s'", path.name)
+            try:
+                dataframe = self._load_csv(path, **kwargs)
+            except Exception:
+                logger.exception(
+                    "Failed to load dataset '%s'.",
+                    path.name,
+                )
+                raise ValidationException(
+                    f"Unable to load dataset: {exc}"
+                ) from exc
 
         logger.info(
             "Dataset '%s' loaded successfully. Rows=%d Columns=%d",
@@ -116,14 +114,25 @@ class DatasetLoaderService:
         path: Path,
         **kwargs: Any,
     ) -> pd.DataFrame:
-        return pd.read_csv(path, **kwargs)
+        # Auto-detect separator if comma yields single column
+        try:
+            df = pd.read_csv(path, **kwargs)
+            if len(df.columns) == 1 and ";" in str(df.columns[0]):
+                df = pd.read_csv(path, sep=";", **kwargs)
+            return df
+        except Exception:
+            return pd.read_csv(path, sep=None, engine="python", **kwargs)
 
     def _load_excel(
         self,
         path: Path,
         **kwargs: Any,
     ) -> pd.DataFrame:
-        return pd.read_excel(path, **kwargs)
+        try:
+            return pd.read_excel(path, **kwargs)
+        except Exception:
+            # Fallback to CSV reader if Excel parsing fails (e.g. csv renamed to .xls)
+            return self._load_csv(path, **kwargs)
 
     def _load_parquet(
         self,

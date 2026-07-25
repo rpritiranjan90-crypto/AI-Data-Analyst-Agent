@@ -3,7 +3,7 @@ import secrets
 import time
 from typing import Any
 from fastapi import APIRouter, HTTPException, Header
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 from app.services.auth_service import (
     USERS_DB,
@@ -20,7 +20,7 @@ router = APIRouter(
 
 
 class RegisterRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str
     name: str
 
