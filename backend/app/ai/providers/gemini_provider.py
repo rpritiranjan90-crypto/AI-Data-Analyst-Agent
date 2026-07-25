@@ -1,6 +1,10 @@
 import time
 
-from google import genai
+try:
+    from google import genai
+    HAS_GENAI = True
+except ImportError:
+    HAS_GENAI = False
 
 from app.config import (
     GEMINI_API_KEY,
@@ -19,42 +23,43 @@ class GeminiProvider(BaseProvider):
     """
 
     def __init__(self):
-
-        self.client = genai.Client(
-            api_key=GEMINI_API_KEY
-        )
+        self.client = None
+        if HAS_GENAI and GEMINI_API_KEY and GEMINI_API_KEY.strip():
+            try:
+                self.client = genai.Client(api_key=GEMINI_API_KEY.strip())
+            except Exception as exc:
+                print(f"[GeminiProvider Warning] Could not initialize Gemini client: {exc}")
 
     @property
     def provider_name(self) -> str:
-
         return "Gemini"
 
     def health_check(self) -> bool:
-
+        if not self.client:
+            return False
         try:
-
             self.client.models.list()
-
             return True
-
         except Exception:
-
             return False
 
     def generate(
         self,
         request: AIRequest
     ) -> AIResponse:
+        if not self.client:
+            return ResponseFormatter.error(
+                provider=self.provider_name,
+                message="Gemini API Key is not configured in environment variables.",
+            )
 
         max_retries = 3
         delay = 2
 
         for attempt in range(max_retries):
-
             start = time.perf_counter()
 
             try:
-
                 response = self.client.models.generate_content(
                     model=request.model or GEMINI_MODEL,
                     contents=request.prompt,
@@ -67,13 +72,12 @@ class GeminiProvider(BaseProvider):
                 return ResponseFormatter.success(
                     provider=self.provider_name,
                     model=request.model or GEMINI_MODEL,
-                    response=response.text,
+                    response=response.text if hasattr(response, "text") else str(response),
                     execution_time=execution_time,
                     tokens_used=None,
                 )
 
             except Exception as error:
-
                 error_message = str(error)
 
                 # Retry temporary server errors
@@ -83,21 +87,16 @@ class GeminiProvider(BaseProvider):
                 ):
 
                     if attempt < max_retries - 1:
-
                         print(
                             f"[Gemini Retry {attempt + 1}/{max_retries}] "
                             f"Retrying in {delay} seconds..."
                         )
-
                         time.sleep(delay)
-
                         delay *= 2
-
                         continue
 
                 # User-friendly error messages
                 if "503" in error_message or "UNAVAILABLE" in error_message:
-
                     return ResponseFormatter.error(
                         provider=self.provider_name,
                         message=(
@@ -107,7 +106,6 @@ class GeminiProvider(BaseProvider):
                     )
 
                 elif "429" in error_message:
-
                     return ResponseFormatter.error(
                         provider=self.provider_name,
                         message=(
@@ -116,7 +114,6 @@ class GeminiProvider(BaseProvider):
                     )
 
                 elif "401" in error_message or "API_KEY" in error_message:
-
                     return ResponseFormatter.error(
                         provider=self.provider_name,
                         message=(
@@ -125,7 +122,6 @@ class GeminiProvider(BaseProvider):
                     )
 
                 elif "timeout" in error_message.lower():
-
                     return ResponseFormatter.error(
                         provider=self.provider_name,
                         message=(
@@ -134,7 +130,6 @@ class GeminiProvider(BaseProvider):
                     )
 
                 else:
-
                     return ResponseFormatter.error(
                         provider=self.provider_name,
                         message=error_message,
