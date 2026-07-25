@@ -14,13 +14,12 @@ export default function LoadingCard({
   showChart = false,
 }: LoadingCardProps) {
   return (
-    <div className="space-y-6 animate-pulse">
-
+    <div className="space-y-6">
       {/* Header */}
       {showHeader && (
         <div className="space-y-3">
-          <div className="h-8 w-72 rounded-lg bg-slate-200" />
-          <div className="h-4 w-96 rounded-lg bg-slate-200" />
+          <div className="h-8 w-72 rounded-lg shimmer" />
+          <div className="h-4 w-96 rounded-lg shimmer" />
         </div>
       )}
 
@@ -30,15 +29,15 @@ export default function LoadingCard({
           {Array.from({ length: cards }).map((_, index) => (
             <div
               key={index}
-              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+              className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-xs"
             >
-              <div className="mb-5 h-10 w-10 rounded-xl bg-slate-200" />
+              <div className="mb-5 h-10 w-10 rounded-xl shimmer" />
 
-              <div className="mb-3 h-4 w-24 rounded bg-slate-200" />
+              <div className="mb-3 h-4 w-24 rounded shimmer" />
 
-              <div className="mb-2 h-8 w-32 rounded bg-slate-200" />
+              <div className="mb-2 h-8 w-32 rounded shimmer" />
 
-              <div className="h-3 w-20 rounded bg-slate-200" />
+              <div className="h-3 w-20 rounded shimmer" />
             </div>
           ))}
         </div>
@@ -46,16 +45,16 @@ export default function LoadingCard({
 
       {/* Chart */}
       {showChart && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="mb-5 h-5 w-48 rounded bg-slate-200" />
+        <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-xs">
+          <div className="mb-5 h-5 w-48 rounded shimmer" />
 
-          <div className="h-80 rounded-xl bg-slate-200" />
+          <div className="h-80 rounded-xl shimmer" />
         </div>
       )}
 
       {/* Table */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="mb-5 h-5 w-44 rounded bg-slate-200" />
+      <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-xs">
+        <div className="mb-5 h-5 w-44 rounded shimmer" />
 
         <div className="space-y-4">
           {Array.from({ length: rows }).map((_, index) => (
@@ -63,13 +62,13 @@ export default function LoadingCard({
               key={index}
               className="flex items-center justify-between"
             >
-              <div className="h-5 w-1/4 rounded bg-slate-200" />
+              <div className="h-5 w-1/4 rounded shimmer" />
 
-              <div className="h-5 w-1/5 rounded bg-slate-200" />
+              <div className="h-5 w-1/5 rounded shimmer" />
 
-              <div className="h-5 w-1/6 rounded bg-slate-200" />
+              <div className="h-5 w-1/6 rounded shimmer" />
 
-              <div className="h-5 w-12 rounded bg-slate-200" />
+              <div className="h-5 w-12 rounded shimmer" />
             </div>
           ))}
         </div>

@@ -4,6 +4,7 @@ interface PageHeaderProps {
   title: string;
   subtitle?: string;
   action?: ReactNode;
+  breadcrumb?: string;
   badge?: string;
   gradient?: boolean;
 }
@@ -12,47 +13,43 @@ export default function PageHeader({
   title,
   subtitle,
   action,
+  breadcrumb = "Platform / Workspace",
   badge,
-  gradient = false,
 }: PageHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-2">
-      {/* Card container with strong border + shadow */}
-      <div className="flex-1 flex items-start gap-4 bg-white dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-2xl shadow-md shadow-slate-300/50 dark:shadow-none px-5 py-4">
-        {/* Gradient accent bar */}
-        <div className="mt-0.5 w-1.5 h-9 rounded-full bg-gradient-to-b from-blue-600 via-indigo-500 to-violet-500 flex-shrink-0" />
+    <div className="border-b border-slate-200/80 dark:border-slate-800 pb-5 mb-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          {/* Breadcrumb Row */}
+          <div className="text-[11px] text-slate-400 dark:text-slate-500 font-medium uppercase tracking-wide">
+            {breadcrumb}
+          </div>
 
-        <div className="space-y-1.5 flex-1">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1
-              className={`text-xl sm:text-2xl tracking-tight leading-tight ${
-                gradient
-                  ? "font-black gradient-text"
-                  : "font-black text-black dark:text-white"
-              }`}
-            >
+          <div className="flex items-center gap-3 mt-0.5 flex-wrap">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
               {title}
             </h1>
             {badge && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800/60 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
-                <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
+              <span className="rounded-full bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 text-xs font-semibold px-2.5 py-0.5 inline-flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
                 {badge}
               </span>
             )}
           </div>
+
           {subtitle && (
-            <p className="text-sm font-semibold text-gray-800 dark:text-slate-300 max-w-2xl leading-relaxed">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-3xl">
               {subtitle}
             </p>
           )}
         </div>
-      </div>
 
-      {action && (
-        <div className="flex items-center gap-3 shrink-0">
-          {action}
-        </div>
-      )}
+        {action && (
+          <div className="flex items-center gap-2 shrink-0">
+            {action}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

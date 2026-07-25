@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 
-type BadgeColor =
+type BadgeVariant =
+  | "default"
+  | "info"
   | "success"
   | "warning"
   | "danger"
-  | "info"
-  | "default"
+  | "ai"
   | "green"
   | "blue"
   | "red"
@@ -15,54 +16,47 @@ type BadgeColor =
 
 interface BadgeProps {
   children: ReactNode;
-  variant?: BadgeColor;
-  color?: BadgeColor;
+  variant?: BadgeVariant;
+  color?: BadgeVariant;
+  dot?: boolean;
   className?: string;
 }
 
-const variants: Record<BadgeColor, string> = {
-  success: "bg-emerald-100 text-emerald-700",
-  green: "bg-emerald-100 text-emerald-700",
-
-  warning: "bg-amber-100 text-amber-700",
-  amber: "bg-amber-100 text-amber-700",
-
-  danger: "bg-red-100 text-red-700",
-  red: "bg-red-100 text-red-700",
-
-  info: "bg-blue-100 text-blue-700",
-  blue: "bg-blue-100 text-blue-700",
-
-  purple: "bg-purple-100 text-purple-700",
-
-  default: "bg-slate-100 text-slate-700",
-  gray: "bg-slate-100 text-slate-700",
+const variantStyles: Record<BadgeVariant, { bg: string; dotColor: string }> = {
+  default: { bg: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300", dotColor: "bg-slate-600" },
+  gray:    { bg: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300", dotColor: "bg-slate-600" },
+  info:    { bg: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300", dotColor: "bg-indigo-700" },
+  blue:    { bg: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300", dotColor: "bg-indigo-700" },
+  success: { bg: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300", dotColor: "bg-emerald-700" },
+  green:   { bg: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300", dotColor: "bg-emerald-700" },
+  warning: { bg: "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300", dotColor: "bg-amber-700" },
+  amber:   { bg: "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300", dotColor: "bg-amber-700" },
+  danger:  { bg: "bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-300", dotColor: "bg-red-700" },
+  red:     { bg: "bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-300", dotColor: "bg-red-700" },
+  ai:      { bg: "bg-cyan-50 text-cyan-700 dark:bg-cyan-950/60 dark:text-cyan-300", dotColor: "bg-cyan-700" },
+  purple:  { bg: "bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300", dotColor: "bg-purple-700" },
 };
 
 export default function Badge({
   children,
   variant,
   color,
+  dot = false,
   className = "",
 }: BadgeProps) {
-  const style = variants[color ?? variant ?? "default"];
+  const selectedKey = color ?? variant ?? "default";
+  const { bg, dotColor } = variantStyles[selectedKey] || variantStyles.default;
 
   return (
     <span
       className={`
-        inline-flex
-        items-center
-        rounded-full
-        px-3
-        py-1
-        text-xs
-        font-semibold
-        tracking-wide
-        whitespace-nowrap
-        ${style}
+        rounded-full px-2.5 py-0.5 text-xs font-semibold 
+        inline-flex items-center gap-1.5 whitespace-nowrap
+        ${bg}
         ${className}
       `}
     >
+      {dot && <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />}
       {children}
     </span>
   );

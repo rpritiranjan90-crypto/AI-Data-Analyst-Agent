@@ -1,7 +1,5 @@
 import type { LucideIcon } from "lucide-react";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
-import { motion } from "framer-motion";
-import Card from "../ui/Card";
 
 interface KPICardProps {
   title: string;
@@ -16,61 +14,59 @@ export default function KPICard({
   title,
   value,
   icon: Icon,
-  color = "bg-blue-600",
   trend = 0,
   trendLabel = "Active dataset stats",
 }: KPICardProps) {
   const positive = trend >= 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
-    >
-      <Card className="group relative overflow-hidden p-6" hoverEffect>
-        {/* Glowing Top Accent */}
-        <div className={`absolute left-0 top-0 h-1.5 w-full ${color}`} />
-
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-              {title}
-            </p>
-
-            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              {typeof value === "number" ? value.toLocaleString() : value}
-            </h2>
-
-            <div className="mt-4 flex items-center gap-2.5">
-              <div
-                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                  positive
-                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                    : "bg-amber-50 text-amber-700 border border-amber-200"
-                }`}
-              >
-                {positive ? (
-                  <ArrowUpRight size={13} />
-                ) : (
-                  <ArrowDownRight size={13} />
-                )}
-                {Math.abs(trend)}%
-              </div>
-
-              <span className="text-[11px] font-medium text-slate-400">
-                {trendLabel}
-              </span>
-            </div>
-          </div>
-
-          <div
-            className={`flex h-14 w-14 items-center justify-center rounded-2xl ${color} text-white shadow-lg shadow-blue-500/20 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3`}
-          >
-            <Icon size={26} strokeWidth={2.2} />
-          </div>
+    <div className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/70 dark:border-slate-800 p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      {/* Icon Top Left */}
+      <div className="flex items-center justify-between">
+        <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform duration-200 inline-flex items-center justify-center">
+          <Icon size={16} />
         </div>
-      </Card>
-    </motion.div>
+
+        {trend !== 0 && (
+          <div
+            className={`inline-flex items-center gap-0.5 text-xs font-semibold rounded-full px-2 py-0.5 ${
+              positive
+                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+                : "bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-300"
+            }`}
+          >
+            {positive ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+            {Math.abs(trend)}%
+          </div>
+        )}
+      </div>
+
+      {/* Metric Label */}
+      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mt-3">
+        {title}
+      </p>
+
+      {/* Big Number */}
+      <h2 className="text-[2rem] font-bold text-slate-900 dark:text-white mt-1 tabular-nums leading-none">
+        {typeof value === "number" ? value.toLocaleString() : value}
+      </h2>
+
+      {trendLabel && (
+        <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500 mt-2">
+          {trendLabel}
+        </p>
+      )}
+
+      {/* Bottom Sparkline Placeholder Area */}
+      <div className="h-10 mt-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 flex items-end p-2 gap-1 overflow-hidden opacity-60">
+        <div className="flex-1 bg-indigo-200 dark:bg-indigo-900/50 rounded-xs h-[30%]" />
+        <div className="flex-1 bg-indigo-300 dark:bg-indigo-800/50 rounded-xs h-[50%]" />
+        <div className="flex-1 bg-indigo-200 dark:bg-indigo-900/50 rounded-xs h-[40%]" />
+        <div className="flex-1 bg-indigo-400 dark:bg-indigo-700/50 rounded-xs h-[70%]" />
+        <div className="flex-1 bg-indigo-300 dark:bg-indigo-800/50 rounded-xs h-[60%]" />
+        <div className="flex-1 bg-indigo-500 dark:bg-indigo-600/50 rounded-xs h-[90%]" />
+        <div className="flex-1 bg-indigo-400 dark:bg-indigo-700/50 rounded-xs h-[75%]" />
+      </div>
+    </div>
   );
 }

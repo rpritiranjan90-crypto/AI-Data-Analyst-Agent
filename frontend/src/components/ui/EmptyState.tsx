@@ -14,28 +14,27 @@ export default function EmptyState({
   icon,
   action,
 }: EmptyStateProps) {
-  const IconComponent =
-    typeof icon === "function" ? icon : null;
+  const IconComponent = typeof icon === "function" ? icon : null;
 
   return (
-    <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 p-8 text-center">
-      <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="rounded-2xl bg-slate-100 dark:bg-slate-800 p-5 mb-5 text-slate-400 flex items-center justify-center">
         {IconComponent ? (
-          <IconComponent size={40} strokeWidth={2} />
+          <IconComponent size={32} />
         ) : (
           isValidElement(icon) && icon
         )}
       </div>
 
-      <h2 className="text-2xl font-semibold text-slate-900">
+      <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">
         {title}
       </h2>
 
-      <p className="mt-3 max-w-md text-slate-500">
+      <p className="text-sm text-slate-500 dark:text-slate-400 text-center max-w-xs mb-6">
         {description}
       </p>
 
-      {action && <div className="mt-6">{action}</div>}
+      {action && <div>{action}</div>}
     </div>
   );
 }

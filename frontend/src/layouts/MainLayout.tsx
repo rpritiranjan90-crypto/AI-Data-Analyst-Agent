@@ -8,41 +8,35 @@ import CookieBanner from "../components/common/CookieBanner";
 import BugReportModal from "../components/feedback/BugReportModal";
 import { Bug } from "lucide-react";
 
-const pageVariants = {
-  initial:  { opacity: 0, y: 16, scale: 0.995 },
-  animate:  { opacity: 1, y: 0,  scale: 1,     transition: { duration: 0.38, ease: "easeOut" as const } },
-  exit:     { opacity: 0, y: -8, scale: 0.997,  transition: { duration: 0.22, ease: "easeIn"  as const } },
-};
-
 export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [bugModalOpen, setBugModalOpen] = useState(false);
   const location = useLocation();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[var(--color-bg)] text-[var(--color-text-primary)] font-sans">
-      {/* Toast */}
+    <div className="flex h-screen overflow-hidden bg-[#F8F9FC] dark:bg-[#080C15] text-[#0F172A] dark:text-slate-100 font-sans">
+      {/* Toast Notifications */}
       <Toaster
         position="top-right"
         richColors
         closeButton
         toastOptions={{
           style: {
-            borderRadius: "16px",
+            borderRadius: "12px",
             fontSize: "13px",
-            fontWeight: 600,
+            fontWeight: 500,
             fontFamily: "Inter, sans-serif",
           },
         }}
       />
 
-      {/* Cookie Consent */}
+      {/* Cookie Consent Banner */}
       <CookieBanner />
 
       {/* Bug Report Modal */}
       <BugReportModal isOpen={bugModalOpen} onClose={() => setBugModalOpen(false)} />
 
-      {/* Mobile Backdrop */}
+      {/* Mobile Sidebar Backdrop */}
       <AnimatePresence>
         {sidebarOpen && (
           <motion.div
@@ -57,57 +51,41 @@ export default function MainLayout() {
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
+      {/* Fixed Sidebar */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         <Navbar onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
 
-        <main className="relative flex-1 overflow-y-auto">
-          {/* Subtle content area background */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-100/30 dark:to-slate-900/20 pointer-events-none" />
-
-          <div className="relative z-10 p-4 sm:p-6 lg:p-8 flex flex-col min-h-full">
-            <div className="mx-auto max-w-7xl w-full flex-1">
-              {/* Page Transition Wrapper */}
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={location.pathname}
-                  variants={pageVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                >
-                  <Outlet />
-                </motion.div>
-              </AnimatePresence>
+        <main className="flex-1 overflow-y-auto">
+          <div className="px-8 py-8 max-w-screen-2xl mx-auto flex flex-col min-h-full">
+            <div className="flex-1 page-enter" key={location.pathname}>
+              <Outlet />
             </div>
 
-            {/* Footer */}
-            <footer className="mx-auto max-w-7xl w-full mt-12 pt-5 pb-2">
-              <div className="rounded-2xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-xs gap-3 shadow-md shadow-slate-300/50 dark:shadow-none">
-                <div className="flex items-center gap-2">
-                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 pulse-glow" />
-                  <p className="font-bold text-black dark:text-white">
-                    © {new Date().getFullYear()} AI Data Analyst Agent · All rights reserved
-                  </p>
-                </div>
+            {/* Clean Footer */}
+            <footer className="mt-12 pt-6 border-t border-slate-200/60 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span>
+                  © {new Date().getFullYear()} AI Data Analyst Agent · All rights reserved
+                </span>
+              </div>
 
-                <div className="flex items-center gap-5 font-bold">
-                  <Link to="/privacy-policy" className="text-slate-800 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-150">
-                    Privacy Policy
-                  </Link>
-                  <Link to="/terms-of-service" className="text-slate-800 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-150">
-                    Terms of Service
-                  </Link>
-                  <button
-                    onClick={() => setBugModalOpen(true)}
-                    className="flex items-center gap-1.5 text-indigo-700 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-extrabold transition-colors duration-150"
-                  >
-                    <Bug size={13} /> Report Bug
-                  </button>
-                </div>
+              <div className="flex items-center gap-6 font-medium">
+                <Link to="/privacy-policy" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition">
+                  Privacy Policy
+                </Link>
+                <Link to="/terms-of-service" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition">
+                  Terms of Service
+                </Link>
+                <button
+                  onClick={() => setBugModalOpen(true)}
+                  className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
+                >
+                  <Bug size={13} /> Report Bug
+                </button>
               </div>
             </footer>
           </div>

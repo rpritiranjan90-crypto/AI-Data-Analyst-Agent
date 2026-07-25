@@ -9,48 +9,46 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: CardVariant;
 }
 
-const variantStyles: Record<CardVariant, string> = {
-  default:
-    "border border-slate-200/80 dark:border-slate-800/70 " +
-    "bg-white dark:bg-slate-900/90 " +
-    "shadow-sm shadow-slate-200/60 dark:shadow-none " +
-    "text-slate-900 dark:text-white",
-
-  glass:
-    "glass-card text-slate-900 dark:text-white",
-
-  dark:
-    "dark-glass-card border-0 text-white",
-
-  elevated:
-    "border border-slate-200/80 dark:border-slate-700/60 " +
-    "bg-white dark:bg-slate-900 " +
-    "shadow-[0_8px_24px_-4px_rgba(15,23,42,0.10)] dark:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.30)] " +
-    "text-slate-900 dark:text-white",
-
-  outline:
-    "border-2 border-slate-200 dark:border-slate-700/70 " +
-    "bg-transparent " +
-    "text-slate-900 dark:text-white",
-};
+export function CardHeader({
+  title,
+  subtitle,
+  className = "",
+}: {
+  title: ReactNode;
+  subtitle?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`mb-4 space-y-0.5 ${className}`}>
+      <h3 className="font-semibold text-slate-800 dark:text-slate-100 text-base">
+        {title}
+      </h3>
+      {subtitle && (
+        <p className="text-slate-500 dark:text-slate-400 text-sm">
+          {subtitle}
+        </p>
+      )}
+    </div>
+  );
+}
 
 export default function Card({
   children,
   className = "",
-  hoverEffect = true,
+  hoverEffect = false,
   glass = false,
   variant = "default",
   ...props
 }: CardProps) {
-  // glass prop is backward-compat shorthand
-  const resolvedVariant: CardVariant = glass ? "glass" : variant;
-
   return (
     <div
       className={`
-        rounded-2xl
-        ${variantStyles[resolvedVariant]}
-        ${hoverEffect ? "card-hover" : ""}
+        bg-white dark:bg-slate-900 
+        rounded-2xl 
+        border border-slate-200/70 dark:border-slate-800 
+        shadow-[0_1px_3px_rgba(0,0,0,0.04)] 
+        p-6 
+        ${hoverEffect ? "hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:border-slate-300/70 transition-all duration-200" : ""}
         ${className}
       `}
       {...props}
