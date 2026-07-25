@@ -29,6 +29,7 @@ from app.routes.upload import router as upload_router
 from app.routes.visualization import (
     router as visualization_router,
 )
+from app.routes.webhooks import router as webhooks_router
 
 logger = get_logger(__name__)
 
@@ -76,6 +77,7 @@ Features
 • Recommendation Engine
 • Report Generation
 • JWT Authentication & Security
+• Webhook Alerts & Multi-Agent Swarms
 """,
     docs_url="/docs",
     redoc_url="/redoc",
@@ -117,6 +119,7 @@ app.include_router(recommendation_router)
 app.include_router(ml_router)
 app.include_router(ml_pipeline_router)
 app.include_router(report_router)
+app.include_router(webhooks_router)
 
 
 # ------------------------------------------------------------------
