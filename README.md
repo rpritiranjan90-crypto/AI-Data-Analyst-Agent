@@ -12,6 +12,16 @@ An enterprise-grade, AI-powered Data Analytics & Machine Learning platform built
 
 ---
 
+## 🎬 Platform Overview & Live Demo
+
+> **Live Demo**: [https://ai-data-analyst-agent.vercel.app](https://ai-data-analyst-agent.vercel.app) *(Deploy link)*
+
+```
+ 📊 Dataset Profiling ──► 🧹 1-Click Data Cleaning ──► 📈 19+ Chart Engine ──► 🤖 AutoML & Reports
+```
+
+---
+
 ## 🌟 Key Platform Modules
 
 ### 1. 📊 Executive Dashboard & Profiling
@@ -19,26 +29,39 @@ An enterprise-grade, AI-powered Data Analytics & Machine Learning platform built
 - Glassmorphic dataset overview charts with Framer Motion animations.
 - Active dataset status persistence across session reloads.
 
-### 2. 🧹 Data Cleaning Studio (`/cleaning`)
+### 2. 💬 Talk to CSV / Natural Language Data Querying (`/analysis`)
+- Ask plain English questions (*"Show top 10 records sorted by salary"*) and instantly view DuckDB SQL query execution & table results.
+
+### 3. 🧹 Data Cleaning Studio (`/cleaning`)
 - **1-Click Auto Clean**: Automated imputation of missing data & duplicate purging.
 - **Missing Value Imputer**: Impute via Mean, Median, Mode, Constant, Forward Fill, or Backward Fill.
 - **Outlier Detection**: Filter numerical extremes using Interquartile Range (IQR 1.5x) or Z-Score thresholding.
 - **Deduplication & Type Casting**: Instant duplicate purging and type conversion (`int64`, `float64`, `datetime64`, `object`).
 
-### 3. 📈 Visualization & Chart Engine (`/visualization`)
+### 4. 📈 Visualization & Chart Engine (`/visualization`)
 - **19+ Interactive Chart Types**: Histograms, Bar, Line, Scatter, Boxplots, Violin plots, Countplots, Correlation Heatmaps, and Pie charts.
 - **Customizable Controls**: X/Y column selectors, title customization, and theme styling (`Default`, `Dark`, `Seaborn`, `GGPlot`).
 - **High-Res PNG Exports**: Instant rendering with 1-click PNG image download links.
 
-### 4. 🤖 Machine Learning Studio (`/machine-learning`)
+### 5. 🤖 Machine Learning Studio (`/machine-learning`)
 - **Automated ML Pipelines**: Train Random Forest, Linear/Logistic Regression, Decision Trees, Gradient Boosting, KNN, and SVM models.
 - **Interactive Train/Test Split & Random Seeds**: Test ratio slider (10% to 40%) with cross-validated evaluation.
 - **Live Metrics Dashboard**: Displays Accuracy, R² Score, Mean Squared Error (MSE), and target breakdowns.
 
-### 5. 📄 Reports & AI Data Assistant (`/reports`)
+### 6. 📄 Reports & AI Data Assistant (`/reports`)
 - **Automated AI Insights**: Synthesizes executive dataset interpretations.
 - **PDF Report Generation**: Compiles server-side PDF analytical report decks.
 - **Interactive AI Data Assistant**: Natural language query interface to ask questions about active datasets.
+
+---
+
+## 🛡️ Security Hardening (OWASP 5-Pillar Architecture)
+
+1. **Server-Side Validation**: Pydantic models with format regex checks and HTML tag sanitization.
+2. **Rate Limiting & Lockout**: Max 10 requests/minute per IP, 15-minute account lockout after 5 failed attempts, and progressive response delays.
+3. **Password Hashing**: Salted PBKDF2 SHA-256 (100,000 iterations) with constant-time comparison to prevent timing attacks.
+4. **Generic Error Messages**: Identical response `"Incorrect email or password."` to eliminate account enumeration vectors.
+5. **Token Authentication**: Tokenized HS256 JWT authorization headers with Axios request interceptor.
 
 ---
 
@@ -48,20 +71,22 @@ An enterprise-grade, AI-powered Data Analytics & Machine Learning platform built
 AI Data Analyst Platform
 ├── backend/ (FastAPI + Pandas + DuckDB + Scikit-Learn)
 │   ├── app/
-│   │   ├── routes/        # FastAPI API Endpoints (/clean, /visualization, /ml, /report)
-│   │   ├── services/      # Business Logic (DuckDB Engine, Cleaning, ML Pipeline, Reports)
+│   │   ├── routes/        # FastAPI API Endpoints (/clean, /visualization, /ml, /report, /auth)
+│   │   ├── services/      # Business Logic (DuckDB Engine, Cleaning, ML Pipeline, Auth)
 │   │   ├── common/        # Logger, Timing decorators, Config
 │   │   └── main.py        # FastAPI Application Entry
-│   └── Dockerfile
+│   ├── Dockerfile
+│   └── render.yaml        # Render Cloud Deployment Spec
 │
 ├── frontend/ (React 19 + TypeScript + Vite + Tailwind CSS v4)
 │   ├── src/
 │   │   ├── components/    # Reusable UI Glass Cards, Badges, Buttons, Navbar, Sidebar
-│   │   ├── features/      # Analysis Feature Modules
-│   │   ├── pages/         # Dashboard, Upload, Cleaning, Visualization, ML, Reports
+│   │   ├── features/      # Analysis Feature Modules & Talk to CSV Widget
+│   │   ├── pages/         # Dashboard, Upload, Cleaning, Visualization, ML, Reports, Legal
 │   │   ├── services/      # Axios API Services Layer
 │   │   └── store/         # Zustand Persistent Dataset State
-│   └── Dockerfile
+│   ├── Dockerfile
+│   └── vercel.json        # Vercel SPA Routing Configuration
 │
 └── docker-compose.yml     # Multi-Container Deployment Specification
 ```
@@ -92,14 +117,10 @@ npm run dev
 
 ---
 
-### Option B: Docker Container Deployment
+### Option B: 1-Click Cloud Deployment
 
-Run both frontend & backend with a single command:
-```bash
-docker-compose up --build
-```
-- **Web App UI**: `http://localhost/`
-- **FastAPI API**: `http://localhost:8000/docs`
+- **Frontend Deployment (Vercel)**: Import `frontend/` directory into [Vercel](https://vercel.com). Uses pre-configured `vercel.json`.
+- **Backend Deployment (Render)**: Import `backend/` directory into [Render](https://render.com). Uses pre-configured `render.yaml`.
 
 ---
 
