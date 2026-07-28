@@ -72,6 +72,9 @@ class DatasetLoaderService:
                 **kwargs,
             )
 
+        except ValidationException:
+            raise
+
         except EmptyDataError as exc:
             raise ValidationException(
                 "Dataset is empty."
@@ -99,6 +102,9 @@ class DatasetLoaderService:
                 raise ValidationException(
                     f"Unable to load dataset: {exc}"
                 ) from exc
+
+        if dataframe is None or dataframe.empty:
+            raise ValidationException("The dataset file contains no readable data rows.")
 
         logger.info(
             "Dataset '%s' loaded successfully. Rows=%d Columns=%d",
@@ -129,10 +135,26 @@ class DatasetLoaderService:
         **kwargs: Any,
     ) -> pd.DataFrame:
         try:
-            return pd.read_excel(path, **kwargs)
-        except Exception:
-            # Fallback to CSV reader if Excel parsing fails (e.g. csv renamed to .xls)
-            return self._load_csv(path, **kwargs)
+            return pd.read_excel(path, engine="openpyxl", **kwargs)
+        except Exception as exc1:
+            logger.warning("openpyxl engine failed for '%s': %s. Trying default read_excel...", path.name, exc1)
+            try:
+                return pd.read_excel(path, **kwargs)
+            except Exception as exc2:
+                # Check magic bytes to determine if it's binary zip/excel vs plain text
+                try:
+                    with open(path, "rb") as f:
+                        header = f.read(4)
+                    if not header.startswith(b"PK") and not header.startswith(b"\xd0\xcf\x11\xe0"):
+                        # Plain text file renamed to .xlsx
+                        return self._load_csv(path, **kwargs)
+                except Exception:
+                    pass
+
+                logger.error("Failed to parse Excel file '%s': %s", path.name, exc2)
+                raise ValidationException(
+                    f"Unable to parse Excel file '{path.name}'. Please ensure the file is valid and unencrypted."
+                ) from exc2
 
     def _load_parquet(
         self,

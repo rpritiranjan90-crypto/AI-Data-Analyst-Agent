@@ -51,17 +51,28 @@ export default function UploadPage() {
 
   async function handleUpload() {
     if (!selectedFile) return;
+    let timer: ReturnType<typeof setInterval> | null = null;
     try {
       setUploading(true);
-      setProgress(10);
-      const response = await uploadDataset(selectedFile, (p) => setProgress(Math.max(p, 10)));
+      setProgress(15);
+
+      timer = setInterval(() => {
+        setProgress((prev) => (prev < 90 ? prev + 5 : prev));
+      }, 400);
+
+      const response = await uploadDataset(selectedFile);
+      if (timer) clearInterval(timer);
+      setProgress(100);
+
       setDataset(response);
       toast.success(`Dataset "${selectedFile.name}" processed successfully!`);
-      navigate("/dashboard");
+      setTimeout(() => navigate("/dashboard"), 400);
     } catch (error: any) {
+      if (timer) clearInterval(timer);
       console.error(error);
       const msg = error.response?.data?.detail || error.response?.data?.message || error.message || "Upload failed. Please check your backend connection.";
       toast.error(`Upload error: ${msg}`);
+      setProgress(0);
     } finally {
       setUploading(false);
     }
@@ -149,7 +160,7 @@ export default function UploadPage() {
             <div className="mt-5 space-y-2">
               <div className="flex justify-between text-xs font-medium text-slate-600 dark:text-slate-300">
                 <span className="flex items-center gap-1.5">
-                  <Zap size={12} className="text-indigo-600 dark:text-indigo-400" /> Processing dataset with AI engine...
+                  <Zap size={12} className="text-indigo-600 dark:text-indigo-400 animate-pulse" /> Processing dataset with AI engine...
                 </span>
                 <span>{progress}%</span>
               </div>
