@@ -15,6 +15,7 @@ import {
   Target,
   Network,
   CheckCircle2,
+  HelpCircle,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useDatasetStore } from "../../store/datasetStore";
@@ -43,6 +44,10 @@ const governanceSection = [
   { name: "AI Governance & Cost", icon: ShieldCheck,   path: "/governance" },
   { name: "Production Readiness", icon: CheckCircle2,  path: "/readiness" },
   { name: "Pricing & Plans",     icon: CreditCard,    path: "/pricing" },
+];
+
+const supportSection = [
+  { name: "Help & Developer Docs",icon: HelpCircle,    path: "/help" },
 ];
 
 interface SidebarProps {
@@ -133,6 +138,18 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </div>
           <div className="space-y-1">
             {governanceSection.map((item) => (
+              <SideNavLink key={item.path} item={item} onClose={onClose} />
+            ))}
+          </div>
+        </div>
+
+        {/* Support & Resources */}
+        <div>
+          <div className="text-slate-500 uppercase text-[10px] tracking-[0.1em] font-bold px-3 mb-2">
+            SUPPORT & RESOURCES
+          </div>
+          <div className="space-y-1">
+            {supportSection.map((item) => (
               <SideNavLink key={item.path} item={item} onClose={onClose} />
             ))}
           </div>

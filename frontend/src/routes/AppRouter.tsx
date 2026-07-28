@@ -11,6 +11,7 @@ import ScenarioSimulatorPage from "../pages/Simulator/ScenarioSimulatorPage";
 import RAGKnowledgePage from "../pages/Knowledge/RAGKnowledgePage";
 import AIGovernancePage from "../pages/Governance/AIGovernancePage";
 import ProductionReadinessPage from "../pages/Readiness/ProductionReadinessPage";
+import HelpCenterPage from "../pages/Help/HelpCenterPage";
 import DashboardPage from "../pages/Dashboard/DashboardPage";
 import UploadPage from "../pages/Upload/UploadPage";
 import AnalysisPage from "../features/analysis/pages/AnalysisPage";
@@ -49,6 +50,7 @@ export default function AppRouter() {
           <Route path="/knowledge" element={<RAGKnowledgePage />} />
           <Route path="/governance" element={<AIGovernancePage />} />
           <Route path="/readiness" element={<ProductionReadinessPage />} />
+          <Route path="/help" element={<HelpCenterPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/admin" element={<AdminPortalPage />} />
           <Route path="/pricing" element={<PricingPage />} />
