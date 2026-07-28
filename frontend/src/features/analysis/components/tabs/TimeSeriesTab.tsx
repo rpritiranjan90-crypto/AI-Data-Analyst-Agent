@@ -22,12 +22,12 @@ export default function TimeSeriesTab() {
   return (
     <div className="space-y-6">
       <SectionHeader
-        icon={CalendarClock}
+        icon={<CalendarClock className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
         title="Time Series Analysis"
-        subtitle="Datetime column detection"
+        subtitle="Datetime column detection and temporal analysis"
       />
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
         <div className="mb-4">
           <StatusBadge
             label={
@@ -43,7 +43,7 @@ export default function TimeSeriesTab() {
           />
         </div>
 
-        <p className="text-slate-600">
+        <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-relaxed">
           {timeseries.message}
         </p>
       </div>

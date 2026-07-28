@@ -33,14 +33,14 @@ export default function CategoricalCard({
   const showPieChart = stats.unique_values <= 10;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
       <SectionHeader
-  icon={
-    <ListFilter className="h-6 w-6 text-indigo-600" />
-  }
-  title={column}
-  subtitle="Categorical feature analysis"
-/>
+        icon={
+          <ListFilter className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+        }
+        title={column}
+        subtitle="Categorical feature analysis"
+      />
 
       {/* KPI Cards */}
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -95,7 +95,7 @@ export default function CategoricalCard({
             dataKey="count"
           />
         ) : (
-          <div className="rounded-2xl border border-slate-200 bg-white p-4">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
             <EmptyState
               icon={PieChart}
               title="Pie Chart Not Available"
