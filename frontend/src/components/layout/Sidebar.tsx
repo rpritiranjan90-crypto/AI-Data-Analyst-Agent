@@ -1,7 +1,6 @@
 import {
   BarChart3,
   BrainCircuit,
-  Database,
   Home,
   Sparkles,
   Upload,
@@ -13,26 +12,35 @@ import {
   Sliders,
   BookOpen,
   ShieldCheck,
+  Target,
+  Network,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useDatasetStore } from "../../store/datasetStore";
 
-const mainSection = [
-  { name: "Dashboard",     icon: Home,          path: "/dashboard" },
-  { name: "Upload Dataset",icon: Upload,         path: "/upload" },
-  { name: "Data Analysis", icon: BarChart3,      path: "/analysis" },
+const coreSection = [
+  { name: "Executive Dashboard", icon: Home,     path: "/dashboard" },
+  { name: "Data Fabric Catalog",icon: Network,  path: "/data-fabric" },
+  { name: "Upload & SQL Connect",icon: Upload,   path: "/upload" },
 ];
 
 const analyticsSection = [
-  { name: "Data Cleaning",    icon: Wand2,        path: "/cleaning" },
-  { name: "Visualization",    icon: Sparkles,     path: "/visualization" },
-  { name: "Recommendations",  icon: Database,     path: "/recommendation" },
-  { name: "Machine Learning", icon: BrainCircuit, path: "/machine-learning" },
-  { name: "What-if Simulator",icon: Sliders,      path: "/simulator" },
-  { name: "RAG Knowledge Base",icon: BookOpen,   path: "/knowledge" },
-  { name: "AI Governance",    icon: ShieldCheck,  path: "/governance" },
-  { name: "Reports & AI",     icon: FileText,     path: "/reports" },
-  { name: "Pricing & Plans",  icon: CreditCard,   path: "/pricing" },
+  { name: "Data Analysis Studio", icon: BarChart3,      path: "/analysis" },
+  { name: "Data Cleaning Studio", icon: Wand2,         path: "/cleaning" },
+  { name: "35 Visualizations",    icon: Sparkles,      path: "/visualization" },
+  { name: "AutoML & Anomaly Radar",icon: BrainCircuit,  path: "/machine-learning" },
+];
+
+const intelligenceSection = [
+  { name: "Decision Center & ROI", icon: Target,        path: "/decision-center" },
+  { name: "What-if Simulator",    icon: Sliders,       path: "/simulator" },
+  { name: "RAG Knowledge Base",   icon: BookOpen,      path: "/knowledge" },
+];
+
+const governanceSection = [
+  { name: "Reports & Exporters",  icon: FileText,      path: "/reports" },
+  { name: "AI Governance & Cost", icon: ShieldCheck,   path: "/governance" },
+  { name: "Pricing & Plans",     icon: CreditCard,    path: "/pricing" },
 ];
 
 interface SidebarProps {
@@ -63,7 +71,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
               AI Data Analyst
             </h2>
             <p className="text-[10px] text-slate-400 leading-none mt-0.5">
-              Enterprise Intelligence
+              Enterprise Intelligence OS
             </p>
           </div>
         </div>
@@ -78,27 +86,51 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         )}
       </div>
 
-      {/* ── NAVIGATION ── */}
+      {/* ── NAVIGATION (GROUPED BY PURPOSE) ── */}
       <nav className="flex-1 space-y-6 overflow-y-auto p-3">
-        {/* Main Section */}
+        {/* Platform Core */}
         <div>
-          <div className="text-slate-500 uppercase text-[10px] tracking-[0.1em] font-semibold px-3 mb-2">
+          <div className="text-slate-500 uppercase text-[10px] tracking-[0.1em] font-bold px-3 mb-2">
             PLATFORM CORE
           </div>
           <div className="space-y-1">
-            {mainSection.map((item) => (
+            {coreSection.map((item) => (
               <SideNavLink key={item.path} item={item} onClose={onClose} />
             ))}
           </div>
         </div>
 
-        {/* Analytics Section */}
+        {/* Analytics & Machine Learning */}
         <div>
-          <div className="text-slate-500 uppercase text-[10px] tracking-[0.1em] font-semibold px-3 mb-2">
-            ANALYTICS & AI
+          <div className="text-slate-500 uppercase text-[10px] tracking-[0.1em] font-bold px-3 mb-2">
+            ANALYTICS & ML
           </div>
           <div className="space-y-1">
             {analyticsSection.map((item) => (
+              <SideNavLink key={item.path} item={item} onClose={onClose} />
+            ))}
+          </div>
+        </div>
+
+        {/* AI Intelligence */}
+        <div>
+          <div className="text-slate-500 uppercase text-[10px] tracking-[0.1em] font-bold px-3 mb-2">
+            AI INTELLIGENCE
+          </div>
+          <div className="space-y-1">
+            {intelligenceSection.map((item) => (
+              <SideNavLink key={item.path} item={item} onClose={onClose} />
+            ))}
+          </div>
+        </div>
+
+        {/* Reports & Governance */}
+        <div>
+          <div className="text-slate-500 uppercase text-[10px] tracking-[0.1em] font-bold px-3 mb-2">
+            GOVERNANCE & REPORTS
+          </div>
+          <div className="space-y-1">
+            {governanceSection.map((item) => (
               <SideNavLink key={item.path} item={item} onClose={onClose} />
             ))}
           </div>
@@ -107,7 +139,6 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
 
       {/* ── FOOTER & ACTIVE DATASET STATUS ── */}
       <div className="border-t border-white/5 p-3 space-y-2">
-        {/* Active Dataset Status */}
         {metadata && (
           <div className="rounded-lg bg-white/5 border border-white/10 p-2.5 text-xs text-slate-300">
             <div className="flex items-center justify-between mb-1">
@@ -123,12 +154,11 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </div>
         )}
 
-        {/* AI Provider Gemini Badge */}
         <div className="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 text-xs font-medium text-slate-300 border border-white/5">
           <span className="flex items-center gap-1.5 text-slate-400 text-[11px]">
-            <span className="text-cyan-400">●</span> AI Provider:
+            <span className="text-cyan-400">●</span> AI OS Kernel:
           </span>
-          <span className="text-cyan-300 font-semibold text-xs">Gemini</span>
+          <span className="text-cyan-300 font-semibold text-xs">Gemini 2.0</span>
         </div>
       </div>
     </aside>
