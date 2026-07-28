@@ -55,6 +55,7 @@ async def upload_dataset(
         validate_upload(
             file=file,
             file_size=len(contents),
+            contents=contents,
         )
 
         settings.UPLOAD_DIR.mkdir(
@@ -62,7 +63,8 @@ async def upload_dataset(
             exist_ok=True,
         )
 
-        filename = Path(file.filename).name
+        from app.services.dataset_validation import sanitize_filename
+        filename = sanitize_filename(file.filename or "dataset.csv")
 
         file_path = settings.UPLOAD_DIR / filename
 

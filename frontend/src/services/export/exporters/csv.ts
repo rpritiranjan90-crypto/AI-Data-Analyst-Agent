@@ -13,6 +13,8 @@ export async function exportCSV({
 
   const headers = Object.keys(data[0]);
 
+  const dangerousPrefixes = ["=", "+", "-", "@", "\t", "\r"];
+
   const csvRows = [
     headers.join(","),
     ...data.map((row) =>
@@ -20,7 +22,12 @@ export async function exportCSV({
         .map((header) => {
           const value = row[header];
 
-          const text = value == null ? "" : String(value);
+          let text = value == null ? "" : String(value);
+
+          // Prevent CSV/Excel Formula Injection (DDE attacks)
+          if (dangerousPrefixes.some((prefix) => text.startsWith(prefix))) {
+            text = `'${text}`;
+          }
 
           return `"${text.replace(/"/g, '""')}"`;
         })

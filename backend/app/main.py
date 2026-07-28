@@ -86,9 +86,13 @@ Features
 
 register_exception_handlers(app)
 
+from app.middleware.security_headers import SecurityHeadersMiddleware
+
 # ------------------------------------------------------------------
-# CORS
+# Security Headers & CORS
 # ------------------------------------------------------------------
+
+app.add_middleware(SecurityHeadersMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
