@@ -34,20 +34,20 @@ function SummaryCard({
     <Card className="p-5 h-full">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-500">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
             {title}
           </p>
 
-          <h2 className="mt-3 text-3xl font-bold text-slate-900">
+          <h2 className="mt-2 text-2xl font-extrabold text-slate-900 dark:text-slate-100">
             {value}
           </h2>
 
-          <div className="mt-2 text-sm text-slate-500">
+          <div className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
             {subtitle}
           </div>
         </div>
 
-        <div className={`rounded-2xl p-3 ${iconBg}`}>
+        <div className={`rounded-xl p-3 ${iconBg}`}>
           {icon}
         </div>
       </div>
@@ -75,26 +75,16 @@ export default function CorrelationSummary({
         title="Method"
         value={(method || "pearson").toUpperCase()}
         subtitle="Correlation Algorithm"
-        icon={
-          <Network
-            size={22}
-            className="text-blue-600"
-          />
-        }
-        iconBg="bg-blue-50"
+        icon={<Network size={22} className="text-blue-600 dark:text-blue-400" />}
+        iconBg="bg-blue-100 dark:bg-blue-950/60"
       />
 
       <SummaryCard
         title="Numeric Columns"
         value={totalNumericColumns}
         subtitle="Included in Analysis"
-        icon={
-          <Activity
-            size={22}
-            className="text-violet-600"
-          />
-        }
-        iconBg="bg-violet-50"
+        icon={<Activity size={22} className="text-violet-600 dark:text-violet-400" />}
+        iconBg="bg-violet-100 dark:bg-violet-950/60"
       />
 
       <SummaryCard
@@ -106,18 +96,11 @@ export default function CorrelationSummary({
         }
         subtitle={
           strongest
-            ? `${strongest.direction ?? "Positive"} (${(strongest.correlation ?? 0).toFixed(
-                2
-              )})`
-            : "No correlation exceeded the threshold."
+            ? `${strongest.direction ?? "Positive"} (${(strongest.correlation ?? 0).toFixed(2)})`
+            : "No correlation exceeded threshold."
         }
-        icon={
-          <TrendingUp
-            size={22}
-            className="text-emerald-600"
-          />
-        }
-        iconBg="bg-emerald-50"
+        icon={<TrendingUp size={22} className="text-emerald-600 dark:text-emerald-400" />}
+        iconBg="bg-emerald-100 dark:bg-emerald-950/60"
       />
 
       <SummaryCard
@@ -132,13 +115,8 @@ export default function CorrelationSummary({
             ? (strongest.interpretation || "Strong correlation detected")
             : "No measurable relationship"
         }
-        icon={
-          <TrendingDown
-            size={22}
-            className="text-orange-600"
-          />
-        }
-        iconBg="bg-orange-50"
+        icon={<TrendingDown size={22} className="text-amber-600 dark:text-amber-400" />}
+        iconBg="bg-amber-100 dark:bg-amber-950/60"
       />
     </div>
   );

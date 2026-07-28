@@ -32,53 +32,31 @@ export default function DataTable<
   searchPlaceholder = "Search...",
   isLoading = false,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] =
-    useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize,
+  });
 
-  const [globalFilter, setGlobalFilter] =
-    useState("");
-
-  const [pagination, setPagination] =
-    useState<PaginationState>({
-      pageIndex: 0,
-      pageSize,
-    });
-
-  const memoData = useMemo(
-    () => data,
-    [data]
-  );
-
-  const memoColumns = useMemo<
-    ColumnDef<TData, TValue>[]
-  >(() => columns, [columns]);
+  const memoData = useMemo(() => data, [data]);
+  const memoColumns = useMemo<ColumnDef<TData, TValue>[]>(() => columns, [columns]);
 
   const table = useReactTable({
     data: memoData,
-
     columns: memoColumns,
-
     state: {
       sorting,
       globalFilter,
       pagination,
     },
-
     onSortingChange: setSorting,
-
     onGlobalFilterChange: setGlobalFilter,
-
     onPaginationChange: setPagination,
-
     getCoreRowModel: getCoreRowModel(),
-
     getSortedRowModel: getSortedRowModel(),
-
-    getFilteredRowModel:
-      getFilteredRowModel(),
-
-    getPaginationRowModel:
-      getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   if (isLoading) {
@@ -88,95 +66,68 @@ export default function DataTable<
   if (!data.length) {
     return (
       <EmptyState
-  icon={<Database className="h-10 w-10" />}
-  title="No Data Available"
-  description="There are no records to display."
-/>
+        icon={<Database className="h-10 w-10" />}
+        title="No Data Available"
+        description="There are no records to display."
+      />
     );
   }
 
   return (
     <div className="space-y-4">
-
       <DataTableToolbar
         table={table}
-        searchPlaceholder={
-          searchPlaceholder
-        }
+        searchPlaceholder={searchPlaceholder}
       />
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-
+      <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
         <div className="overflow-x-auto">
-
-          <table className="min-w-full">
-
-            <thead className="bg-slate-100">
-
-              {table
-                .getHeaderGroups()
-                .map((headerGroup) => (
-                  <tr key={headerGroup.id}>
-                    {headerGroup.headers.map(
-                      (header) => (
-                        <th
-                          key={header.id}
-                          className="px-4 py-3 text-left text-sm font-semibold text-slate-700"
-                        >
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column
-                                  .columnDef
-                                  .header,
-                                header.getContext()
-                              )}
-                        </th>
-                      )
-                    )}
-                  </tr>
-                ))}
-
+          <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+            <thead className="bg-slate-100 dark:bg-slate-800/80">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200"
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </th>
+                  ))}
+                </tr>
+              ))}
             </thead>
 
-            <tbody>
-
-              {table
-                .getRowModel()
-                .rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="border-t hover:bg-slate-50"
-                  >
-                    {row
-                      .getVisibleCells()
-                      .map((cell) => (
-                        <td
-                          key={cell.id}
-                          className="px-4 py-3 text-sm"
-                        >
-                          {flexRender(
-                            cell.column.columnDef
-                              .cell,
-                            cell.getContext()
-                          )}
-                        </td>
-                      ))}
-                  </tr>
-                ))}
-
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 bg-white dark:bg-slate-900">
+              {table.getRowModel().rows.map((row) => (
+                <tr
+                  key={row.id}
+                  className="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <td
+                      key={cell.id}
+                      className="px-4 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
-
           </table>
-
         </div>
-
       </div>
 
-      <DataTablePagination
-        table={table}
-      />
-
+      <DataTablePagination table={table} />
     </div>
   );
 }

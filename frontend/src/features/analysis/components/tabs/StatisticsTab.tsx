@@ -182,16 +182,16 @@ function SummaryCard({
     <Card className="p-5">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
             {title}
           </p>
 
-          <h2 className="mt-2 text-3xl font-bold text-slate-900">
+          <h2 className="mt-2 text-3xl font-extrabold text-slate-900 dark:text-slate-100">
             {value}
           </h2>
         </div>
 
-        <div className="rounded-2xl bg-slate-100 p-3">
+        <div className="rounded-2xl bg-slate-100 dark:bg-slate-800/80 p-3">
           {icon}
         </div>
       </div>

@@ -13,31 +13,31 @@ const colors = {
     border: "border-blue-300 dark:border-blue-800",
     bg: "bg-white dark:bg-slate-900",
     icon: "bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400",
-    value: "text-blue-700 dark:text-blue-400",
+    value: "text-blue-700 dark:text-blue-300 font-extrabold",
   },
   green: {
     border: "border-emerald-300 dark:border-emerald-800",
     bg: "bg-white dark:bg-slate-900",
     icon: "bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400",
-    value: "text-emerald-700 dark:text-emerald-400",
+    value: "text-emerald-700 dark:text-emerald-300 font-extrabold",
   },
   orange: {
     border: "border-amber-300 dark:border-amber-800",
     bg: "bg-white dark:bg-slate-900",
     icon: "bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400",
-    value: "text-amber-700 dark:text-amber-400",
+    value: "text-amber-700 dark:text-amber-300 font-extrabold",
   },
   red: {
     border: "border-red-300 dark:border-red-800",
     bg: "bg-white dark:bg-slate-900",
     icon: "bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400",
-    value: "text-red-700 dark:text-red-400",
+    value: "text-red-700 dark:text-red-300 font-extrabold",
   },
   purple: {
     border: "border-purple-300 dark:border-purple-800",
     bg: "bg-white dark:bg-slate-900",
     icon: "bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400",
-    value: "text-purple-700 dark:text-purple-400",
+    value: "text-purple-700 dark:text-purple-300 font-extrabold",
   },
 };
 
@@ -67,18 +67,18 @@ export default function MetricCard({
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-wider text-black dark:text-slate-200">
+          <p className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">
             {title}
           </p>
 
           <h2
-            className={`mt-2 text-3xl font-black ${style.value}`}
+            className={`mt-2 text-3xl ${style.value}`}
           >
             {value}
           </h2>
 
           {subtitle && (
-            <p className="mt-2 text-xs font-semibold text-gray-800 dark:text-slate-400">
+            <p className="mt-2 text-xs font-semibold text-slate-600 dark:text-slate-400">
               {subtitle}
             </p>
           )}

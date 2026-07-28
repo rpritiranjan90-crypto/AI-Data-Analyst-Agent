@@ -14,12 +14,15 @@ export default function CorrelationTab() {
 
   const columns = correlation?.numeric_columns ?? [];
 
-  if (columns.length === 0) {
+  if (!correlation || columns.length === 0) {
     return (
       <EmptyState
-        icon={<Network className="h-10 w-10" />}
+        icon={<Network className="h-10 w-10 text-indigo-500 dark:text-indigo-400" />}
         title="Correlation Analysis Unavailable"
-        description="No numeric columns are available for correlation analysis."
+        description={
+          (correlation as any)?.message ||
+          "No numeric columns are available in this dataset for correlation analysis."
+        }
       />
     );
   }
@@ -27,28 +30,26 @@ export default function CorrelationTab() {
   return (
     <div className="space-y-8">
       <SectionHeader
-        icon={<Network className="h-6 w-6 text-indigo-600" />}
+        icon={<Network className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
         title="Correlation Analysis"
         subtitle={`Method: ${
-          correlation?.method?.toUpperCase() ?? "Unknown"
+          correlation?.method?.toUpperCase() ?? "PEARSON"
         }`}
       />
 
       {/* Executive Summary */}
       <CorrelationSummary
-        method={correlation.method}
-        totalNumericColumns={correlation.total_numeric_columns}
-        correlations={correlation.strong_correlations}
+        method={correlation?.method}
+        totalNumericColumns={correlation?.total_numeric_columns}
+        correlations={correlation?.strong_correlations}
       />
 
-      {/* New Interactive Explorer */}
+      {/* Interactive Explorer */}
       <InteractiveHeatmap correlation={correlation} />
-
-     
 
       {/* Strong Correlations */}
       <StrongCorrelationTable
-        correlations={correlation.strong_correlations}
+        correlations={correlation?.strong_correlations ?? []}
       />
     </div>
   );
