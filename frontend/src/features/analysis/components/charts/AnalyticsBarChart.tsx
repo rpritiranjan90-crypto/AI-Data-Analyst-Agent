@@ -62,14 +62,16 @@ export default function AnalyticsBarChart({
           layout={horizontal ? "vertical" : "horizontal"}
           margin={{
             top: 20,
-            right: 30,
-            left: horizontal ? 50 : 20,
+            right: 35,
+            left: horizontal ? 40 : 20,
             bottom: 20,
           }}
         >
           {showGrid && (
             <CartesianGrid
-              strokeDasharray="3 3"
+              stroke="#334155"
+              strokeDasharray="4 4"
+              opacity={0.15}
               vertical={!horizontal}
               horizontal={horizontal}
             />
@@ -77,37 +79,52 @@ export default function AnalyticsBarChart({
 
           {horizontal ? (
             <>
-              <XAxis type="number" />
+              <XAxis
+                type="number"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 600 }}
+              />
 
               <YAxis
                 type="category"
                 dataKey={xKey}
-                width={140}
-                tick={{
-                  fontSize: 12,
-                }}
+                width={120}
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 600 }}
               />
             </>
           ) : (
             <>
               <XAxis
                 dataKey={xKey}
-                tick={{
-                  fontSize: 12,
-                }}
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 600 }}
               />
 
               <YAxis
-                tick={{
-                  fontSize: 12,
-                }}
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 600 }}
               />
             </>
           )}
 
-          <Tooltip />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "#0f172a",
+              borderColor: "#334155",
+              borderRadius: 16,
+              color: "#f8fafc",
+              fontSize: 12,
+              fontWeight: 600,
+              boxShadow: "0 12px 32px rgba(0,0,0,.3)",
+            }}
+          />
 
-          {showLegend && <Legend />}
+          {showLegend && <Legend wrapperStyle={{ color: "#94a3b8", fontSize: 11, fontWeight: 600 }} />}
 
           <Bar
             dataKey={yKey}
@@ -117,6 +134,9 @@ export default function AnalyticsBarChart({
             <LabelList
               dataKey={yKey}
               position={horizontal ? "right" : "top"}
+              fill="#818cf8"
+              fontSize={11}
+              fontWeight={700}
             />
 
             {data.map((_, index) => (

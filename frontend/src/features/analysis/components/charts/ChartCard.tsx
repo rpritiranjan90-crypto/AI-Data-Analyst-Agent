@@ -10,15 +10,15 @@ export default function ChartCard({
 }: ChartCardProps) {
   return (
     <Card
-      className={`overflow-hidden rounded-2xl border border-slate-200 shadow-sm ${className}`}
+      className={`overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs ${className}`}
     >
-      <div className="border-b border-slate-100 px-6 py-4">
-        <h2 className="text-lg font-semibold text-slate-900">
+      <div className="border-b border-slate-100 dark:border-slate-800 px-6 py-4">
+        <h2 className="text-base font-extrabold text-slate-900 dark:text-white">
           {title}
         </h2>
 
         {subtitle && (
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-0.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
             {subtitle}
           </p>
         )}

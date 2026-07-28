@@ -25,45 +25,44 @@ export default function MLReadinessCard({
 
   const progressColor =
     score >= 90
-      ? "bg-green-500"
+      ? "bg-emerald-500"
       : score >= 80
-      ? "bg-blue-500"
+      ? "bg-indigo-500"
       : score >= 70
       ? "bg-amber-500"
       : "bg-red-500";
 
   return (
-    <Card>
+    <Card className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl space-y-6">
       <div className="flex items-center gap-3">
-        <BrainCircuit
-          className="text-violet-600"
-          size={28}
-        />
+        <div className="rounded-2xl bg-purple-50 dark:bg-purple-950/60 p-3 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-900/40">
+          <BrainCircuit size={24} />
+        </div>
 
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">
+          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">
             Machine Learning Readiness
           </h2>
 
-          <p className="text-sm text-slate-500">
-            AI evaluation of dataset readiness
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+            AI evaluation of dataset readiness for predictive modeling
           </p>
         </div>
       </div>
 
-      <div className="mt-8 space-y-6">
+      <div className="space-y-5">
         <div>
-          <div className="mb-3 flex items-center justify-between">
-            <span className="font-semibold text-slate-700">
+          <div className="mb-2 flex items-center justify-between text-xs font-extrabold">
+            <span className="text-slate-700 dark:text-slate-300 uppercase tracking-wider">
               Readiness Score
             </span>
 
-            <span className="text-lg font-bold">
+            <span className="text-slate-900 dark:text-white font-mono text-sm">
               {score}%
             </span>
           </div>
 
-          <div className="h-4 overflow-hidden rounded-full bg-slate-200">
+          <div className="h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
             <div
               className={`h-full rounded-full transition-all duration-500 ${progressColor}`}
               style={{
@@ -73,55 +72,47 @@ export default function MLReadinessCard({
           </div>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
-          <div className="rounded-xl bg-green-50 p-5">
-            <div className="flex items-center gap-2">
-              <CheckCircle2
-                className="text-green-600"
-                size={20}
-              />
-
-              <span className="font-semibold">
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-900/50 p-4">
+            <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+              <CheckCircle2 size={18} />
+              <span className="text-xs font-extrabold uppercase tracking-wider">
                 Status
               </span>
             </div>
 
-            <p className="mt-4 text-2xl font-bold text-slate-900">
+            <p className="mt-3 text-2xl font-black text-slate-900 dark:text-white">
               {status}
             </p>
           </div>
 
-          <div className="rounded-xl bg-blue-50 p-5">
-            <div className="flex items-center gap-2">
-              <ShieldCheck
-                className="text-blue-600"
-                size={20}
-              />
-
-              <span className="font-semibold">
+          <div className="rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-900/50 p-4">
+            <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300">
+              <ShieldCheck size={18} />
+              <span className="text-xs font-extrabold uppercase tracking-wider">
                 Confidence
               </span>
             </div>
 
-            <p className="mt-4 text-2xl font-bold text-slate-900">
+            <p className="mt-3 text-2xl font-black text-slate-900 dark:text-white tabular-nums">
               {confidence}%
             </p>
           </div>
         </div>
 
         {strengths.length > 0 && (
-          <div className="rounded-xl border border-green-200 bg-green-50 p-5">
-            <h3 className="font-semibold text-green-800">
+          <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/70 dark:bg-emerald-950/40 p-4">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
               Strengths
             </h3>
 
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-2 space-y-1.5">
               {strengths.map((item, index) => (
                 <li
                   key={index}
-                  className="text-sm text-green-700"
+                  className="text-xs font-medium text-emerald-700 dark:text-emerald-400 flex items-start gap-2"
                 >
-                  • {item}
+                  <span className="text-emerald-500">•</span> {item}
                 </li>
               ))}
             </ul>
@@ -129,18 +120,18 @@ export default function MLReadinessCard({
         )}
 
         {improvements.length > 0 && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
-            <h3 className="font-semibold text-amber-800">
+          <div className="rounded-2xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/70 dark:bg-amber-950/40 p-4">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-amber-800 dark:text-amber-300">
               Recommended Improvements
             </h3>
 
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-2 space-y-1.5">
               {improvements.map((item, index) => (
                 <li
                   key={index}
-                  className="text-sm text-amber-700"
+                  className="text-xs font-medium text-amber-700 dark:text-amber-400 flex items-start gap-2"
                 >
-                  • {item}
+                  <span className="text-amber-500">•</span> {item}
                 </li>
               ))}
             </ul>

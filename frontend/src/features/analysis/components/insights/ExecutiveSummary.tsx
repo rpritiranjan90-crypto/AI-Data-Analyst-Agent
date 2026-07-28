@@ -22,71 +22,67 @@ export default function ExecutiveSummary({
   } = result;
 
   return (
-    <Card>
+    <Card className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl space-y-6">
       <div className="flex items-center gap-3">
-        <BrainCircuit
-          className="text-blue-600"
-          size={28}
-        />
+        <div className="rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 p-3 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/40">
+          <BrainCircuit size={24} />
+        </div>
 
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">
+          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">
             Executive Summary
           </h2>
 
-          <p className="text-sm text-slate-500">
-            AI-generated overview of the dataset.
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+            AI-generated overview of dataset quality & machine learning readiness
           </p>
         </div>
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-3">
-        <div className="rounded-2xl bg-blue-50 p-6">
-          <div className="flex items-center gap-2">
-            <Sparkles className="text-blue-600" />
-
-            <span className="font-semibold">
+      <div className="grid gap-5 lg:grid-cols-3">
+        <div className="rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-900/50 p-5 space-y-2">
+          <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300">
+            <Sparkles size={18} />
+            <span className="text-xs font-extrabold uppercase tracking-wider">
               Overall Assessment
             </span>
           </div>
 
-          <h3 className="mt-5 text-3xl font-bold text-slate-900">
+          <h3 className="text-3xl font-black text-slate-900 dark:text-white">
             {assessment}
           </h3>
 
-          <p className="mt-2 text-sm text-slate-600">
-            Dataset quality based on AI analysis.
+          <p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed">
+            Dataset quality based on statistical AI analysis.
           </p>
         </div>
 
-        <div className="rounded-2xl bg-green-50 p-6">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="text-green-600" />
-
-            <span className="font-semibold">
+        <div className="rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-900/50 p-5 space-y-2">
+          <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+            <CheckCircle2 size={18} />
+            <span className="text-xs font-extrabold uppercase tracking-wider">
               AI Readiness Score
             </span>
           </div>
 
-          <h3 className="mt-5 text-3xl font-bold text-slate-900">
+          <h3 className="text-3xl font-black text-slate-900 dark:text-white tabular-nums">
             {score}%
           </h3>
 
-          <p className="mt-2 text-sm text-slate-600">
-            Estimated readiness for machine learning.
+          <p className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-relaxed">
+            Estimated readiness for automated machine learning.
           </p>
         </div>
 
-        <div className="rounded-2xl bg-violet-50 p-6">
-          <div className="flex items-center gap-2">
-            <BrainCircuit className="text-violet-600" />
-
-            <span className="font-semibold">
+        <div className="rounded-2xl bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-900/50 p-5 space-y-2">
+          <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
+            <BrainCircuit size={18} />
+            <span className="text-xs font-extrabold uppercase tracking-wider">
               AI Summary
             </span>
           </div>
 
-          <p className="mt-5 leading-7 text-slate-700">
+          <p className="text-xs font-medium text-slate-700 dark:text-slate-300 leading-relaxed">
             {summary}
           </p>
         </div>

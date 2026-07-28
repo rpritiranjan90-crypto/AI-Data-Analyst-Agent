@@ -75,8 +75,27 @@ export default function AnalyticsPieChart({
             ))}
           </Pie>
 
-          <Tooltip />
-          {showLegend && <Legend />}
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "#0f172a",
+              borderColor: "#334155",
+              borderRadius: 16,
+              color: "#f8fafc",
+              fontSize: 12,
+              fontWeight: 600,
+              boxShadow: "0 12px 32px rgba(0,0,0,.3)",
+            }}
+          />
+          {showLegend && (
+            <Legend
+              wrapperStyle={{
+                color: "#94a3b8",
+                fontSize: 11,
+                fontWeight: 600,
+                paddingTop: 12,
+              }}
+            />
+          )}
         </RechartsPieChart>
       </ChartContainer>
     </ChartCard>

@@ -57,14 +57,14 @@ export default function DistributionCharts({
   return (
     <div className="space-y-6">
       {/* Toolbar */}
-      <Card>
+      <Card className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+            <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">
               Distribution Visual Explorer
             </h2>
 
-            <p className="mt-1 text-sm font-medium text-slate-500 dark:text-slate-300">
+            <p className="mt-0.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
               Explore statistical distributions for every numeric feature.
             </p>
           </div>
@@ -80,7 +80,7 @@ export default function DistributionCharts({
               onChange={(e) =>
                 setSelectedColumn(e.target.value)
               }
-              className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-900 dark:text-slate-100 focus:border-indigo-500 focus:outline-none"
+              className="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:border-indigo-500 focus:outline-none"
             >
               {columns.map((column) => (
                 <option
@@ -97,19 +97,19 @@ export default function DistributionCharts({
 
       {/* Charts */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
+        <Card className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl">
           <div className="mb-5 flex items-center gap-2">
             <BarChart3
-              size={20}
-              className="text-blue-600 dark:text-blue-400"
+              size={18}
+              className="text-indigo-600 dark:text-indigo-400"
             />
 
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
               Histogram Preview
             </h3>
           </div>
 
-          <div className="flex h-72 items-end justify-between gap-3 pt-6">
+          <div className="flex h-64 items-end justify-between gap-3 pt-6">
             {histogramData.map((item) => {
               const minVal = stats.minimum ?? 0;
               const maxVal = stats.maximum ?? 1;
@@ -122,13 +122,13 @@ export default function DistributionCharts({
                   className="flex flex-1 flex-col items-center"
                 >
                   <div
-                    className="w-full rounded-t-xl bg-blue-500 dark:bg-blue-600 transition-all duration-500 hover:bg-blue-600"
+                    className="w-full rounded-t-xl bg-indigo-600 dark:bg-indigo-500 transition-all duration-500 hover:bg-indigo-500"
                     style={{
                       height: `${Math.max(height, 8)}%`,
                     }}
                   />
 
-                  <span className="mt-3 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  <span className="mt-3 text-[11px] font-bold text-slate-600 dark:text-slate-400">
                     {item.label}
                   </span>
                 </div>
@@ -137,24 +137,24 @@ export default function DistributionCharts({
           </div>
         </Card>
 
-        <Card>
+        <Card className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl">
           <div className="mb-5 flex items-center gap-2">
             <Box
-              size={20}
-              className="text-violet-600 dark:text-violet-400"
+              size={18}
+              className="text-purple-600 dark:text-purple-400"
             />
 
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
               Box Plot Summary
             </h3>
           </div>
 
-          <div className="space-y-5">
+          <div className="space-y-6">
             <div className="relative h-20">
-              <div className="absolute top-9 left-0 right-0 h-1 rounded-full bg-slate-200 dark:bg-slate-700" />
+              <div className="absolute top-9 left-0 right-0 h-1 rounded-full bg-slate-200 dark:bg-slate-800" />
 
               <div
-                className="absolute top-6 h-8 rounded-lg border-2 border-violet-500 bg-violet-200 dark:bg-violet-900/60"
+                className="absolute top-6 h-7 rounded-lg border-2 border-purple-500 bg-purple-500/20 dark:bg-purple-900/60"
                 style={{
                   left: "25%",
                   width: "50%",
@@ -162,69 +162,69 @@ export default function DistributionCharts({
               />
 
               <div
-                className="absolute top-2 h-16 w-1 bg-violet-700 dark:bg-violet-400"
+                className="absolute top-2 h-15 w-1 bg-purple-600 dark:bg-purple-400"
                 style={{
                   left: "50%",
                 }}
               />
 
               <div
-                className="absolute top-8 h-2 w-12 bg-slate-700 dark:bg-slate-300"
+                className="absolute top-8 h-2 w-10 bg-slate-400 dark:bg-slate-500"
                 style={{
                   left: "5%",
                 }}
               />
 
               <div
-                className="absolute top-8 h-2 w-12 bg-slate-700 dark:bg-slate-300"
+                className="absolute top-8 h-2 w-10 bg-slate-400 dark:bg-slate-500"
                 style={{
                   right: "5%",
                 }}
               />
             </div>
 
-            <div className="grid grid-cols-5 gap-3 text-center text-xs">
+            <div className="grid grid-cols-5 gap-2 text-center text-xs">
               <div>
-                <p className="text-slate-500 dark:text-slate-400 font-medium">
+                <p className="text-[10px] font-extrabold uppercase text-slate-500 dark:text-slate-400">
                   Min
                 </p>
-                <p className="font-bold text-slate-900 dark:text-slate-100">
+                <p className="font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">
                   {(stats.minimum ?? 0).toFixed(2)}
                 </p>
               </div>
 
               <div>
-                <p className="text-slate-500 dark:text-slate-400 font-medium">
+                <p className="text-[10px] font-extrabold uppercase text-slate-500 dark:text-slate-400">
                   Q1
                 </p>
-                <p className="font-bold text-slate-900 dark:text-slate-100">
+                <p className="font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">
                   {(stats.q1 ?? 0).toFixed(2)}
                 </p>
               </div>
 
               <div>
-                <p className="text-slate-500 dark:text-slate-400 font-medium">
+                <p className="text-[10px] font-extrabold uppercase text-slate-500 dark:text-slate-400">
                   Median
                 </p>
-                <p className="font-bold text-slate-900 dark:text-slate-100">
+                <p className="font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">
                   {(stats.median ?? 0).toFixed(2)}
                 </p>
               </div>
 
               <div>
-                <p className="text-slate-500 dark:text-slate-400 font-medium">
+                <p className="text-[10px] font-extrabold uppercase text-slate-500 dark:text-slate-400">
                   Q3
                 </p>
-                <p className="font-bold text-slate-900 dark:text-slate-100">
+                <p className="font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">
                   {(stats.q3 ?? 0).toFixed(2)}
                 </p>
               </div>
 
               <div>
-                <p className="text-slate-500 dark:text-slate-400 font-medium">
+                <p className="text-[10px] font-extrabold uppercase text-slate-500 dark:text-slate-400">
                   Max
                 </p>
-                <p className="font-bold text-slate-900 dark:text-slate-100">
+                <p className="font-extrabold text-slate-900 dark:text-white font-mono mt-0.5">
                   {(stats.maximum ?? 0).toFixed(2)}
                 </p>
               </div>
@@ -233,114 +233,114 @@ export default function DistributionCharts({
         </Card>
       </div>
 
-      <Card>
+      <Card className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-3xl">
         <div className="mb-5 flex items-center gap-2">
           <Brain
-            size={20}
+            size={18}
             className="text-emerald-600 dark:text-emerald-400"
           />
 
-          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+          <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
             AI Distribution Insights
           </h3>
         </div>
 
         <div className="grid gap-5 lg:grid-cols-2">
-          <div className="rounded-xl bg-slate-100 dark:bg-slate-800/80 p-5 border border-slate-200 dark:border-slate-700">
-            <h4 className="mb-4 font-bold text-slate-900 dark:text-slate-100">
+          <div className="rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 p-5 border border-slate-200 dark:border-slate-800">
+            <h4 className="mb-3 text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">
               Statistical Summary
             </h4>
 
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-slate-700 dark:text-slate-300 font-medium">Mean</span>
-                <strong className="text-slate-900 dark:text-slate-100">
+            <div className="space-y-2.5 text-xs">
+              <div className="flex justify-between text-slate-600 dark:text-slate-400 font-medium">
+                <span>Mean</span>
+                <strong className="text-slate-900 dark:text-white font-mono">
                   {(stats.mean ?? 0).toFixed(3)}
                 </strong>
               </div>
 
-              <div className="flex justify-between">
-                <span className="text-slate-700 dark:text-slate-300 font-medium">Median</span>
-                <strong className="text-slate-900 dark:text-slate-100">
+              <div className="flex justify-between text-slate-600 dark:text-slate-400 font-medium">
+                <span>Median</span>
+                <strong className="text-slate-900 dark:text-white font-mono">
                   {(stats.median ?? 0).toFixed(3)}
                 </strong>
               </div>
 
-              <div className="flex justify-between">
-                <span className="text-slate-700 dark:text-slate-300 font-medium">Std. Deviation</span>
-                <strong className="text-slate-900 dark:text-slate-100">
+              <div className="flex justify-between text-slate-600 dark:text-slate-400 font-medium">
+                <span>Std. Deviation</span>
+                <strong className="text-slate-900 dark:text-white font-mono">
                   {(stats.standard_deviation ?? 0).toFixed(3)}
                 </strong>
               </div>
 
-              <div className="flex justify-between">
-                <span className="text-slate-700 dark:text-slate-300 font-medium">Variance</span>
-                <strong className="text-slate-900 dark:text-slate-100">
+              <div className="flex justify-between text-slate-600 dark:text-slate-400 font-medium">
+                <span>Variance</span>
+                <strong className="text-slate-900 dark:text-white font-mono">
                   {(stats.variance ?? 0).toFixed(3)}
                 </strong>
               </div>
 
-              <div className="flex justify-between">
-                <span className="text-slate-700 dark:text-slate-300 font-medium">Outliers</span>
-                <strong className="text-slate-900 dark:text-slate-100">
+              <div className="flex justify-between text-slate-600 dark:text-slate-400 font-medium">
+                <span>Outliers</span>
+                <strong className="text-slate-900 dark:text-white font-mono">
                   {stats.outliers?.count ?? 0}
                 </strong>
               </div>
             </div>
           </div>
 
-          <div className="rounded-xl bg-emerald-50 dark:bg-emerald-950/50 p-5 border border-emerald-100 dark:border-emerald-900/50">
-            <h4 className="mb-4 font-bold text-slate-900 dark:text-slate-100">
+          <div className="rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 p-5 border border-emerald-200/80 dark:border-emerald-900/50">
+            <h4 className="mb-3 text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">
               AI Recommendation
             </h4>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-600 dark:text-slate-400 font-medium">
                   Distribution
                 </span>
 
                 <span
-                  className={`rounded-full px-3 py-1 text-xs font-bold ${
+                  className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
                     stats.normal_distribution
-                      ? "bg-green-100 dark:bg-green-950/80 text-green-700 dark:text-green-300"
-                      : "bg-orange-100 dark:bg-orange-950/80 text-orange-700 dark:text-orange-300"
+                      ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300"
+                      : "bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
                   }`}
                 >
                   {stats.normal_distribution ? "Normal" : "Non-Normal"}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-600 dark:text-slate-400 font-medium">
                   Skewness
                 </span>
 
-                <strong className="text-slate-900 dark:text-slate-100">
+                <strong className="text-slate-900 dark:text-white font-mono">
                   {(stats.skewness ?? 0).toFixed(3)}
                 </strong>
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-600 dark:text-slate-400 font-medium">
                   Kurtosis
                 </span>
 
-                <strong className="text-slate-900 dark:text-slate-100">
+                <strong className="text-slate-900 dark:text-white font-mono">
                   {(stats.kurtosis ?? 0).toFixed(3)}
                 </strong>
               </div>
 
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-600 dark:text-slate-400 font-medium">
                   ML Readiness
                 </span>
 
                 <span
-                  className={`rounded-full px-3 py-1 text-xs font-bold ${
+                  className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
                     stats.normal_distribution && (stats.outliers?.count ?? 0) === 0
-                      ? "bg-green-100 dark:bg-green-950/80 text-green-700 dark:text-green-300"
-                      : "bg-yellow-100 dark:bg-yellow-950/80 text-yellow-700 dark:text-yellow-300"
+                      ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300"
+                      : "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300"
                   }`}
                 >
                   {stats.normal_distribution && (stats.outliers?.count ?? 0) === 0
@@ -349,8 +349,8 @@ export default function DistributionCharts({
                 </span>
               </div>
 
-              <div className="rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-white dark:bg-slate-900 p-4">
-                <p className="text-sm leading-7 font-medium text-slate-800 dark:text-slate-200">
+              <div className="rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-white dark:bg-slate-900 p-3.5">
+                <p className="text-xs leading-relaxed font-medium text-slate-700 dark:text-slate-300">
                   {stats.normal_distribution && (stats.outliers?.count ?? 0) === 0
                     ? "This feature is well suited for statistical analysis and most machine learning algorithms without additional preprocessing."
                     : (stats.outliers?.count ?? 0) > 0 && Math.abs(stats.skewness ?? 0) > 1
