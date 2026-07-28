@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   Target,
   Network,
+  CheckCircle2,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useDatasetStore } from "../../store/datasetStore";
@@ -40,6 +41,7 @@ const intelligenceSection = [
 const governanceSection = [
   { name: "Reports & Exporters",  icon: FileText,      path: "/reports" },
   { name: "AI Governance & Cost", icon: ShieldCheck,   path: "/governance" },
+  { name: "Production Readiness", icon: CheckCircle2,  path: "/readiness" },
   { name: "Pricing & Plans",     icon: CreditCard,    path: "/pricing" },
 ];
 

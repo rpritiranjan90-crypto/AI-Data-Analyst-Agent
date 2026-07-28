@@ -106,7 +106,10 @@ app.add_middleware(
 # API Routers
 # ------------------------------------------------------------------
 
+from app.routes.health import router as health_router
+
 app.include_router(home_router)
+app.include_router(health_router)
 app.include_router(auth_router)
 app.include_router(upload_router)
 app.include_router(database_router)

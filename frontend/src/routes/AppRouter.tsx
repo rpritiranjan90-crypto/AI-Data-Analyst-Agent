@@ -5,9 +5,12 @@ import LandingPage from "../pages/Landing/LandingPage";
 import LoginPage from "../pages/Auth/LoginPage";
 import SignupPage from "../pages/Auth/SignupPage";
 import AdminPortalPage from "../pages/Admin/AdminPortalPage";
+import DataFabricPage from "../pages/Fabric/DataFabricPage";
+import DecisionCenterPage from "../pages/Decision/DecisionCenterPage";
 import ScenarioSimulatorPage from "../pages/Simulator/ScenarioSimulatorPage";
 import RAGKnowledgePage from "../pages/Knowledge/RAGKnowledgePage";
 import AIGovernancePage from "../pages/Governance/AIGovernancePage";
+import ProductionReadinessPage from "../pages/Readiness/ProductionReadinessPage";
 import DashboardPage from "../pages/Dashboard/DashboardPage";
 import UploadPage from "../pages/Upload/UploadPage";
 import AnalysisPage from "../features/analysis/pages/AnalysisPage";
@@ -34,6 +37,8 @@ export default function AppRouter() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/data-fabric" element={<DataFabricPage />} />
+          <Route path="/decision-center" element={<DecisionCenterPage />} />
           <Route path="/upload" element={<UploadPage />} />
           <Route path="/analysis" element={<AnalysisPage />} />
           <Route path="/cleaning" element={<CleaningPage />} />
@@ -43,6 +48,7 @@ export default function AppRouter() {
           <Route path="/simulator" element={<ScenarioSimulatorPage />} />
           <Route path="/knowledge" element={<RAGKnowledgePage />} />
           <Route path="/governance" element={<AIGovernancePage />} />
+          <Route path="/readiness" element={<ProductionReadinessPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/admin" element={<AdminPortalPage />} />
           <Route path="/pricing" element={<PricingPage />} />
