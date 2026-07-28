@@ -1,65 +1,80 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-
 import MainLayout from "../layouts/MainLayout";
-import LandingPage from "../pages/Landing/LandingPage";
-import LoginPage from "../pages/Auth/LoginPage";
-import SignupPage from "../pages/Auth/SignupPage";
-import AdminPortalPage from "../pages/Admin/AdminPortalPage";
-import DataFabricPage from "../pages/Fabric/DataFabricPage";
-import DecisionCenterPage from "../pages/Decision/DecisionCenterPage";
-import ScenarioSimulatorPage from "../pages/Simulator/ScenarioSimulatorPage";
-import RAGKnowledgePage from "../pages/Knowledge/RAGKnowledgePage";
-import AIGovernancePage from "../pages/Governance/AIGovernancePage";
-import ProductionReadinessPage from "../pages/Readiness/ProductionReadinessPage";
-import HelpCenterPage from "../pages/Help/HelpCenterPage";
-import DashboardPage from "../pages/Dashboard/DashboardPage";
-import UploadPage from "../pages/Upload/UploadPage";
-import AnalysisPage from "../features/analysis/pages/AnalysisPage";
-import CleaningPage from "../pages/Cleaning/CleaningPage";
-import VisualizationPage from "../pages/Visualization/VisualizationPage";
-import RecommendationPage from "../pages/Recommendation/RecommendationPage";
-import MachineLearningPage from "../pages/MachineLearning/MachineLearningPage";
-import ReportsPage from "../pages/Reports/ReportsPage";
-import PricingPage from "../pages/Pricing/PricingPage";
-import PrivacyPolicyPage from "../pages/Legal/PrivacyPolicyPage";
-import TermsOfServicePage from "../pages/Legal/TermsOfServicePage";
-import NotFoundPage from "../pages/NotFound/NotFoundPage";
+
+// Lazy-loaded routes for bundle optimization
+const LandingPage = lazy(() => import("../pages/Landing/LandingPage"));
+const LoginPage = lazy(() => import("../pages/Auth/LoginPage"));
+const SignupPage = lazy(() => import("../pages/Auth/SignupPage"));
+const DashboardPage = lazy(() => import("../pages/Dashboard/DashboardPage"));
+const DataFabricPage = lazy(() => import("../pages/Fabric/DataFabricPage"));
+const DecisionCenterPage = lazy(() => import("../pages/Decision/DecisionCenterPage"));
+const UploadPage = lazy(() => import("../pages/Upload/UploadPage"));
+const AnalysisPage = lazy(() => import("../features/analysis/pages/AnalysisPage"));
+const CleaningPage = lazy(() => import("../pages/Cleaning/CleaningPage"));
+const VisualizationPage = lazy(() => import("../pages/Visualization/VisualizationPage"));
+const RecommendationPage = lazy(() => import("../pages/Recommendation/RecommendationPage"));
+const MachineLearningPage = lazy(() => import("../pages/MachineLearning/MachineLearningPage"));
+const ScenarioSimulatorPage = lazy(() => import("../pages/Simulator/ScenarioSimulatorPage"));
+const RAGKnowledgePage = lazy(() => import("../pages/Knowledge/RAGKnowledgePage"));
+const AIGovernancePage = lazy(() => import("../pages/Governance/AIGovernancePage"));
+const ProductionReadinessPage = lazy(() => import("../pages/Readiness/ProductionReadinessPage"));
+const HelpCenterPage = lazy(() => import("../pages/Help/HelpCenterPage"));
+const ReportsPage = lazy(() => import("../pages/Reports/ReportsPage"));
+const AdminPortalPage = lazy(() => import("../pages/Admin/AdminPortalPage"));
+const PricingPage = lazy(() => import("../pages/Pricing/PricingPage"));
+const PrivacyPolicyPage = lazy(() => import("../pages/Legal/PrivacyPolicyPage"));
+const TermsOfServicePage = lazy(() => import("../pages/Legal/TermsOfServicePage"));
+const NotFoundPage = lazy(() => import("../pages/NotFound/NotFoundPage"));
+
+function PageLoader() {
+  return (
+    <div className="flex h-[70vh] w-full items-center justify-center">
+      <div className="flex flex-col items-center gap-3">
+        <div className="h-9 w-9 animate-spin rounded-full border-3 border-indigo-600 border-t-transparent" />
+        <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Loading module...</span>
+      </div>
+    </div>
+  );
+}
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Marketing & Auth Public Routes */}
-        <Route path="/landing" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/landing" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
 
-        {/* Application Layout Routes */}
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/data-fabric" element={<DataFabricPage />} />
-          <Route path="/decision-center" element={<DecisionCenterPage />} />
-          <Route path="/upload" element={<UploadPage />} />
-          <Route path="/analysis" element={<AnalysisPage />} />
-          <Route path="/cleaning" element={<CleaningPage />} />
-          <Route path="/visualization" element={<VisualizationPage />} />
-          <Route path="/recommendation" element={<RecommendationPage />} />
-          <Route path="/machine-learning" element={<MachineLearningPage />} />
-          <Route path="/simulator" element={<ScenarioSimulatorPage />} />
-          <Route path="/knowledge" element={<RAGKnowledgePage />} />
-          <Route path="/governance" element={<AIGovernancePage />} />
-          <Route path="/readiness" element={<ProductionReadinessPage />} />
-          <Route path="/help" element={<HelpCenterPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/admin" element={<AdminPortalPage />} />
-          <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-        </Route>
+          {/* Application Layout Routes */}
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/data-fabric" element={<DataFabricPage />} />
+            <Route path="/decision-center" element={<DecisionCenterPage />} />
+            <Route path="/upload" element={<UploadPage />} />
+            <Route path="/analysis" element={<AnalysisPage />} />
+            <Route path="/cleaning" element={<CleaningPage />} />
+            <Route path="/visualization" element={<VisualizationPage />} />
+            <Route path="/recommendation" element={<RecommendationPage />} />
+            <Route path="/machine-learning" element={<MachineLearningPage />} />
+            <Route path="/simulator" element={<ScenarioSimulatorPage />} />
+            <Route path="/knowledge" element={<RAGKnowledgePage />} />
+            <Route path="/governance" element={<AIGovernancePage />} />
+            <Route path="/readiness" element={<ProductionReadinessPage />} />
+            <Route path="/help" element={<HelpCenterPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/admin" element={<AdminPortalPage />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+            <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+          </Route>
 
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }
