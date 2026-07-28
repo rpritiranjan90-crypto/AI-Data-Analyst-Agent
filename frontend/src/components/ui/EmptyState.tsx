@@ -18,7 +18,7 @@ export default function EmptyState({
 
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="rounded-2xl bg-slate-100 dark:bg-slate-800 p-5 mb-5 text-slate-400 flex items-center justify-center">
+      <div className="rounded-2xl bg-slate-100 dark:bg-slate-800/80 p-5 mb-5 text-indigo-600 dark:text-indigo-400 flex items-center justify-center border border-slate-200 dark:border-slate-700">
         {IconComponent ? (
           <IconComponent size={32} />
         ) : (
@@ -26,11 +26,11 @@ export default function EmptyState({
         )}
       </div>
 
-      <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-2">
+      <h2 className="text-xl font-black text-slate-900 dark:text-white mb-2">
         {title}
       </h2>
 
-      <p className="text-sm text-slate-500 dark:text-slate-400 text-center max-w-xs mb-6">
+      <p className="text-sm font-medium text-slate-600 dark:text-slate-200 text-center max-w-md mb-6 leading-relaxed">
         {description}
       </p>
 

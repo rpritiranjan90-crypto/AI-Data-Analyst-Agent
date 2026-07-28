@@ -53,7 +53,6 @@ export default function DatasetHealthCard({
   score -= Math.min(duplicatePercent * 2, 25);
 
   if (numericColumns === 0) score -= 15;
-
   if (categoricalColumns === 0) score -= 5;
 
   score = Math.max(0, Math.min(100, Math.round(score)));
@@ -93,7 +92,7 @@ export default function DatasetHealthCard({
           </div>
 
           <div>
-            <h2 className="text-2xl font-black text-black dark:text-white">
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white">
               Dataset Health
             </h2>
 
@@ -104,7 +103,7 @@ export default function DatasetHealthCard({
               />
             </div>
 
-            <p className="mt-3 max-w-xl text-xs font-semibold leading-relaxed text-gray-800 dark:text-slate-300">
+            <p className="mt-3 max-w-xl text-xs font-semibold leading-relaxed text-slate-700 dark:text-slate-200">
               {qualityInsight ||
                 "Overall dataset quality has been calculated from completeness, duplicate records, and data balance."}
             </p>
@@ -112,7 +111,7 @@ export default function DatasetHealthCard({
         </div>
 
         <div className="w-full max-w-md">
-          <div className="mb-2 flex justify-between text-xs font-bold text-black dark:text-slate-200">
+          <div className="mb-2 flex justify-between text-xs font-bold text-slate-900 dark:text-white">
             <span>Health Score</span>
             <span>{score}%</span>
           </div>
@@ -130,12 +129,12 @@ export default function DatasetHealthCard({
         <div className="rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm">
           <div className="mb-2 flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-amber-500" />
-            <span className="font-extrabold text-black dark:text-white text-xs uppercase tracking-wider">Missing Data</span>
+            <span className="font-extrabold text-slate-900 dark:text-white text-xs uppercase tracking-wider">Missing Data</span>
           </div>
 
-          <p className="text-2xl font-black text-black dark:text-white">{missingPercent}%</p>
+          <p className="text-2xl font-black text-slate-900 dark:text-white">{missingPercent}%</p>
 
-          <p className="mt-1 text-xs font-semibold text-gray-800 dark:text-slate-400">
+          <p className="mt-1 text-xs font-medium text-slate-600 dark:text-slate-300">
             {missingValues.toLocaleString()} missing values
           </p>
         </div>
@@ -143,12 +142,12 @@ export default function DatasetHealthCard({
         <div className="rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm">
           <div className="mb-2 flex items-center gap-2">
             <Database className="h-5 w-5 text-red-500" />
-            <span className="font-extrabold text-black dark:text-white text-xs uppercase tracking-wider">Duplicates</span>
+            <span className="font-extrabold text-slate-900 dark:text-white text-xs uppercase tracking-wider">Duplicates</span>
           </div>
 
-          <p className="text-2xl font-black text-black dark:text-white">{duplicatePercent}%</p>
+          <p className="text-2xl font-black text-slate-900 dark:text-white">{duplicatePercent}%</p>
 
-          <p className="mt-1 text-xs font-semibold text-gray-800 dark:text-slate-400">
+          <p className="mt-1 text-xs font-medium text-slate-600 dark:text-slate-300">
             {duplicateRows.toLocaleString()} duplicate rows
           </p>
         </div>
@@ -156,7 +155,7 @@ export default function DatasetHealthCard({
         <div className="rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm">
           <div className="mb-2 flex items-center gap-2">
             <Brain className="h-5 w-5 text-violet-500" />
-            <span className="font-extrabold text-black dark:text-white text-xs uppercase tracking-wider">ML Readiness</span>
+            <span className="font-extrabold text-slate-900 dark:text-white text-xs uppercase tracking-wider">ML Readiness</span>
           </div>
 
           <p
@@ -167,7 +166,7 @@ export default function DatasetHealthCard({
             {mlReady ? "Ready" : "Needs Cleaning"}
           </p>
 
-          <p className="mt-1 text-xs font-semibold text-gray-800 dark:text-slate-400">
+          <p className="mt-1 text-xs font-medium text-slate-600 dark:text-slate-300">
             Suitable for model training
           </p>
         </div>
@@ -175,7 +174,7 @@ export default function DatasetHealthCard({
         <div className="rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm">
           <div className="mb-2 flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-emerald-500" />
-            <span className="font-extrabold text-black dark:text-white text-xs uppercase tracking-wider">Recommendation</span>
+            <span className="font-extrabold text-slate-900 dark:text-white text-xs uppercase tracking-wider">Recommendation</span>
           </div>
 
           <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
@@ -192,7 +191,7 @@ export default function DatasetHealthCard({
             </span>
           </div>
 
-          <p className="mt-1.5 text-xs font-semibold text-gray-800 dark:text-slate-400">
+          <p className="mt-1.5 text-xs font-medium text-slate-600 dark:text-slate-300">
             {mlReady
               ? "Dataset is ready for advanced analytics and machine learning."
               : "Improve data quality before training predictive models."}

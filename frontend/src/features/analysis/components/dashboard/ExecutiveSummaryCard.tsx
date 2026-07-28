@@ -51,12 +51,12 @@ export default function ExecutiveSummaryCard({
         <div>
           <div className="flex items-center gap-2">
             <Brain className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-            <h2 className="text-xl font-black text-black dark:text-white">
+            <h2 className="text-xl font-black text-slate-900 dark:text-white">
               Executive Summary
             </h2>
           </div>
 
-          <p className="mt-1.5 text-xs font-semibold text-gray-800 dark:text-slate-300">
+          <p className="mt-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200">
             A concise overview of your dataset generated from the current analysis.
           </p>
         </div>
@@ -71,14 +71,14 @@ export default function ExecutiveSummaryCard({
         <div className="rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm">
           <div className="flex items-center gap-2">
             <Database className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-            <span className="font-extrabold text-black dark:text-white text-xs uppercase tracking-wider">Dataset Size</span>
+            <span className="font-extrabold text-slate-900 dark:text-white text-xs uppercase tracking-wider">Dataset Size</span>
           </div>
 
-          <p className="mt-2 text-xl font-black text-black dark:text-white">
+          <p className="mt-2 text-xl font-black text-slate-900 dark:text-white">
             {rows.toLocaleString()} × {columns}
           </p>
 
-          <p className="mt-0.5 text-xs font-semibold text-gray-800 dark:text-slate-400">
+          <p className="mt-0.5 text-xs font-medium text-slate-600 dark:text-slate-300">
             Rows × Columns
           </p>
         </div>
@@ -86,14 +86,14 @@ export default function ExecutiveSummaryCard({
         <div className="rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm">
           <div className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-            <span className="font-extrabold text-black dark:text-white text-xs uppercase tracking-wider">Structure</span>
+            <span className="font-extrabold text-slate-900 dark:text-white text-xs uppercase tracking-wider">Structure</span>
           </div>
 
-          <p className="mt-2 text-xl font-black text-black dark:text-white">
+          <p className="mt-2 text-xl font-black text-slate-900 dark:text-white">
             {numericColumns} Numeric
           </p>
 
-          <p className="mt-0.5 text-xs font-semibold text-gray-800 dark:text-slate-400">
+          <p className="mt-0.5 text-xs font-medium text-slate-600 dark:text-slate-300">
             {categoricalColumns} Categorical
           </p>
         </div>
@@ -101,14 +101,14 @@ export default function ExecutiveSummaryCard({
         <div className="rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-amber-500" />
-            <span className="font-extrabold text-black dark:text-white text-xs uppercase tracking-wider">Data Quality</span>
+            <span className="font-extrabold text-slate-900 dark:text-white text-xs uppercase tracking-wider">Data Quality</span>
           </div>
 
-          <p className="mt-2 text-xl font-black text-black dark:text-white">
+          <p className="mt-2 text-xl font-black text-slate-900 dark:text-white">
             {missingValues} Missing
           </p>
 
-          <p className="mt-0.5 text-xs font-semibold text-gray-800 dark:text-slate-400">
+          <p className="mt-0.5 text-xs font-medium text-slate-600 dark:text-slate-300">
             {duplicateRows} Duplicate Rows
           </p>
         </div>
@@ -116,10 +116,10 @@ export default function ExecutiveSummaryCard({
         <div className="rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 shadow-sm">
           <div className="flex items-center gap-2">
             <Brain className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-            <span className="font-extrabold text-black dark:text-white text-xs uppercase tracking-wider">Recommendation</span>
+            <span className="font-extrabold text-slate-900 dark:text-white text-xs uppercase tracking-wider">Recommendation</span>
           </div>
 
-          <p className="mt-2 text-xs font-semibold leading-relaxed text-gray-800 dark:text-slate-300">
+          <p className="mt-2 text-xs font-medium leading-relaxed text-slate-700 dark:text-slate-200">
             {recommendation}
           </p>
         </div>
@@ -127,7 +127,7 @@ export default function ExecutiveSummaryCard({
 
       {qualityInsight && (
         <div className="rounded-xl border-2 border-indigo-200 dark:border-indigo-800 bg-indigo-50/80 dark:bg-slate-800/80 p-4">
-          <p className="text-xs font-bold leading-relaxed text-slate-900 dark:text-slate-100">
+          <p className="text-xs font-semibold leading-relaxed text-slate-900 dark:text-slate-100">
             {qualityInsight}
           </p>
         </div>
