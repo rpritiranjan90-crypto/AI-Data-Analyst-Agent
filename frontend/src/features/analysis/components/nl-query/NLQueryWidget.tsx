@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { MessageSquare, Sparkles, Send, Code, Table, Mic, MicOff } from "lucide-react";
+import { MessageSquare, Sparkles, Send, Code, Table, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { toast } from "sonner";
 import Card from "../../../../components/ui/Card";
 import Button from "../../../../components/ui/Button";
@@ -10,6 +10,7 @@ export default function NLQueryWidget() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [queryResult, setQueryResult] = useState<any>(null);
   const recognitionRef = useRef<any>(null);
 
@@ -42,7 +43,7 @@ export default function NLQueryWidget() {
 
       recognition.onstart = () => {
         setIsListening(true);
-        toast.info("Listening... Speak your CSV question now.");
+        toast.info("Listening... Speak your dataset question now.");
       };
 
       recognition.onresult = (event: any) => {
@@ -70,6 +71,29 @@ export default function NLQueryWidget() {
     }
   }
 
+  function speakText(text: string) {
+    if (!("speechSynthesis" in window)) {
+      toast.error("Text-to-speech is not supported in this browser.");
+      return;
+    }
+
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
+    toast.info("AI Voice Agent speaking analytical summary...");
+  }
+
   async function handleSearch(qToRun?: string) {
     const q = qToRun || query;
     if (!q.trim()) return;
@@ -79,6 +103,9 @@ export default function NLQueryWidget() {
       const res = await runNaturalLanguageQuery(q.trim());
       setQueryResult(res);
       toast.success("Query executed!");
+      if (res?.summary) {
+        speakText(res.summary);
+      }
     } catch (err: any) {
       toast.error(err.response?.data?.detail || "Failed to execute query");
     } finally {
@@ -94,19 +121,19 @@ export default function NLQueryWidget() {
             <Sparkles size={20} />
           </div>
           <div>
-            <h3 className="font-extrabold text-base text-white">Talk to your CSV (Natural Language Query)</h3>
-            <p className="text-xs text-slate-400">Ask any question in plain English or voice & convert to DuckDB SQL</p>
+            <h3 className="font-extrabold text-base text-white">Interactive AI Voice Agent & Natural Language Query</h3>
+            <p className="text-xs text-slate-300">Speak out loud or type in plain English — AI executes DuckDB SQL and speaks back analytical findings</p>
           </div>
         </div>
 
         <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-          DuckDB Engine Active
+          AI Voice & DuckDB Engine
         </span>
       </div>
 
       {/* Suggested Chips */}
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className="text-slate-400 font-semibold text-[11px]">Suggested:</span>
+        <span className="text-slate-300 font-semibold text-[11px]">Suggested Spoken Prompts:</span>
         {sampleChips.map((chip, idx) => (
           <button
             key={idx}
@@ -114,20 +141,20 @@ export default function NLQueryWidget() {
               setQuery(chip);
               handleSearch(chip);
             }}
-            className="rounded-full bg-slate-800/80 px-3 py-1 text-slate-300 hover:bg-indigo-600 hover:text-white border border-slate-700 transition"
+            className="rounded-full bg-slate-800/80 px-3 py-1 text-slate-200 hover:bg-indigo-600 hover:text-white border border-slate-700 transition"
           >
             {chip}
           </button>
         ))}
       </div>
 
-      {/* Search Bar with Mic Button */}
+      {/* Search Bar with Mic & Voice Controls */}
       <div className="flex gap-2">
         <div className="relative flex-1">
           <MessageSquare size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="e.g. Show top 10 records sorted by column..."
+            placeholder="Click microphone or type query..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -136,14 +163,14 @@ export default function NLQueryWidget() {
           <button
             type="button"
             onClick={toggleVoiceInput}
-            title={isListening ? "Stop Voice Input" : "Speak Query"}
+            title={isListening ? "Stop Voice Input" : "Speak Out Loud"}
             className={`absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 transition ${
               isListening
                 ? "bg-red-500/20 text-red-400 animate-pulse border border-red-500/30"
-                : "text-slate-400 hover:text-white hover:bg-slate-700"
+                : "text-slate-300 hover:text-white hover:bg-slate-700"
             }`}
           >
-            {isListening ? <MicOff size={15} /> : <Mic size={15} />}
+            {isListening ? <MicOff size={16} /> : <Mic size={16} />}
           </button>
         </div>
         <Button onClick={() => handleSearch()} disabled={loading || !query.trim()} variant="primary">
@@ -151,16 +178,31 @@ export default function NLQueryWidget() {
         </Button>
       </div>
 
-      {/* Results Box */}
+      {/* Results Box with Speech Synthesis */}
       {queryResult && (
         <div className="mt-4 space-y-4 rounded-xl border border-indigo-900/60 bg-slate-900/90 p-4 text-xs">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <span className="font-bold text-indigo-300">{queryResult.summary}</span>
-            {queryResult.code && (
-              <span className="flex items-center gap-1 text-[10px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
-                <Code size={12} /> {queryResult.code}
-              </span>
-            )}
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2 flex-wrap gap-2">
+            <span className="font-bold text-indigo-300 text-sm">{queryResult.summary}</span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => speakText(queryResult.summary)}
+                className={`flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full transition ${
+                  isSpeaking
+                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse"
+                    : "bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 border border-indigo-500/30"
+                }`}
+              >
+                {isSpeaking ? <VolumeX size={13} /> : <Volume2 size={13} />}
+                {isSpeaking ? "Stop Voice" : "🔊 Listen to Summary"}
+              </button>
+
+              {queryResult.code && (
+                <span className="flex items-center gap-1 text-[10px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
+                  <Code size={12} /> {queryResult.code}
+                </span>
+              )}
+            </div>
           </div>
 
           {Array.isArray(queryResult.data) && queryResult.data.length > 0 ? (
