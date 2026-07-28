@@ -20,45 +20,47 @@ export default function KPICard({
   const positive = trend >= 0;
 
   return (
-    <div className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/70 dark:border-slate-800 p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+    <div className="group min-w-0 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/70 dark:border-slate-800 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col justify-between">
       {/* Icon Top Left */}
-      <div className="flex items-center justify-between">
-        <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform duration-200 inline-flex items-center justify-center">
-          <Icon size={16} />
+      <div>
+        <div className="flex items-center justify-between">
+          <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform duration-200 inline-flex items-center justify-center">
+            <Icon size={16} />
+          </div>
+
+          {trend !== 0 && (
+            <div
+              className={`inline-flex items-center gap-0.5 text-xs font-semibold rounded-full px-2 py-0.5 ${
+                positive
+                  ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
+                  : "bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-300"
+              }`}
+            >
+              {positive ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+              {Math.abs(trend)}%
+            </div>
+          )}
         </div>
 
-        {trend !== 0 && (
-          <div
-            className={`inline-flex items-center gap-0.5 text-xs font-semibold rounded-full px-2 py-0.5 ${
-              positive
-                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"
-                : "bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-300"
-            }`}
-          >
-            {positive ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
-            {Math.abs(trend)}%
-          </div>
+        {/* Metric Label */}
+        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mt-3 truncate">
+          {title}
+        </p>
+
+        {/* Big Number */}
+        <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1 tabular-nums leading-tight truncate">
+          {typeof value === "number" ? value.toLocaleString() : value}
+        </h2>
+
+        {trendLabel && (
+          <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500 mt-1 truncate">
+            {trendLabel}
+          </p>
         )}
       </div>
 
-      {/* Metric Label */}
-      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mt-3">
-        {title}
-      </p>
-
-      {/* Big Number */}
-      <h2 className="text-[2rem] font-bold text-slate-900 dark:text-white mt-1 tabular-nums leading-none">
-        {typeof value === "number" ? value.toLocaleString() : value}
-      </h2>
-
-      {trendLabel && (
-        <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500 mt-2">
-          {trendLabel}
-        </p>
-      )}
-
       {/* Bottom Sparkline Placeholder Area */}
-      <div className="h-10 mt-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 flex items-end p-2 gap-1 overflow-hidden opacity-60">
+      <div className="h-8 mt-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 flex items-end p-1.5 gap-1 overflow-hidden opacity-60">
         <div className="flex-1 bg-indigo-200 dark:bg-indigo-900/50 rounded-xs h-[30%]" />
         <div className="flex-1 bg-indigo-300 dark:bg-indigo-800/50 rounded-xs h-[50%]" />
         <div className="flex-1 bg-indigo-200 dark:bg-indigo-900/50 rounded-xs h-[40%]" />
