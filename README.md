@@ -14,7 +14,7 @@ An enterprise-grade, AI-powered Data Analytics & Machine Learning platform built
 
 ## 🎬 Platform Overview & Live Demo
 
-> **Live Demo**: [https://ai-data-analyst-agent.vercel.app](https://ai-data-analyst-agent.vercel.app) *(Deploy link)*
+> **Live Demo**: [https://ai-data-analyst-agent-five.vercel.app](https://ai-data-analyst-agent-five.vercel.app) *(Active Live App)*
 
 ```
  📊 Dataset Profiling ──► 🧹 1-Click Data Cleaning ──► 📈 19+ Chart Engine ──► 🤖 AutoML & Reports
