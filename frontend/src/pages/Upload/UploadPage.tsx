@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { UploadCloud, FileSpreadsheet, CheckCircle2, Zap, X, Database, Play, RefreshCw, Server, Code } from "lucide-react";
+import { UploadCloud, FileSpreadsheet, CheckCircle2, Zap, X, Database, Play, RefreshCw, Server, Code, Sparkles } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -9,7 +9,7 @@ import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
 
 import { uploadDataset } from "../../services/uploadService";
-import { testDbConnection, listDbTables, queryDatabase } from "../../services/databaseService";
+import { testDbConnection, listDbTables, queryDatabase, generateNlToSql } from "../../services/databaseService";
 import { useDatasetStore } from "../../store/datasetStore";
 
 export default function UploadPage() {
@@ -29,9 +29,14 @@ export default function UploadPage() {
   const [testingDb, setTestingDb] = useState(false);
   const [dbConnected, setDbConnected] = useState(false);
   const [dbTables, setDbTables] = useState<string[]>([]);
+  const [selectedTable, setSelectedTable] = useState("sales");
   const [sqlQuery, setSqlQuery] = useState("SELECT * FROM sales LIMIT 500");
   const [datasetName, setDatasetName] = useState("db_sales_data");
   const [querying, setQuerying] = useState(false);
+
+  // Natural Language to SQL Assistant State
+  const [nlPrompt, setNlPrompt] = useState("");
+  const [generatingSql, setGeneratingSql] = useState(false);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -117,6 +122,27 @@ export default function UploadPage() {
       setDbConnected(false);
     } finally {
       setTestingDb(false);
+    }
+  }
+
+  async function handleGenerateNlToSql() {
+    if (!nlPrompt) {
+      toast.error("Please enter a plain English question.");
+      return;
+    }
+    try {
+      setGeneratingSql(true);
+      toast.info("Generating SQL query with AI engine...");
+      const res = await generateNlToSql(nlPrompt, selectedTable || "dataset");
+      if (res.success && res.generated_sql) {
+        setSqlQuery(res.generated_sql);
+        toast.success("SQL query generated successfully!");
+      }
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Failed to generate SQL. Using default query.");
+    } finally {
+      setGeneratingSql(false);
     }
   }
 
@@ -396,8 +422,15 @@ export default function UploadPage() {
                     <button
                       key={tbl}
                       type="button"
-                      onClick={() => setSqlQuery(`SELECT * FROM ${tbl} LIMIT 1000`)}
-                      className="px-3 py-1 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 text-xs font-bold hover:bg-indigo-200 transition"
+                      onClick={() => {
+                        setSelectedTable(tbl);
+                        setSqlQuery(`SELECT * FROM ${tbl} LIMIT 1000`);
+                      }}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
+                        selectedTable === tbl
+                          ? "bg-indigo-600 text-white"
+                          : "bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200"
+                      }`}
                     >
                       {tbl}
                     </button>
@@ -405,6 +438,36 @@ export default function UploadPage() {
                 </div>
               </div>
             )}
+
+            {/* AI Natural Language SQL Assistant */}
+            <div className="rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/50 dark:bg-indigo-950/30 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-extrabold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
+                  <Sparkles size={16} className="text-indigo-600 dark:text-indigo-400" /> Talk to Database (Natural Language to SQL)
+                </label>
+                <span className="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/60 px-2 py-0.5 rounded-full">
+                  AI Generator
+                </span>
+              </div>
+
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  value={nlPrompt}
+                  onChange={(e) => setNlPrompt(e.target.value)}
+                  placeholder="e.g. Show top 10 customers by total sales amount last quarter"
+                  className="flex-1 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-900 dark:text-slate-100 outline-none focus:border-indigo-500"
+                />
+                <Button
+                  type="button"
+                  onClick={handleGenerateNlToSql}
+                  disabled={generatingSql}
+                  variant="primary"
+                >
+                  {generatingSql ? <RefreshCw size={16} className="animate-spin" /> : "✨ Generate SQL"}
+                </Button>
+              </div>
+            </div>
 
             {/* SQL Query Editor & Dataset Name */}
             <div className="space-y-4 pt-2">

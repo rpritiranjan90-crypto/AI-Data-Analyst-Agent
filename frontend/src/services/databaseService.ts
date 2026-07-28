@@ -25,3 +25,16 @@ export async function queryDatabase(req: QueryRequest): Promise<DatasetResponse>
   const response = await api.post<DatasetResponse>("/database/query", req);
   return response.data;
 }
+
+export async function generateNlToSql(
+  prompt: string,
+  tableName: string = "dataset",
+  columns: string[] = []
+): Promise<{ success: boolean; prompt: string; generated_sql: string }> {
+  const response = await api.post("/database/nl-to-sql", {
+    prompt,
+    table_name: tableName,
+    columns,
+  });
+  return response.data;
+}

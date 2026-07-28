@@ -9,6 +9,7 @@ from app.common.logger import get_logger
 from app.exceptions.base import ValidationException
 from app.services.database_connector_service import DatabaseConnectorService
 from app.services.dataset_service import DatasetService
+from app.services.nl_sql_service import NLToSQLService
 from app.common.config import settings
 
 logger = get_logger(__name__)
@@ -27,6 +28,12 @@ class QueryRequest(BaseModel):
     connection_string: str = Field(..., description="SQLAlchemy connection URI")
     query: str = Field(..., description="SQL query to execute (e.g. SELECT * FROM sales LIMIT 1000)")
     dataset_name: Optional[str] = Field("sql_dataset.csv", description="Name to label the imported dataset")
+
+
+class NLToSQLRequest(BaseModel):
+    prompt: str = Field(..., description="Plain English query (e.g. 'Show top 10 customers by revenue')")
+    table_name: str = Field("dataset", description="Target SQL table name")
+    columns: Optional[List[str]] = Field(default_factory=list, description="Available column names in table")
 
 
 @router.post("/test-connection", summary="Test Database Connection")
@@ -72,4 +79,21 @@ def query_database(req: QueryRequest):
         "metadata": result.metadata,
         "profile": result.profile,
         "statistics": result.statistics,
+    }
+
+
+@router.post("/nl-to-sql", summary="Natural Language to SQL Query Generator")
+def generate_nl_to_sql(req: NLToSQLRequest):
+    """
+    Convert a plain English text prompt into a valid SELECT SQL query.
+    """
+    sql = NLToSQLService.generate_sql(
+        prompt=req.prompt,
+        columns=req.columns or [],
+        table_name=req.table_name,
+    )
+    return {
+        "success": True,
+        "prompt": req.prompt,
+        "generated_sql": sql,
     }
