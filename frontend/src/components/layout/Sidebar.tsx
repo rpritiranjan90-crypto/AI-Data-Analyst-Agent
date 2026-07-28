@@ -10,6 +10,9 @@ import {
   X,
   CreditCard,
   Zap,
+  Sliders,
+  BookOpen,
+  ShieldCheck,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useDatasetStore } from "../../store/datasetStore";
@@ -25,6 +28,9 @@ const analyticsSection = [
   { name: "Visualization",    icon: Sparkles,     path: "/visualization" },
   { name: "Recommendations",  icon: Database,     path: "/recommendation" },
   { name: "Machine Learning", icon: BrainCircuit, path: "/machine-learning" },
+  { name: "What-if Simulator",icon: Sliders,      path: "/simulator" },
+  { name: "RAG Knowledge Base",icon: BookOpen,   path: "/knowledge" },
+  { name: "AI Governance",    icon: ShieldCheck,  path: "/governance" },
   { name: "Reports & AI",     icon: FileText,     path: "/reports" },
   { name: "Pricing & Plans",  icon: CreditCard,   path: "/pricing" },
 ];

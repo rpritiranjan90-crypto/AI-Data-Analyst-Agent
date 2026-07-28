@@ -5,6 +5,9 @@ import LandingPage from "../pages/Landing/LandingPage";
 import LoginPage from "../pages/Auth/LoginPage";
 import SignupPage from "../pages/Auth/SignupPage";
 import AdminPortalPage from "../pages/Admin/AdminPortalPage";
+import ScenarioSimulatorPage from "../pages/Simulator/ScenarioSimulatorPage";
+import RAGKnowledgePage from "../pages/Knowledge/RAGKnowledgePage";
+import AIGovernancePage from "../pages/Governance/AIGovernancePage";
 import DashboardPage from "../pages/Dashboard/DashboardPage";
 import UploadPage from "../pages/Upload/UploadPage";
 import AnalysisPage from "../features/analysis/pages/AnalysisPage";
@@ -37,6 +40,9 @@ export default function AppRouter() {
           <Route path="/visualization" element={<VisualizationPage />} />
           <Route path="/recommendation" element={<RecommendationPage />} />
           <Route path="/machine-learning" element={<MachineLearningPage />} />
+          <Route path="/simulator" element={<ScenarioSimulatorPage />} />
+          <Route path="/knowledge" element={<RAGKnowledgePage />} />
+          <Route path="/governance" element={<AIGovernancePage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/admin" element={<AdminPortalPage />} />
           <Route path="/pricing" element={<PricingPage />} />
