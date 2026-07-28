@@ -1,6 +1,6 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { UploadCloud, FileSpreadsheet, CheckCircle2, Zap, X, Database, Play, RefreshCw, Server, Code, Sparkles } from "lucide-react";
+import { UploadCloud, FileSpreadsheet, CheckCircle2, Zap, X, Database, Play, RefreshCw, Server, Code, Sparkles, GitMerge } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import Button from "../../components/ui/Button";
 import PageHeader from "../../components/ui/PageHeader";
 
-import { uploadDataset } from "../../services/uploadService";
+import { uploadDataset, listDatasets, joinDatasets } from "../../services/uploadService";
 import { testDbConnection, listDbTables, queryDatabase, generateNlToSql } from "../../services/databaseService";
 import { useDatasetStore } from "../../store/datasetStore";
 
@@ -16,7 +16,7 @@ export default function UploadPage() {
   const navigate = useNavigate();
   const setDataset = useDatasetStore((state) => state.setDataset);
 
-  const [mode, setMode] = useState<"file" | "database">("file");
+  const [mode, setMode] = useState<"file" | "database" | "joiner">("file");
 
   // File Upload State
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -37,6 +37,25 @@ export default function UploadPage() {
   // Natural Language to SQL Assistant State
   const [nlPrompt, setNlPrompt] = useState("");
   const [generatingSql, setGeneratingSql] = useState(false);
+
+  // Multi-Dataset Joiner State
+  const [availableDatasets, setAvailableDatasets] = useState<string[]>([]);
+  const [leftFile, setLeftFile] = useState("");
+  const [rightFile, setRightFile] = useState("");
+  const [leftKey, setLeftKey] = useState("id");
+  const [rightKey, setRightKey] = useState("id");
+  const [joinType, setJoinType] = useState<"inner" | "left" | "right" | "outer">("inner");
+  const [joining, setJoining] = useState(false);
+
+  useEffect(() => {
+    listDatasets().then((res) => {
+      if (res.success && res.datasets) {
+        setAvailableDatasets(res.datasets);
+        if (res.datasets.length > 0) setLeftFile(res.datasets[0]);
+        if (res.datasets.length > 1) setRightFile(res.datasets[1]);
+      }
+    }).catch(() => {});
+  }, []);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -172,6 +191,35 @@ export default function UploadPage() {
     }
   }
 
+  async function handleExecuteJoin() {
+    if (!leftFile || !rightFile || !leftKey || !rightKey) {
+      toast.error("Please select both datasets and key columns.");
+      return;
+    }
+    try {
+      setJoining(true);
+      toast.info(`Joining '${leftFile}' ↔ '${rightFile}' (${joinType.toUpperCase()})...`);
+      const response = await joinDatasets({
+        left_filename: leftFile,
+        right_filename: rightFile,
+        left_on: leftKey,
+        right_on: rightKey,
+        how: joinType,
+        output_filename: `joined_${leftKey}_${rightKey}.csv`,
+      });
+
+      setDataset(response);
+      toast.success("Datasets joined successfully! Loading dashboard...");
+      navigate("/dashboard");
+    } catch (error: any) {
+      console.error(error);
+      const msg = error.response?.data?.detail || error.response?.data?.message || error.message || "Failed to join datasets.";
+      toast.error(`Join Error: ${msg}`);
+    } finally {
+      setJoining(false);
+    }
+  }
+
   function applyPreset(preset: "postgres" | "mysql" | "sqlite" | "custom") {
     setDbPreset(preset);
     if (preset === "postgres") {
@@ -187,12 +235,12 @@ export default function UploadPage() {
     <div className="space-y-8">
       <PageHeader
         breadcrumb="Platform / Importer"
-        title="Dataset Importer & SQL Connectors"
-        subtitle="Import CSV / Excel files or connect live SQL databases (PostgreSQL, MySQL, SQLite, Snowflake) for AI analytics."
+        title="Dataset Importer & Multi-File Joiner"
+        subtitle="Import CSV/Excel files, connect live SQL databases, or merge multiple datasets with visual schema joins."
       />
 
       {/* Mode Switcher */}
-      <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
+      <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4 flex-wrap">
         <button
           onClick={() => setMode("file")}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${
@@ -213,6 +261,17 @@ export default function UploadPage() {
           }`}
         >
           <Database size={18} /> Live SQL Database Connector
+        </button>
+
+        <button
+          onClick={() => setMode("joiner")}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${
+            mode === "joiner"
+              ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20"
+              : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+          }`}
+        >
+          <GitMerge size={18} /> Multi-Dataset Schema Merger (Join)
         </button>
       </div>
 
@@ -511,6 +570,125 @@ export default function UploadPage() {
                   )}
                 </Button>
               </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Mode 3: Multi-Dataset Schema Merger (Joiner) */}
+      {mode === "joiner" && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          <div className="rounded-2xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 space-y-6 shadow-sm">
+            <div>
+              <h3 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <GitMerge className="text-indigo-600 dark:text-indigo-400" size={20} /> Multi-Dataset Schema Merger (SQL Join)
+              </h3>
+              <p className="text-xs font-semibold text-slate-600 dark:text-slate-200 mt-1">
+                Select two uploaded datasets and specify key columns to perform an INNER, LEFT, RIGHT, or OUTER JOIN.
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Left Dataset */}
+              <div className="space-y-3 rounded-xl border border-slate-200 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-800/60">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 block">
+                  Left Dataset (Main Table)
+                </label>
+                <select
+                  value={leftFile}
+                  onChange={(e) => setLeftFile(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-900 dark:text-slate-100"
+                >
+                  {availableDatasets.map((ds) => (
+                    <option key={ds} value={ds}>{ds}</option>
+                  ))}
+                </select>
+
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block pt-2">
+                  Left Key Column
+                </label>
+                <input
+                  type="text"
+                  value={leftKey}
+                  onChange={(e) => setLeftKey(e.target.value)}
+                  placeholder="e.g. customer_id or user_id"
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100"
+                />
+              </div>
+
+              {/* Right Dataset */}
+              <div className="space-y-3 rounded-xl border border-slate-200 dark:border-slate-700 p-4 bg-slate-50 dark:bg-slate-800/60">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 block">
+                  Right Dataset (Secondary Table)
+                </label>
+                <select
+                  value={rightFile}
+                  onChange={(e) => setRightFile(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-bold text-slate-900 dark:text-slate-100"
+                >
+                  {availableDatasets.map((ds) => (
+                    <option key={ds} value={ds}>{ds}</option>
+                  ))}
+                </select>
+
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-200 block pt-2">
+                  Right Key Column
+                </label>
+                <input
+                  type="text"
+                  value={rightKey}
+                  onChange={(e) => setRightKey(e.target.value)}
+                  placeholder="e.g. customer_id or user_id"
+                  className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-900 dark:text-slate-100"
+                />
+              </div>
+            </div>
+
+            {/* Join Type Selector */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 block">
+                Select Join Strategy
+              </label>
+              <div className="flex flex-wrap gap-3">
+                {(["inner", "left", "right", "outer"] as const).map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => setJoinType(type)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold uppercase border transition-all ${
+                      joinType === type
+                        ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400"
+                        : "border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+                    }`}
+                  >
+                    {type} JOIN
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <Button
+                type="button"
+                onClick={handleExecuteJoin}
+                disabled={joining}
+                variant="primary"
+                size="lg"
+              >
+                {joining ? (
+                  <span className="flex items-center gap-2">
+                    <RefreshCw size={16} className="animate-spin" /> Merging Datasets...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <GitMerge size={16} /> Execute Join & Profile Result
+                  </span>
+                )}
+              </Button>
             </div>
           </div>
         </motion.div>

@@ -31,3 +31,24 @@ export async function listDatasets(): Promise<{ success: boolean; datasets: stri
   const response = await api.get("/datasets");
   return response.data;
 }
+
+export interface JoinDatasetsRequest {
+  left_filename: string;
+  right_filename: string;
+  left_on: string;
+  right_on: string;
+  how?: "inner" | "left" | "right" | "outer";
+  output_filename?: string;
+}
+
+export async function joinDatasets(req: {
+  left_filename: string;
+  right_filename: string;
+  left_on: string;
+  right_on: string;
+  how?: string;
+  output_filename?: string;
+}): Promise<DatasetResponse> {
+  const response = await api.post<DatasetResponse>("/datasets/join", req);
+  return response.data;
+}

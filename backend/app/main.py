@@ -27,6 +27,7 @@ from app.routes.recommendation import (
 from app.routes.report import router as report_router
 from app.routes.upload import router as upload_router
 from app.routes.database import router as database_router
+from app.routes.joiner import router as joiner_router
 from app.routes.visualization import (
     router as visualization_router,
 )
@@ -105,6 +106,7 @@ app.include_router(home_router)
 app.include_router(auth_router)
 app.include_router(upload_router)
 app.include_router(database_router)
+app.include_router(joiner_router)
 app.include_router(analysis_router)
 app.include_router(cleaning_router)
 app.include_router(visualization_router)
