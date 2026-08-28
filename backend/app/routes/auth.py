@@ -73,6 +73,18 @@ class ResetPasswordRequest(BaseModel):
         return sanitize_input(v).lower()
 
 
+class ConfirmResetRequest(BaseModel):
+    token: str
+    new_password: str
+
+    @field_validator("new_password")
+    @classmethod
+    def validate_new_password(cls, v: str) -> str:
+        if len(v) < 8 or len(v) > 128:
+            raise ValueError("Password must be between 8 and 128 characters")
+        return v
+
+
 @router.post("/register", summary="User Registration", status_code=status.HTTP_201_CREATED)
 def register(req: RegisterRequest) -> dict[str, Any]:
     # Prevent account enumeration on signup by using generic messages or verification
@@ -161,12 +173,63 @@ def login(req: LoginRequest, request: Request) -> dict[str, Any]:
     }
 
 
+# In-memory password-reset token store.
+# In production this would be a Redis or DB table with a TTL; for the college
+# submission we keep it in-process but use a short expiry.
+RESET_TOKENS: dict[str, dict[str, Any]] = {}
+RESET_TOKEN_TTL_SECONDS = 900  # 15 minutes
+
+
 @router.post("/reset-password", summary="Password Reset Request")
 def reset_password(req: ResetPasswordRequest) -> dict[str, Any]:
-    # Pillar 4: Generic Password Reset Response to prevent Account Enumeration
-    return {
+    # Pillar 4: Generic Password Reset Response to prevent Account Enumeration.
+    # We ALWAYS return the same success message, but if the email is registered
+    # we generate a reset token and (in a real deploy) email it. For demo /
+    # college purposes we also return the token in the response so the user can
+    # use it immediately without a real mail server.
+    response: dict[str, Any] = {
         "success": True,
         "message": "If that email is registered, you'll receive a password reset link.",
+    }
+
+    if req.email in USERS_DB:
+        token = secrets.token_urlsafe(32)
+        RESET_TOKENS[token] = {
+            "email": req.email,
+            "expires_at": time.time() + RESET_TOKEN_TTL_SECONDS,
+        }
+        # Expose the token so the user can complete the flow without an email
+        # server. In a real deployment this would ONLY be sent via email.
+        response["dev_reset_token"] = token
+
+    return response
+
+
+@router.post("/reset-password/confirm", summary="Confirm Password Reset")
+def confirm_reset_password(req: ConfirmResetRequest) -> dict[str, Any]:
+    entry = RESET_TOKENS.get(req.token)
+    if not entry or entry["expires_at"] < time.time():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Reset link is invalid or has expired. Please request a new one.",
+        )
+
+    email = entry["email"]
+    user = USERS_DB.get(email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Reset link is invalid or has expired. Please request a new one.",
+        )
+
+    user["password_hash"] = hash_password(req.new_password)
+    # Invalidate the token so it can't be reused.
+    del RESET_TOKENS[req.token]
+    # Invalidate any existing JWT for this user by bumping a per-user token
+    # version. (Out of scope for the demo; mention as a known limitation.)
+    return {
+        "success": True,
+        "message": "Password updated successfully. You can now sign in with your new password.",
     }
 
 

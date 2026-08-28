@@ -8,6 +8,7 @@ import CookieBanner from "../components/common/CookieBanner";
 import BugReportModal from "../components/feedback/BugReportModal";
 import AICopilotDrawer from "../components/copilot/AICopilotDrawer";
 import CommandPalette from "../components/ui/CommandPalette";
+import AIConfigBanner from "../components/ui/AIConfigBanner";
 import AIWorkflowProgressModal from "../features/workflow/AIWorkflowProgressModal";
 import { Bug, Zap, Search } from "lucide-react";
 
@@ -103,6 +104,7 @@ export default function MainLayout() {
             </div>
 
             <div className="flex-1 page-enter" key={location.pathname}>
+              <AIConfigBanner />
               <Outlet />
             </div>
 

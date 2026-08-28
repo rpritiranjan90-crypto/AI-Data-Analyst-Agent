@@ -7,6 +7,7 @@ import OnboardingTour from "../components/onboarding/OnboardingTour";
 const LandingPage = lazy(() => import("../pages/Landing/LandingPage"));
 const LoginPage = lazy(() => import("../pages/Auth/LoginPage"));
 const SignupPage = lazy(() => import("../pages/Auth/SignupPage"));
+const ForgotPasswordPage = lazy(() => import("../pages/Auth/ForgotPasswordPage"));
 const DashboardPage = lazy(() => import("../pages/Dashboard/DashboardPage"));
 const DataFabricPage = lazy(() => import("../pages/Fabric/DataFabricPage"));
 const DecisionCenterPage = lazy(() => import("../pages/Decision/DecisionCenterPage"));
@@ -50,6 +51,7 @@ export default function AppRouter() {
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
           {/* Application Layout Routes */}
           <Route element={<MainLayout />}>

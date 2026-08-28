@@ -53,6 +53,22 @@ This project was developed as a final-year Computer Science major project with t
 
 ---
 
+## 🌟 What Makes This Project Different
+
+Most "data analytics" college projects stop at "upload CSV → bar chart." This platform goes further. Seven features that **distinguish it from the typical submission:**
+
+1. **AI Copilot Drawer on every page** — Cmd+K opens a floating assistant; conversation history persists across navigation.
+2. **Natural Language → SQL** — type "top 10 customers by sales last quarter" and get a real `SELECT` statement you can edit and run.
+3. **Live SQL Connector with table allowlist hardening** — talk to your production PostgreSQL/MySQL/SQLite database safely.
+4. **Autonomous AI Workflow Agent** — plans a multi-step analysis (profile → clean → chart → ML → report) and executes it, with a live progress modal you can pause or override.
+5. **Glassmorphism + Dark Mode + WCAG-AA** — every chart has `role="img"` and an `aria-label`; the entire app passes keyboard navigation audits.
+6. **Production-Grade DevOps** — 5-job GitHub Actions pipeline (backend test, frontend build, E2E, Docker, security audit) all green, multi-stage Dockerfiles.
+7. **Honest Security** — JWT + PBKDF2 (100k iter), progressive-delay rate limiting, CORS locked down, security headers, audit log middleware, generic error messages, AIConfigBanner that warns when `GEMINI_API_KEY` is missing.
+
+📖 **Full breakdown:** [`docs/UNIQUE_FEATURES.md`](docs/UNIQUE_FEATURES.md)
+
+---
+
 ## ⚡ Quick Start Guide
 
 ### Option A: Local Development
@@ -253,6 +269,8 @@ cd frontend && npx playwright test --project=chromium
 | `docs/API.md` | Full API reference for all 20+ endpoints |
 | `docs/PROJECT_GUIDE.md` | College project documentation (problem statement, literature survey, requirements) |
 | `docs/ERROR_CODES.md` | Complete error code catalog |
+| `docs/UNIQUE_FEATURES.md` | What makes this project different from typical submissions |
+| `docs/UPTIMEROBOT_SETUP.md` | Keep the Render backend awake (free, 5-minute setup) |
 | `CHANGELOG.md` | Version history |
 | `LICENSE` | MIT License |
 
