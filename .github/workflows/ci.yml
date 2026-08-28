@@ -103,7 +103,7 @@ jobs:
       - name: Start Frontend Dev Server
         run: |
           cd frontend
-          npm run dev -- --host 0.0.0.0 --port 5173 &
+          VITE_API_URL=http://localhost:5173 npm run dev -- --host 0.0.0.0 --port 5173 &
           sleep 5
 
       - name: Run Playwright E2E Tests
