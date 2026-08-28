@@ -49,7 +49,7 @@ export default function UploadPage() {
 
   useEffect(() => {
     let cancelled = false;
-    listDatasets()
+    void listDatasets()
       .then((res) => {
         if (cancelled) return;
         if (res.success && res.items) {
