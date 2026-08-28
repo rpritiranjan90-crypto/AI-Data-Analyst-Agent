@@ -4,13 +4,42 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="description" content="Enterprise AI-powered data analytics platform. Upload CSV/Excel, generate 35+ chart visualizations, run automated ML pipelines, and produce AI-driven reports in minutes." />
+    <meta name="keywords" content="AI data analyst, machine learning, data visualization, CSV analysis, AutoML, data cleaning, predictive analytics" />
+    <meta name="author" content="Pritiranjan Rout" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AI Data Analyst Agent | Enterprise Intelligence Platform" />
+    <meta property="og:description" content="Upload your data, generate insights, and make AI-driven decisions in minutes. 35+ visualizations, automated ML, and AI executive reports." />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AI Data Analyst Agent" />
+    <meta name="twitter:description" content="Enterprise data analytics with AI-powered insights, automated ML, and 35+ visualizations." />
+
     <title>AI Data Analyst Agent | Enterprise Intelligence Platform</title>
+
+    <!-- Preconnect to API for faster first request -->
+    <link rel="preconnect" href="http://localhost:8000" crossorigin />
+    <link rel="dns-prefetch" href="http://localhost:8000" />
+
     <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/favicon.svg" as="image" type="image/svg+xml" />
   </head>
-  <body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-blue-600 selection:text-white">
+  <body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-indigo-600 selection:text-white">
+    <noscript>
+      <div style="padding: 40px; text-align: center; font-family: system-ui, sans-serif;">
+        <h1>JavaScript Required</h1>
+        <p>AI Data Analyst Agent requires JavaScript to run. Please enable JavaScript in your browser settings.</p>
+      </div>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

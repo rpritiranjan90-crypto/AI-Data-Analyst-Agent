@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, Query, UploadFile
 
 from app.common.config import settings
 from app.common.logger import get_logger
@@ -16,6 +16,8 @@ from app.exceptions.base import (
 )
 
 from app.schemas.dataset import UploadResponse
+from pydantic import BaseModel
+from typing import List
 
 from app.services.dataset_service import DatasetService
 from app.services.dataset_validation import validate_upload
@@ -136,3 +138,67 @@ async def upload_dataset(
 
     finally:
         await file.close()
+
+
+class DatasetListItem(BaseModel):
+    filename: str
+    size_bytes: int
+    uploaded_at: str
+    rows: int | None = None
+    columns: int | None = None
+
+
+class DatasetListResponse(BaseModel):
+    success: bool
+    total: int
+    page: int
+    page_size: int
+    has_next: bool
+    items: List[DatasetListItem]
+
+
+@router.get(
+    "/api/datasets/list",
+    response_model=DatasetListResponse,
+    summary="List Uploaded Datasets (paginated)",
+    description="Returns paginated metadata for all datasets currently stored in the upload directory.",
+)
+def list_datasets(
+    page: int = Query(1, ge=1, description="1-indexed page number"),
+    page_size: int = Query(20, ge=1, le=100, description="Items per page (1–100)"),
+) -> DatasetListResponse:
+    """List all datasets that have been uploaded to the server (paginated)."""
+    upload_dir = settings.UPLOAD_DIR
+    all_items: List[DatasetListItem] = []
+
+    if upload_dir.exists():
+        for path in sorted(upload_dir.iterdir(), key=lambda p: p.stat().st_mtime, reverse=True):
+            if not path.is_file():
+                continue
+            if path.suffix.lower() not in {".csv", ".xlsx", ".xls", ".json", ".parquet"}:
+                continue
+            stat = path.stat()
+            from datetime import datetime
+            uploaded_at = datetime.fromtimestamp(stat.st_mtime).isoformat()
+            all_items.append(
+                DatasetListItem(
+                    filename=path.name,
+                    size_bytes=stat.st_size,
+                    uploaded_at=uploaded_at,
+                )
+            )
+
+    total = len(all_items)
+    start = (page - 1) * page_size
+    end = start + page_size
+    page_items = all_items[start:end]
+    has_next = end < total
+
+    return DatasetListResponse(
+        success=True,
+        total=total,
+        page=page,
+        page_size=page_size,
+        has_next=has_next,
+        items=page_items,
+    )

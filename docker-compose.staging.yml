@@ -1,0 +1,64 @@
+# Staging environment for AI Data Analyst Agent
+# Usage: docker compose -f docker-compose.staging.yml up
+#
+# Differences from production:
+#   - APP_ENV=staging (enables verbose logging)
+#   - Exposed on alternate ports (8001 / 5176) to avoid conflicts
+#   - Frontend dev server with HMR (vite --port 5176)
+#   - Debug mode on uvicorn
+#   - Optional: seed demo dataset on first run
+
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ai-analyst-backend-staging
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    environment:
+      - APP_ENV=staging
+      - LOG_LEVEL=DEBUG
+      # Generate a throw-away JWT secret for local staging
+      # Replace with a real secret in CI/production
+      - JWT_SECRET=${JWT_SECRET:-staging_dev_secret_change_in_production_32chars}
+      # AI features disabled by default in staging (can be enabled via env)
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=gemini-1.5-flash
+    env_file:
+      - ./backend/.env.example
+    volumes:
+      - staging_datasets:/app/datasets
+      - staging_reports:/app/reports
+      - staging_charts:/app/generated_charts
+      - staging_uploads:/app/uploads
+    command: >
+      python -m uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+      --log-level debug
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:8001
+    container_name: ai-analyst-frontend-staging
+    restart: unless-stopped
+    ports:
+      - "5176:80"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:8001
+
+volumes:
+  staging_datasets:
+  staging_reports:
+  staging_charts:
+  staging_uploads:

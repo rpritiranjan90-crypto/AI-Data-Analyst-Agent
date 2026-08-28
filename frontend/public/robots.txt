@@ -1,3 +1,16 @@
+# https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
-Sitemap: https://aianalyst.com/sitemap.xml
+
+# Disallow API endpoints (not useful for search engines)
+Disallow: /api/
+Disallow: /upload
+Disallow: /analysis
+Disallow: /cleaning
+Disallow: /visualization
+Disallow: /machine-learning
+Disallow: /admin
+Disallow: /governance
+Disallow: /readiness
+
+Sitemap: https://ai-data-analyst-agent-five.vercel.app/sitemap.xml

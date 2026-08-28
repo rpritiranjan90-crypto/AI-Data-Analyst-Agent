@@ -1,5 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const FRONTEND_URL = process.env.PLAYWRIGHT_TEST_BASE_URL || "http://localhost:5173";
+const FRONTEND_PORT = "5173";
+
 export default defineConfig({
   testDir: "./e2e/specs",
   timeout: 30 * 1000,
@@ -15,11 +18,22 @@ export default defineConfig({
     ["list"],
   ],
   use: {
-    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || "http://localhost:5173",
+    baseURL: FRONTEND_URL,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
   },
+  // Auto-start the Vite dev server before running tests (skipped in CI which pre-starts it).
+  webServer: process.env.CI
+    ? undefined
+    : {
+        command: `npm run dev -- --port ${FRONTEND_PORT}`,
+        url: FRONTEND_URL,
+        reuseExistingServer: true,
+        timeout: 60 * 1000,
+        stdout: "ignore",
+        stderr: "pipe",
+      },
   projects: [
     {
       name: "chromium",

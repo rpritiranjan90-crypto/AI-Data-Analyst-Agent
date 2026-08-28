@@ -71,6 +71,17 @@ def register_exception_handlers(app: FastAPI) -> None:
     ):
         traceback.print_exc()
 
+        # Forward unexpected errors to Sentry if configured
+        from app.common.sentry import capture_exception
+        try:
+            capture_exception(
+                exc,
+                request_path=str(request.url.path),
+                request_method=request.method,
+            )
+        except Exception:
+            pass  # never let Sentry break the response
+
         return JSONResponse(
             status_code=500,
             content=APIResponse.failure(

@@ -1,6 +1,20 @@
 import api from "../api/axios";
 import type { DatasetResponse } from "../types/dataset";
 
+export interface DatasetListItem {
+  filename: string;
+  size_bytes: number;
+  uploaded_at: string;
+  rows: number | null;
+  columns: number | null;
+}
+
+export interface DatasetListResponse {
+  success: boolean;
+  total: number;
+  items: DatasetListItem[];
+}
+
 export async function uploadDataset(
   file: File,
   onProgress?: (progress: number) => void
@@ -27,8 +41,8 @@ export async function getLatestDataset(): Promise<DatasetResponse> {
   return response.data;
 }
 
-export async function listDatasets(): Promise<{ success: boolean; datasets: string[] }> {
-  const response = await api.get("/datasets");
+export async function listDatasets(): Promise<DatasetListResponse> {
+  const response = await api.get<DatasetListResponse>("/api/datasets/list");
   return response.data;
 }
 

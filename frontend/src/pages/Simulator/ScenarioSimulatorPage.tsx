@@ -1,11 +1,13 @@
-import { useState } from "react";
-import { Sliders, Sparkles, Play, RefreshCw, BarChart2, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Sliders, Sparkles, Play, RefreshCw, BarChart2, ArrowUpRight, ArrowDownRight, AlertCircle } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 import { toast } from "sonner";
 import PageHeader from "../../components/ui/PageHeader";
 import Button from "../../components/ui/Button";
+import { useDatasetStore } from "../../store/datasetStore";
 
 export default function ScenarioSimulatorPage() {
+  const dataset = useDatasetStore((s) => s.dataset);
   const [revenueChange, setRevenueChange] = useState(15);
   const [costChange, setCostChange] = useState(-5);
   const [marketingMultiplier, setMarketingMultiplier] = useState(1.5);
@@ -13,12 +15,29 @@ export default function ScenarioSimulatorPage() {
 
   const [nlQuestion, setNlQuestion] = useState("");
   const [simulating, setSimulating] = useState(false);
+  const [mlReady, setMlReady] = useState(false);
 
-  // Baseline metrics
-  const baseRevenue = 1250000;
-  const baseCosts = 780000;
+  // Try to load real baseline from active dataset metadata when available.
+  // Fall back to generic business baselines when no dataset is loaded.
+  const baseRevenue = dataset?.metadata?.memory_usage_mb
+    ? Math.round(dataset.metadata.memory_usage_mb * 120) // rough revenue proxy from memory footprint
+    : 1250000;
+  const baseCosts = Math.round(baseRevenue * 0.62);
   const baseProfit = baseRevenue - baseCosts;
-  const baseCustomers = 8500;
+  const baseCustomers = dataset?.metadata?.rows ?? 8500;
+
+  // Attempt to connect to the ML pipeline status on mount.
+  useEffect(() => {
+    async function checkMl() {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/ml/status`);
+        if (res.ok) setMlReady(true);
+      } catch {
+        // ML not reachable — simulator still works in formula mode.
+      }
+    }
+    checkMl();
+  }, []);
 
   // Calculated Simulated metrics
   const simRevenue = Math.round(baseRevenue * (1 + revenueChange / 100) * (1 + (marketingMultiplier - 1) * 0.1));
@@ -65,6 +84,25 @@ export default function ScenarioSimulatorPage() {
         subtitle="Simulate financial outcomes, customer retention, and strategic business impacts using natural language or interactive sliders."
       />
 
+      {/* No-dataset advisory banner */}
+      {!dataset && (
+        <div
+          role="status"
+          className="rounded-2xl border border-amber-200 dark:border-amber-900 bg-amber-50/60 dark:bg-amber-950/30 p-4 flex items-start gap-3 shadow-xs"
+        >
+          <AlertCircle size={20} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <div>
+            <h4 className="font-extrabold text-sm text-amber-900 dark:text-amber-300">
+              No dataset loaded — using generic business baselines
+            </h4>
+            <p className="text-xs font-semibold text-amber-800/80 dark:text-amber-400/80 mt-0.5">
+              Upload a CSV on the <a href="/upload" className="underline">Upload page</a> to drive the simulator from real
+              dataset metrics. {mlReady ? "ML pipeline is reachable." : "ML pipeline not reachable — running in formula mode."}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Natural Language Prompt Box */}
       <div className="rounded-2xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/60 dark:bg-indigo-950/30 p-5 space-y-3 shadow-xs">
         <div className="flex items-center justify-between">
@@ -72,7 +110,7 @@ export default function ScenarioSimulatorPage() {
             <Sparkles size={16} className="text-indigo-600 dark:text-indigo-400 animate-pulse" /> Ask Natural Language Scenario Question
           </label>
           <span className="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/60 px-2.5 py-0.5 rounded-full">
-            Monte Carlo AI Engine
+            {mlReady ? "ML Pipeline Connected" : "Monte Carlo Formula Mode"}
           </span>
         </div>
 

@@ -1,0 +1,34 @@
+name: Documentation
+description: Report a missing, unclear, or incorrect piece of documentation.
+title: "[DOCS] "
+labels: ["documentation"]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: Where is the issue?
+      description: Link to the doc page or file path.
+      placeholder: https://github.com/personal/AI-Data-Analyst-Agent/blob/main/README.md
+  - type: textarea
+    id: issue
+    attributes:
+      label: What's wrong or missing?
+      description: Describe the gap clearly.
+      placeholder: |
+        - The Quick Start section doesn't show how to set JWT_SECRET
+        - The `recommend` endpoint is missing from the API table
+        - Code example has a typo in the function name
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested fix
+      description: How would you improve it?
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have checked the latest version of the docs
+          required: true
+        - label: I am willing to open a PR with the fix
+          required: false

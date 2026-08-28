@@ -34,12 +34,10 @@ class NLToSQLService:
         try:
             provider = GeminiProvider()
             req = AIRequest(
-                prompt=f"Question: '{prompt}'\nTable: {table_name}\nColumns: {cols_str}\nGenerate SQL:",
-                context={"columns": columns, "table_name": table_name},
-                system_instruction=system_instruction,
+                prompt=f"{system_instruction}\n\nQuestion: '{prompt}'\nTable: {table_name}\nColumns: {cols_str}\nGenerate SQL:",
             )
             response = provider.generate_response(req)
-            raw_text = response.content.strip()
+            raw_text = (response.response or "").strip()
 
             # Clean markdown code blocks if present
             sql_match = re.search(r"```(?:sql)?\s*(.*?)\s*```", raw_text, re.DOTALL | re.IGNORECASE)

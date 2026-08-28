@@ -1,0 +1,64 @@
+name: Bug Report
+description: Report something that is not working as expected.
+title: "[BUG] "
+labels: ["bug"]
+assignees: []
+body:
+  - type: markdown
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of the bug. What happens? What should happen?
+      placeholder: |
+        ## Describe the bug
+        Short description of the issue.
+
+        ## Steps to reproduce
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should happen instead?
+      placeholder: |
+        The page should show X but instead shows Y.
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Your browser, OS, Python version, etc.
+      placeholder: |
+        - Browser: Chrome 126
+        - OS: Windows 11
+        - Backend: Python 3.11, FastAPI 0.109
+        - Frontend: Vite 8, React 19
+  - type: input
+    id: version
+    attributes:
+      label: App Version
+      description: Output of `git log -1 --oneline` in the project root.
+      placeholder: e.g. v2.0.0, commit abc1234
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Paste any relevant backend/frontend console output.
+      placeholder: |
+        ```
+        [backend] ERROR: ...
+        [frontend] TypeError: ...
+        ```
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues and confirmed this is a new bug
+          required: true
+        - label: I can reproduce this with a minimal example
+          required: false
+        - label: I have checked the docs and confirmed this is not expected behavior
+          required: false

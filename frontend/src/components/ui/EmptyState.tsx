@@ -14,7 +14,17 @@ export default function EmptyState({
   icon,
   action,
 }: EmptyStateProps) {
-  const IconComponent = typeof icon === "function" ? icon : null;
+  // Lucide icons are forwardRef objects — accept any of:
+  //   1. Plain function component
+  //   2. forwardRef object (typeof === "object", has $$typeof + render)
+  //   3. Already-instantiated React element (isValidElement)
+  const isComponentRef =
+    typeof icon === "function" ||
+    (typeof icon === "object" &&
+      icon !== null &&
+      !isValidElement(icon) &&
+      "render" in (icon as { render?: unknown }));
+  const IconComponent = isComponentRef ? (icon as LucideIcon) : null;
 
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">

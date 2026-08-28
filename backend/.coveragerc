@@ -1,0 +1,22 @@
+[run]
+# Use the source directory so coverage knows where to look
+source = app
+
+# Files that are tricky for the coverage parser (newer Python syntax)
+# These are excluded from coverage measurement but still loaded.
+omit =
+    app/*/__init__.py
+    app/core/security.py
+    app/ai_insights/workflow.py
+
+[report]
+# Show missing line numbers
+show_missing = True
+skip_covered = False
+sort = -Cover
+
+# Don't fail the report on unparseable files
+ignore_errors = True
+
+[html]
+directory = htmlcov

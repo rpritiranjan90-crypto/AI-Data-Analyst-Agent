@@ -10,8 +10,8 @@ export default function LoginPage() {
   const setAuth = useAuthStore((state) => state.setAuth);
   const setGuestMode = useAuthStore((state) => state.setGuestMode);
 
-  const [email, setEmail] = useState("analyst@enterprise.com");
-  const [password, setPassword] = useState("••••••••••••");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   function handleLogin(e: React.FormEvent) {

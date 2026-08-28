@@ -1,38 +1,63 @@
-import { useState } from "react";
-import { CheckCircle2, ShieldCheck, Activity, RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CheckCircle2, ShieldCheck, Activity, RefreshCw, AlertTriangle, XCircle } from "lucide-react";
 import PageHeader from "../../components/ui/PageHeader";
 import Button from "../../components/ui/Button";
-
-interface ReadinessItem {
-  name: string;
-  category: string;
-  passed: boolean;
-  score: number;
-  details: string;
-}
+import Spinner from "../../components/ui/Spinner";
+import { getReadinessChecks, type ReadinessResponse } from "../../services/readinessService";
 
 export default function ProductionReadinessPage() {
-  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<ReadinessResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [running, setRunning] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const checks: ReadinessItem[] = [
-    { name: "HTTPS Transport Encryption", category: "Security", passed: true, score: 10, details: "TLS v1.3 enforcement on Vercel & Render" },
-    { name: "Content Security Policy (CSP)", category: "Security", passed: true, score: 10, details: "OWASP Strict CSP headers configured" },
-    { name: "Rate Limiting & DDOS Shield", category: "Security", passed: true, score: 10, details: "60 req/min per IP rate limit active" },
-    { name: "JWT Bearer Authentication", category: "Auth", passed: true, score: 10, details: "HMAC-SHA256 token verification" },
-    { name: "Multi-Tenant Isolation", category: "Architecture", passed: true, score: 10, details: "Workspace scoping on all dataset operations" },
-    { name: "Prompt Injection Shield", category: "AI Safety", passed: true, score: 10, details: "PromptSanitizer untrusted content isolation" },
-    { name: "DDE Formula Injection Filter", category: "Security", passed: true, score: 10, details: "Automatic prefix escaping for =, +, -, @" },
-    { name: "DuckDB Analytical Engine", category: "Database", passed: true, score: 10, details: "Sub-second analytical queries on 1M+ rows" },
-    { name: "Automated Data Backup Strategy", category: "Ops", passed: true, score: 10, details: "Scheduled DuckDB snapshot backups" },
-    { name: "Gemini 2.0 AI Provider", category: "AI Engine", passed: true, score: 8, details: "Online with local deterministic fallback" },
-  ];
-
-  const totalScore = checks.reduce((sum, item) => sum + (item.passed ? item.score : 0), 0);
-
-  function handleRecheck() {
-    setLoading(true);
-    setTimeout(() => setLoading(false), 500);
+  async function runChecks() {
+    setRunning(true);
+    setError(null);
+    try {
+      const result = await getReadinessChecks();
+      setData(result);
+    } catch (err: any) {
+      setError(err.response?.data?.detail || err.message || "Readiness check failed");
+    } finally {
+      setRunning(false);
+      setLoading(false);
+    }
   }
+
+  // Auto-run on mount so users immediately see the diagnostics result.
+  useEffect(() => {
+    runChecks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-run on mount
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <PageHeader
+          breadcrumb="Platform / Administration"
+          title="Production Operations & Deployment Readiness Checklist"
+          subtitle="Automated verification scorecard for enterprise compliance, security controls, database health, and AI readiness."
+        />
+        <div className="flex items-center justify-center py-24">
+          <Spinner size={36} label="Initializing diagnostics..." />
+        </div>
+      </div>
+    );
+  }
+
+  const pct = data ? Math.round((data.total_score / data.max_score) * 100) : 0;
+
+  const gradeColors: Record<string, string> = {
+    "A+": "from-emerald-600 to-teal-600",
+    A: "from-emerald-500 to-green-600",
+    "B+": "from-blue-600 to-indigo-600",
+    B: "from-blue-500 to-indigo-500",
+    C: "from-amber-500 to-orange-500",
+    D: "from-red-500 to-rose-600",
+  };
+  const gradeColor = gradeColors[data?.grade ?? "C"] || "from-slate-500 to-slate-600";
 
   return (
     <div className="space-y-8">
@@ -43,66 +68,117 @@ export default function ProductionReadinessPage() {
       />
 
       {/* Scorecard Summary Banner */}
-      <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50/60 dark:bg-emerald-950/30 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xs">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xs">
         <div className="flex items-center gap-5">
-          <div className="w-20 h-20 rounded-2xl bg-emerald-600 text-white font-black text-2xl flex items-center justify-center shadow-lg">
-            {totalScore}/100
+          <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${gradeColor} text-white font-black text-2xl flex items-center justify-center shadow-lg flex-shrink-0`}>
+            {data?.grade ?? "?"}
           </div>
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-300 mb-1">
-              <CheckCircle2 size={14} /> Production Certified Grade A+
-            </div>
-            <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">
-              Platform Ready for Enterprise Commercial Deployment
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              10/10 automated readiness checks passing across Security, Auth, Database, and AI.
-            </p>
+            {data ? (
+              <>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-300 mb-1">
+                  <CheckCircle2 size={14} /> Grade {data.grade}
+                </div>
+                <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">
+                  {pct >= 80 ? "Platform Ready for Deployment" : pct >= 60 ? "Platform Mostly Ready" : "Action Required Before Deployment"}
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  {data.total_score}/{data.max_score} points across {data.checks.length} automated checks
+                </p>
+              </>
+            ) : error ? (
+              <>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300 mb-1">
+                  <XCircle size={14} /> Check Failed
+                </div>
+                <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">Readiness Check Error</h3>
+                <p className="text-xs text-red-600 dark:text-red-400 mt-0.5">{error}</p>
+              </>
+            ) : null}
           </div>
         </div>
 
-        <Button onClick={handleRecheck} disabled={loading} variant="primary">
-          {loading ? <RefreshCw size={16} className="animate-spin" /> : <Activity size={16} />} Run Diagnostics
+        <Button
+          onClick={runChecks}
+          disabled={running}
+          className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-md"
+        >
+          {running ? <RefreshCw size={16} className="animate-spin mr-2" /> : <Activity size={16} className="mr-2" />}
+          {running ? "Running Diagnostics..." : "Run Diagnostics"}
         </Button>
       </div>
 
-      {/* Readiness Items List */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4 shadow-xs">
-        <h4 className="font-black text-sm text-slate-900 dark:text-white flex items-center gap-2">
-          <ShieldCheck size={18} className="text-emerald-600 dark:text-emerald-400" /> Operational & Security Controls Audit
-        </h4>
-
-        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px]">
-              <tr>
-                <th className="px-4 py-3">Control Description</th>
-                <th className="px-4 py-3">Domain</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Weighted Points</th>
-                <th className="px-4 py-3">Verification Details</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-medium text-slate-800 dark:text-slate-200">
-              {checks.map((item, idx) => (
-                <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                  <td className="px-4 py-3 font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <CheckCircle2 size={15} className="text-emerald-600 dark:text-emerald-400" /> {item.name}
-                  </td>
-                  <td className="px-4 py-3 text-slate-500 font-semibold">{item.category}</td>
-                  <td className="px-4 py-3">
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
-                      PASSED
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 font-mono text-[11px] text-slate-700 dark:text-slate-300">+{item.score} pts</td>
-                  <td className="px-4 py-3 text-slate-500 text-[11px]">{item.details}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Environment Info */}
+      {data && (
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-4">
+          <div className="flex flex-wrap gap-4 text-xs">
+            {Object.entries(data.environment).map(([key, val]) => (
+              <span key={key} className="flex items-center gap-1.5">
+                <span className="font-bold text-slate-500 dark:text-slate-400 capitalize">{key}:</span>
+                <span className="font-mono text-slate-700 dark:text-slate-200">{val}</span>
+              </span>
+            ))}
+            <span className="flex items-center gap-1.5">
+              <span className="font-bold text-slate-500 dark:text-slate-400">Checked:</span>
+              <span className="text-slate-600 dark:text-slate-300">{new Date(data.checked_at).toLocaleString()}</span>
+            </span>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Checks by Category */}
+      {data && (
+        <div className="space-y-6">
+          {(["Security", "Architecture", "Database", "AI Engine", "Operations"] as const).map((category) => {
+            const categoryChecks = data.checks.filter((c) => c.category === category);
+            if (categoryChecks.length === 0) return null;
+            return (
+              <div key={category} className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-3 shadow-xs">
+                <h4 className="font-black text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                  <ShieldCheck size={16} className="text-indigo-600 dark:text-indigo-400" /> {category}
+                </h4>
+                <div className="space-y-2">
+                  {categoryChecks.map((check) => (
+                    <div key={check.name} className="flex items-start gap-3 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40">
+                      <div className="mt-0.5 shrink-0">
+                        {check.passed ? (
+                          <CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400" />
+                        ) : (
+                          <AlertTriangle size={16} className="text-amber-500" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-bold text-slate-900 dark:text-white">{check.name}</span>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                            check.passed
+                              ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300"
+                              : "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300"
+                          }`}>
+                            {check.passed ? "PASSED" : "WARNING"}
+                          </span>
+                          <span className="ml-auto font-mono text-[11px] text-indigo-600 dark:text-indigo-400">+{check.score} pts</span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">{check.details}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {!data && !error && (
+        <div className="flex flex-col items-center justify-center py-16 space-y-4">
+          <Activity size={48} className="text-slate-300 dark:text-slate-600" />
+          <p className="text-sm text-slate-500">Click "Run Diagnostics" to start the readiness check.</p>
+          <Button variant="primary" onClick={runChecks}>
+            <Activity size={16} className="mr-2" /> Run Diagnostics
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

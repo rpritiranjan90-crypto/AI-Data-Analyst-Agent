@@ -17,18 +17,21 @@ import Spinner from "../../components/ui/Spinner";
 import ExecutiveEmptyStateBanner from "../../components/ui/ExecutiveEmptyStateBanner";
 import { useDatasetStore } from "../../store/datasetStore";
 import { getAutoRecommendations } from "../../services/recommendationService";
+import type { RecommendationResponse } from "../../types/api";
 
 export default function RecommendationPage() {
   const { dataset, setDataset } = useDatasetStore();
   const metadata = dataset?.metadata;
 
   const [loading, setLoading] = useState(false);
-  const [recommendations, setRecommendations] = useState<any>(null);
+  const [recommendations, setRecommendations] = useState<RecommendationResponse | null>(null);
+  const [error, setError] = useState<unknown>(null);
 
   useEffect(() => {
     if (metadata) {
       fetchRecommendations();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [metadata]);
 
   function loadDemoDataset() {
@@ -62,10 +65,16 @@ export default function RecommendationPage() {
   async function fetchRecommendations() {
     try {
       setLoading(true);
+      setError(null);
       const res = await getAutoRecommendations();
       setRecommendations(res);
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Failed to load recommendations");
+    } catch (err: unknown) {
+      const message =
+        err && typeof err === "object" && "response" in err
+          ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
+          : undefined;
+      setError(err);
+      toast.error(message ?? "Failed to load recommendations");
     } finally {
       setLoading(false);
     }
@@ -116,6 +125,15 @@ export default function RecommendationPage() {
       {loading ? (
         <Card className="flex flex-col items-center justify-center p-16">
           <Spinner size={36} label="Analyzing dataset and generating smart recommendations..." />
+        </Card>
+      ) : error && !recommendations ? (
+        <Card className="p-6 border-red-200 dark:border-red-900 bg-red-50/50 dark:bg-red-950/20">
+          <p className="text-sm font-bold text-red-700 dark:text-red-300">
+            Failed to load recommendations. The AI service may be temporarily unavailable.
+          </p>
+          <Button onClick={fetchRecommendations} variant="secondary" className="mt-3">
+            Retry
+          </Button>
         </Card>
       ) : recommendations ? (
         <div className="grid gap-6 md:grid-cols-2">

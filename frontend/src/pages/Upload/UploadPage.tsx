@@ -49,10 +49,10 @@ export default function UploadPage() {
 
   useEffect(() => {
     listDatasets().then((res) => {
-      if (res.success && res.datasets) {
-        setAvailableDatasets(res.datasets);
-        if (res.datasets.length > 0) setLeftFile(res.datasets[0]);
-        if (res.datasets.length > 1) setRightFile(res.datasets[1]);
+      if (res.success && res.items) {
+        setAvailableDatasets(res.items.map((d: { filename: string }) => d.filename));
+        if (res.items.length > 0) setLeftFile(res.items[0].filename);
+        if (res.items.length > 1) setRightFile(res.items[1].filename);
       }
     }).catch(() => {});
   }, []);

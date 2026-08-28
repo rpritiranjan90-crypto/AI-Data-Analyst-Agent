@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import "./index.css";
+import "./sentry"; // initializes Sentry if VITE_SENTRY_DSN is set
 import App from "./App";
 
 const queryClient = new QueryClient({

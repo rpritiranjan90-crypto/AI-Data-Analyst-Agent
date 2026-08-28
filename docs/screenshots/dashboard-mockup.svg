@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" font-family="-apple-system, system-ui, sans-serif">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="cardBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1e293b"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="240" height="1080" fill="#0b1220"/>
+  <text x="32" y="56" font-size="20" font-weight="700" fill="#e2e8f0">⚡ AI Data Analyst</text>
+
+  <!-- Sidebar nav items -->
+  <g font-size="14" fill="#94a3b8">
+    <rect x="16" y="120" width="208" height="40" rx="8" fill="#1e293b"/>
+    <text x="36" y="146" fill="#c7d2fe" font-weight="600">📊 Dashboard</text>
+    <text x="36" y="196">📤 Upload</text>
+    <text x="36" y="236">🧹 Cleaning</text>
+    <text x="36" y="276">📈 Visualization</text>
+    <text x="36" y="316">🔬 Analysis</text>
+    <text x="36" y="356">🤖 Machine Learning</text>
+    <text x="36" y="396">📄 Reports</text>
+    <text x="36" y="436">🧠 AI Insights</text>
+    <text x="36" y="476">💡 Recommendations</text>
+    <text x="36" y="516">📚 Knowledge Base</text>
+    <text x="36" y="556">🛡️ Governance</text>
+    <text x="36" y="596">✅ Readiness</text>
+  </g>
+
+  <!-- Main content -->
+  <text x="280" y="80" font-size="28" font-weight="800" fill="#f1f5f9">Welcome back, Analyst</text>
+  <text x="280" y="110" font-size="14" fill="#94a3b8">Your AI-powered analytics workspace · sales_2024_q4.csv is active</text>
+
+  <!-- KPI cards row -->
+  <g>
+    <!-- Card 1 -->
+    <rect x="280" y="150" width="280" height="140" rx="16" fill="url(#cardBg)" stroke="#1e293b"/>
+    <text x="304" y="184" font-size="12" fill="#94a3b8" font-weight="600">ROWS PROCESSED</text>
+    <text x="304" y="226" font-size="32" font-weight="800" fill="#f1f5f9">186,452</text>
+    <text x="304" y="252" font-size="12" fill="#34d399">↑ 12.4% vs last week</text>
+
+    <!-- Card 2 -->
+    <rect x="580" y="150" width="280" height="140" rx="16" fill="url(#cardBg)" stroke="#1e293b"/>
+    <text x="604" y="184" font-size="12" fill="#94a3b8" font-weight="600">QUALITY SCORE</text>
+    <text x="604" y="226" font-size="32" font-weight="800" fill="#f1f5f9">94.2%</text>
+    <text x="604" y="252" font-size="12" fill="#34d399">↑ 2.1% after cleaning</text>
+
+    <!-- Card 3 -->
+    <rect x="880" y="150" width="280" height="140" rx="16" fill="url(#cardBg)" stroke="#1e293b"/>
+    <text x="904" y="184" font-size="12" fill="#94a3b8" font-weight="600">CHARTS GENERATED</text>
+    <text x="904" y="226" font-size="32" font-weight="800" fill="#f1f5f9">24</text>
+    <text x="904" y="252" font-size="12" fill="#94a3b8">across 5 dashboards</text>
+
+    <!-- Card 4 -->
+    <rect x="1180" y="150" width="280" height="140" rx="16" fill="url(#cardBg)" stroke="#1e293b"/>
+    <text x="1204" y="184" font-size="12" fill="#94a3b8" font-weight="600">AI TOKENS USED</text>
+    <text x="1204" y="226" font-size="32" font-weight="800" fill="#f1f5f9">18,247</text>
+    <text x="1204" y="252" font-size="12" fill="#94a3b8">$0.42 estimated</text>
+
+    <!-- Card 5 -->
+    <rect x="1480" y="150" width="280" height="140" rx="16" fill="url(#cardBg)" stroke="#1e293b"/>
+    <text x="1504" y="184" font-size="12" fill="#94a3b8" font-weight="600">ML MODELS</text>
+    <text x="1504" y="226" font-size="32" font-weight="800" fill="#f1f5f9">3</text>
+    <text x="1504" y="252" font-size="12" fill="#a78bfa">avg accuracy 87%</text>
+  </g>
+
+  <!-- Revenue chart -->
+  <rect x="280" y="320" width="900" height="380" rx="16" fill="url(#cardBg)" stroke="#1e293b"/>
+  <text x="304" y="356" font-size="16" font-weight="700" fill="#f1f5f9">Revenue by Region (Q4 2024)</text>
+  <text x="304" y="378" font-size="12" fill="#94a3b8">Aggregated from sales_2024_q4.csv</text>
+
+  <!-- Bar chart -->
+  <g transform="translate(304, 400)">
+    <!-- Y axis labels -->
+    <text x="0" y="20" font-size="10" fill="#64748b">$80K</text>
+    <text x="0" y="80" font-size="10" fill="#64748b">$60K</text>
+    <text x="0" y="140" font-size="10" fill="#64748b">$40K</text>
+    <text x="0" y="200" font-size="10" fill="#64748b">$20K</text>
+
+    <!-- Bars -->
+    <rect x="60" y="60" width="120" height="180" rx="6" fill="url(#accent)"/>
+    <rect x="220" y="120" width="120" height="120" rx="6" fill="url(#accent)"/>
+    <rect x="380" y="40" width="120" height="200" rx="6" fill="url(#accent)"/>
+    <rect x="540" y="100" width="120" height="140" rx="6" fill="url(#accent)"/>
+    <rect x="700" y="80" width="120" height="160" rx="6" fill="url(#accent)"/>
+
+    <!-- X axis labels -->
+    <text x="120" y="260" font-size="11" fill="#cbd5e1" text-anchor="middle">North</text>
+    <text x="280" y="260" font-size="11" fill="#cbd5e1" text-anchor="middle">South</text>
+    <text x="440" y="260" font-size="11" fill="#cbd5e1" text-anchor="middle">East</text>
+    <text x="600" y="260" font-size="11" fill="#cbd5e1" text-anchor="middle">West</text>
+    <text x="760" y="260" font-size="11" fill="#cbd5e1" text-anchor="middle">Central</text>
+  </g>
+
+  <!-- AI Insights panel -->
+  <rect x="1200" y="320" width="560" height="380" rx="16" fill="url(#cardBg)" stroke="#1e293b"/>
+  <text x="1224" y="356" font-size="16" font-weight="700" fill="#f1f5f9">🧠 AI Insights</text>
+  <text x="1224" y="378" font-size="12" fill="#94a3b8">Powered by Gemini 2.0 Flash</text>
+
+  <g transform="translate(1224, 400)">
+    <circle cx="8" cy="20" r="6" fill="#6366f1"/>
+    <text x="24" y="25" font-size="13" fill="#e2e8f0">Revenue grew 23% Q4 over Q3, driven by Electronics.</text>
+
+    <circle cx="8" cy="60" r="6" fill="#a78bfa"/>
+    <text x="24" y="65" font-size="13" fill="#e2e8f0">Customer satisfaction correlates 0.78 with revenue.</text>
+
+    <circle cx="8" cy="100" r="6" fill="#34d399"/>
+    <text x="24" y="105" font-size="13" fill="#e2e8f0">North region has highest avg transaction ($1,240).</text>
+
+    <circle cx="8" cy="140" r="6" fill="#fbbf24"/>
+    <text x="24" y="145" font-size="13" fill="#e2e8f0">Outliers detected in 2 transactions (T1185, T1186).</text>
+
+    <circle cx="8" cy="180" r="6" fill="#f472b6"/>
+    <text x="24" y="185" font-size="13" fill="#e2e8f0">Return rate is 3x higher for transactions &gt;$10K.</text>
+  </g>
+
+  <!-- Activity feed -->
+  <rect x="280" y="720" width="900" height="320" rx="16" fill="url(#cardBg)" stroke="#1e293b"/>
+  <text x="304" y="756" font-size="16" font-weight="700" fill="#f1f5f9">Recent Activity</text>
+
+  <g transform="translate(304, 780)" font-size="13" fill="#cbd5e1">
+    <text y="20">📤 <tspan font-weight="600">Upload</tspan> · sales_2024_q4.csv (11.2 MB) · 2 minutes ago</text>
+    <text y="50">🧹 <tspan font-weight="600">Auto-Clean</tspan> · 7 missing values filled, 2 outliers removed · 5 minutes ago</text>
+    <text y="80">📈 <tspan font-weight="600">Chart</tspan> · "Revenue by Region" bar chart generated · 12 minutes ago</text>
+    <text y="110">🤖 <tspan font-weight="600">ML Train</tspan> · Random Forest classifier (87.2% accuracy) · 18 minutes ago</text>
+    <text y="140">📄 <tspan font-weight="600">Report</tspan> · Q4 Sales Report (PDF, 4.2 MB) downloaded · 24 minutes ago</text>
+    <text y="170">🧠 <tspan font-weight="600">AI Insight</tspan> · "North region over-indexes in Q4" · 32 minutes ago</text>
+  </g>
+
+  <!-- Production Readiness -->
+  <rect x="1200" y="720" width="560" height="320" rx="16" fill="url(#cardBg)" stroke="#1e293b"/>
+  <text x="1224" y="756" font-size="16" font-weight="700" fill="#f1f5f9">✅ Production Readiness</text>
+  <text x="1224" y="786" font-size="48" font-weight="800" fill="url(#accent)">87/100</text>
+  <text x="1380" y="786" font-size="20" font-weight="700" fill="#34d399">Grade: B+</text>
+
+  <g transform="translate(1224, 810)" font-size="12" fill="#cbd5e1">
+    <text y="20">✓ HTTPS · HSTS active</text>
+    <text y="42">✓ CORS configured</text>
+    <text y="64">✓ Rate limiting (120/min)</text>
+    <text y="86">✓ JWT auth</text>
+    <text y="108">✓ Sentry error tracking</text>
+    <text y="130">✓ DuckDB analytical engine</text>
+    <text y="152">⚠ Backup strategy (recommended)</text>
+  </g>
+</svg>

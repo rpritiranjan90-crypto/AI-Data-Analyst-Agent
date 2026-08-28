@@ -15,6 +15,11 @@ from app.ai.providers.base_provider import BaseProvider
 from app.ai.schemas.ai_request import AIRequest
 from app.ai.schemas.ai_response import AIResponse
 from app.ai.response.response_formatter import ResponseFormatter
+from app.services.ai_token_tracker import record_ai_call, estimate_tokens
+
+
+# Cost per 1K tokens for Gemini 1.5 Flash (USD). Update if model changes.
+_GEMINI_COST_PER_1K_TOKENS = 0.000075  # ~$0.075 / 1M tokens (input)
 
 
 class GeminiProvider(BaseProvider):
@@ -69,16 +74,42 @@ class GeminiProvider(BaseProvider):
                     time.perf_counter() - start
                 )
 
+                response_text = response.text if hasattr(response, "text") else str(response)
+
+                # Track token usage + cost (non-blocking)
+                try:
+                    record_ai_call(
+                        model=request.model or GEMINI_MODEL,
+                        prompt=request.prompt,
+                        response=response_text,
+                        latency_ms=execution_time * 1000,
+                        success=True,
+                    )
+                except Exception:
+                    pass  # never let tracking break the AI call
+
                 return ResponseFormatter.success(
                     provider=self.provider_name,
                     model=request.model or GEMINI_MODEL,
-                    response=response.text if hasattr(response, "text") else str(response),
+                    response=response_text,
                     execution_time=execution_time,
                     tokens_used=None,
                 )
 
             except Exception as error:
                 error_message = str(error)
+                # Record failed attempt for cost/usage tracking
+                try:
+                    record_ai_call(
+                        model=request.model or GEMINI_MODEL,
+                        prompt=request.prompt,
+                        response="",
+                        latency_ms=(time.perf_counter() - start) * 1000,
+                        success=False,
+                        error=error_message[:200],
+                    )
+                except Exception:
+                    pass
 
                 # Retry temporary server errors
                 if (

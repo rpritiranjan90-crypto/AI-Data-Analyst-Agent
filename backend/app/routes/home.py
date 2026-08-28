@@ -1,3 +1,5 @@
+import os
+
 from fastapi import APIRouter
 
 router = APIRouter()
@@ -7,6 +9,6 @@ def home():
     return {
         "project": "AI Data Analyst Agent",
         "developer": "Pritiranjan Rout",
-        "version": "1.0.0",
+        "version": os.environ.get("APP_VERSION", "2.0.0"),
         "status": "Backend Running Successfully"
     }

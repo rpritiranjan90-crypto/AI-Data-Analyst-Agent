@@ -70,7 +70,7 @@ export const useDatasetStore = create<DatasetState>()(
     }),
     {
       name: "ai-data-analyst-dataset",
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );

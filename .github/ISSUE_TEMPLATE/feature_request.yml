@@ -1,0 +1,43 @@
+name: Feature Request
+description: Suggest a new feature or improvement.
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why is this needed? What problem does it solve?
+      placeholder: |
+        Explain the user story. Who benefits? In what scenario?
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe the feature, the UI/UX, the API.
+      placeholder: |
+        ## Mock-up
+        - New page at `/reports/comparison`
+        - Compare 2+ datasets side-by-side
+        - Export to PDF/PPTX
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What other approaches did you consider?
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and risks
+      description: How big is this change? What could break?
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing feature requests
+          required: true
+        - label: I am willing to submit a PR for this feature
+          required: false
+        - label: I have discussed this in a Discussion thread first
+          required: false

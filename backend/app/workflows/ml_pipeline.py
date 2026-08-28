@@ -1,8 +1,54 @@
 from __future__ import annotations
 
+import math
 from typing import Any
 
+import numpy as np
 import pandas as pd
+
+from app.services.dataset_service import DatasetService
+
+
+def _to_native(obj: Any) -> Any:
+    """Recursively convert numpy / pandas types to native Python for JSON serialization."""
+    # None / basic primitives — pass through
+    if obj is None or isinstance(obj, (str, bool)):
+        return obj
+    # Handle float nan / inf — JSON doesn't support these
+    if isinstance(obj, float):
+        if math.isnan(obj) or math.isinf(obj):
+            return None
+        return obj
+    # numpy integer scalars (np.int64, np.int32, etc.)
+    if isinstance(obj, np.integer):
+        return int(obj)
+    # numpy float scalars
+    if isinstance(obj, np.floating):
+        val = float(obj)
+        if math.isnan(val) or math.isinf(val):
+            return None
+        return val
+    # numpy bool
+    if isinstance(obj, np.bool_):
+        return bool(obj)
+    # numpy arrays
+    if isinstance(obj, np.ndarray):
+        return [_to_native(v) for v in obj.tolist()]
+    # pandas Series — convert via tolist
+    if isinstance(obj, pd.Series):
+        return [_to_native(v) for v in obj.tolist()]
+    # pandas DataFrame — convert to list of records
+    if isinstance(obj, pd.DataFrame):
+        return [_to_native(rec) for rec in obj.to_dict(orient="records")]
+    # dicts
+    if isinstance(obj, dict):
+        return {str(k): _to_native(v) for k, v in obj.items()}
+    # lists / tuples / sets
+    if isinstance(obj, (list, tuple, set)):
+        return [_to_native(v) for v in obj]
+    # fallback: return as-is
+    return obj
+
 
 from app.services.dataset_service import DatasetService
 from app.services.ml.evaluation_service import EvaluationService
@@ -362,7 +408,7 @@ class MLPipeline:
 
             self._summary()
 
-            return self._report
+            return _to_native(self._report)
 
         except Exception as error:
 
@@ -372,7 +418,7 @@ class MLPipeline:
 
             self._summary()
 
-            return self._report
+            return _to_native(self._report)
 
     # ---------------------------------------------------------
     # Cross Validation
@@ -443,7 +489,7 @@ class MLPipeline:
 
             self._summary()
 
-            return self._report
+            return _to_native(self._report)
 
         except Exception as error:
 
@@ -453,7 +499,7 @@ class MLPipeline:
 
             self._summary()
 
-            return self._report
+            return _to_native(self._report)
         # ---------------------------------------------------------
     # Prediction Pipeline
     # ---------------------------------------------------------

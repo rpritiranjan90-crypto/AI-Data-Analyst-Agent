@@ -1,32 +1,145 @@
-# React + TypeScript + Vite
+# AI Data Analyst Agent — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React 19 + Vite 8 + Tailwind CSS v4 single-page application that powers the AI Data Analyst Agent enterprise platform.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Framework:** React 19.2 with React Router 7
+- **Build Tool:** Vite 8.1 (ESM, HMR, code-splitting via React.lazy)
+- **Styling:** Tailwind CSS v4.3 (Vite plugin)
+- **State Management:** Zustand 5 (with localStorage persistence)
+- **Data Fetching:** TanStack Query 5 + Axios 1.18
+- **Forms:** React Hook Form 7 + Zod 4
+- **Charts:** Recharts 3
+- **Icons:** Lucide React
+- **Animations:** Framer Motion 12
+- **PDF/Excel:** jsPDF 4, html2canvas, xlsx
+- **CSV Parsing:** PapaParse 5
+- **E2E Testing:** Playwright 1.50 (5 browser projects)
 
-## React Compiler
+## Available Scripts
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+# Install dependencies
+npm install
 
-## Expanding the Oxlint configuration
+# Start dev server on default port (http://localhost:5173)
+npm run dev
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+# Start dev server on a specific port
+npm run dev -- --port 5176
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+# TypeScript type-check (no emit)
+npx tsc --noEmit
+
+# Production build
+npm run build
+
+# Preview production build
+npm run preview
+
+# Lint
+npm run lint
+
+# Run Playwright E2E tests
+npm run test:e2e
+
+# Run E2E tests against a specific base URL
+PLAYWRIGHT_TEST_BASE_URL=http://localhost:5176 npx playwright test
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Environment Variables
+
+Create a `.env` file in the frontend root:
+
+```bash
+# Backend API base URL. Default: http://127.0.0.1:8000
+VITE_API_URL=http://127.0.0.1:8000
+```
+
+The Vite dev server reads this at startup. Restart `npm run dev` after changing.
+
+## Project Structure
+
+```
+frontend/
+├── e2e/                          # Playwright E2E test suite
+│   ├── pages/                    # Page Object Model classes
+│   ├── specs/                    # Test spec files
+│   └── utils/                    # Shared test utilities
+├── public/                       # Static assets served as-is
+├── src/
+│   ├── api/                      # Axios client + service layer
+│   ├── components/               # Reusable UI components
+│   │   ├── layout/               # Sidebar, TopBar, etc.
+│   │   └── ui/                   # Button, Card, Modal, EmptyState
+│   ├── pages/                    # Route components (23 pages)
+│   ├── store/                    # Zustand stores
+│   ├── types/                    # Shared TypeScript types
+│   ├── App.tsx                   # Root component with routes
+│   ├── main.tsx                  # React entry point
+│   └── index.css                 # Global Tailwind imports
+├── .env                          # Local environment variables
+├── playwright.config.ts          # E2E test config
+├── vite.config.ts                # Vite build config
+├── tailwind.config.js            # Tailwind theme config
+└── package.json                  # Dependencies and scripts
+```
+
+## Routes (23)
+
+| Path | Page | Notes |
+|---|---|---|
+| `/` | Landing | Public marketing page |
+| `/login` | Login | JWT auth |
+| `/signup` | Signup | User registration |
+| `/dashboard` | Dashboard | KPI cards, AI insights |
+| `/upload` | Upload | CSV / DB / joiner tabs |
+| `/cleaning` | Cleaning | Data cleaning operations |
+| `/visualization` | Visualization | Chart generation |
+| `/analysis` | Analysis | Dataset summary |
+| `/recommendation` | Recommendation | AI chart recommendations |
+| `/machine-learning` | ML | Train & predict |
+| `/simulator` | Simulator | What-if scenarios |
+| `/knowledge` | Knowledge | RAG document indexing |
+| `/governance` | Governance | AI usage metrics |
+| `/readiness` | Readiness | Production health checks |
+| `/reports` | Reports | PDF/PPTX generation |
+| `/admin` | Admin | Workspace admin |
+| `/decision-center` | Decision | AI-suggested actions |
+| `/data-fabric` | DataFabric | Dataset catalog |
+| `/pricing` | Pricing | Plan tiers |
+| `/help` | Help | FAQ & docs |
+| `/privacy-policy` | Privacy | Legal |
+| `/terms-of-service` | Terms | Legal |
+| `*` | 404 | Not found |
+
+## E2E Testing
+
+The Playwright suite runs 5 browser projects (Chromium, Firefox, WebKit, Edge, Mobile Chrome) and covers 20+ test cases across auth, dashboard, cleaning, ML, knowledge, governance, and navigation.
+
+```bash
+# First time: install browsers
+npx playwright install --with-deps chromium
+
+# Run all tests
+npx playwright test
+
+# Run only Chromium
+npx playwright test --project=chromium
+
+# Show HTML report
+npx playwright show-report
+```
+
+## Building for Production
+
+```bash
+npm run build
+```
+
+Outputs to `dist/`. The frontend Dockerfile uses a multi-stage build (Node builder → nginx server) and serves on port 80.
+
+## License
+
+MIT

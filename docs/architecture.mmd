@@ -1,0 +1,39 @@
+graph TB
+    subgraph Client["🌐 Frontend (React 19)"]
+        SPA["Single Page Application"]
+        STORE["Zustand Store<br/>(localStorage persistence)"]
+        QUERY["TanStack Query + Axios"]
+    end
+
+    subgraph Backend["⚙️ Backend (FastAPI)"]
+        ROUTES["API Routes<br/>(/auth, /upload, /clean, ...)"]
+        SERVICES["Service Layer"]
+        AI["AI Service Layer<br/>(Gemini Factory)"]
+        DB["DuckDB In-Memory Engine"]
+        CACHE["TTL Cache<br/>(AI tokens, dataset profile)"]
+    end
+
+    subgraph Middleware["🛡️ Middleware Stack"]
+        CORS["CORS"]
+        RATE["Rate Limiter<br/>(IP sliding window)"]
+        SECHEAD["Security Headers<br/>(CSP, HSTS, XFO)"]
+        AUDIT["Audit Logger<br/>(mutating requests)"]
+    end
+
+    subgraph Storage["💾 Storage"]
+        UPLOADS["Upload Directory<br/>(CSV, XLSX, Parquet)"]
+        REPORTS["Reports<br/>(PDF, PPTX)"]
+        CHARTS["Generated Charts<br/>(PNG)"]
+    end
+
+    SPA --> ROUTES
+    QUERY --> ROUTES
+    STORE --> UPLOADS
+    ROUTES --> Middleware
+    ROUTES --> SERVICES
+    SERVICES --> DB
+    SERVICES --> CACHE
+    SERVICES --> AI
+    SERVICES --> UPLOADS
+    AI --> CHARTS
+    DB --> UPLOADS

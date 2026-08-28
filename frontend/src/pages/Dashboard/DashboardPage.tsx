@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Database,
@@ -10,6 +11,7 @@ import {
   Zap,
   Target,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -27,33 +29,40 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const { dataset, setDataset } = useDatasetStore();
   const metadata = dataset?.metadata;
+  const [loadingDemo, setLoadingDemo] = useState(false);
 
   function loadDemoDataset() {
-    const mockDemo = {
-      filename: "HR_Analytics_Demo.csv",
-      filepath: "uploads/HR_Analytics_Demo.csv",
-      extension: ".csv",
-      rows: 1500,
-      columns: 5,
-      missing_values: 12,
-      duplicate_rows: 3,
-      memory_usage_mb: 0.12,
-      file_size_bytes: 125000,
-      column_names: ["employee_id", "age", "salary", "department", "churned"],
-      columns_detail: [
-        { name: "employee_id", type: "string" },
-        { name: "age", type: "number" },
-        { name: "salary", type: "number" },
-        { name: "department", type: "number" },
-        { name: "churned", type: "number" },
-      ],
-      head: [
-        { employee_id: "EMP_001", age: 34, salary: 75000, department: "IT", churned: 0 },
-        { employee_id: "EMP_002", age: 42, salary: 92000, department: "Sales", churned: 1 },
-      ],
-    };
-    setDataset({ metadata: mockDemo, success: true, message: "Loaded demo" });
-    toast.success("Loaded HR Analytics Demo dataset!");
+    if (loadingDemo) return;
+    setLoadingDemo(true);
+    // Simulate async work so the user sees clear feedback
+    setTimeout(() => {
+      const mockDemo = {
+        filename: "HR_Analytics_Demo.csv",
+        filepath: "uploads/HR_Analytics_Demo.csv",
+        extension: ".csv",
+        rows: 1500,
+        columns: 5,
+        missing_values: 12,
+        duplicate_rows: 3,
+        memory_usage_mb: 0.12,
+        file_size_bytes: 125000,
+        column_names: ["employee_id", "age", "salary", "department", "churned"],
+        columns_detail: [
+          { name: "employee_id", type: "string" },
+          { name: "age", type: "number" },
+          { name: "salary", type: "number" },
+          { name: "department", type: "number" },
+          { name: "churned", type: "number" },
+        ],
+        head: [
+          { employee_id: "EMP_001", age: 34, salary: 75000, department: "IT", churned: 0 },
+          { employee_id: "EMP_002", age: 42, salary: 92000, department: "Sales", churned: 1 },
+        ],
+      };
+      setDataset({ metadata: mockDemo, success: true, message: "Loaded demo" });
+      toast.success("Loaded HR Analytics Demo dataset!");
+      setLoadingDemo(false);
+    }, 500);
   }
 
   const executiveDecisions = [
@@ -77,8 +86,9 @@ export default function DashboardPage() {
           Quick Actions: Import new dataset or test with demo data
         </span>
         <div className="flex gap-3">
-          <Button onClick={loadDemoDataset} variant="outline" size="sm">
-            <Zap size={14} /> Load Demo Dataset
+          <Button onClick={loadDemoDataset} variant="outline" size="sm" disabled={loadingDemo}>
+            {loadingDemo ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
+            {loadingDemo ? "Loading..." : "Load Demo Dataset"}
           </Button>
           <Button onClick={() => navigate("/upload")} variant="primary" size="sm">
             <Upload size={14} /> Import Dataset
@@ -208,9 +218,10 @@ export default function DashboardPage() {
                 </button>
                 <button
                   onClick={loadDemoDataset}
-                  className="rounded-2xl border border-slate-600/60 bg-slate-800/60 hover:bg-slate-700/60 active:scale-95 px-5 py-2.5 text-sm font-bold text-slate-300 transition-all duration-200"
+                  disabled={loadingDemo}
+                  className="rounded-2xl border border-slate-600/60 bg-slate-800/60 hover:bg-slate-700/60 active:scale-95 px-5 py-2.5 text-sm font-bold text-slate-300 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  ⚡ Load Demo Dataset
+                  {loadingDemo ? <Loader2 size={15} className="inline mr-2 animate-spin" /> : "⚡ "}Load Demo Dataset
                 </button>
               </div>
             </motion.div>

@@ -10,19 +10,36 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - VITE_API_URL=http://127.0.0.1:8000
+      - APP_ENV=production
+      - LOG_LEVEL=INFO
+      # JWT_SECRET MUST be provided at runtime. The backend refuses to start
+      # in production without it. Set in your deployment environment.
+      - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET env var before starting the stack}
+    env_file:
+      - ./backend/.env.example
     volumes:
       - ./backend/datasets:/app/datasets
       - ./backend/reports:/app/reports
       - ./backend/generated_charts:/app/generated_charts
+      - ./backend/uploads:/app/uploads
+      - ./backend/charts:/app/charts
+      - ./backend/cleaned_data:/app/cleaned_data
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:8000
     container_name: ai-analyst-frontend
     restart: always
     ports:
       - "80:80"
     depends_on:
       - backend
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

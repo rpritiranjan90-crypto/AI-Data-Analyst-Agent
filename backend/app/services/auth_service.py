@@ -3,12 +3,53 @@ import base64
 import hashlib
 import hmac
 import json
+import logging
+import os
 import re
 import secrets
 import time
 from typing import Any
 
-SECRET_KEY = "enterprise_ai_data_analyst_super_secret_jwt_key_change_in_production"
+logger = logging.getLogger(__name__)
+
+# ----------------------------------------------------------------------------
+# JWT Secret Key Resolution
+# ----------------------------------------------------------------------------
+# CRITICAL: The JWT secret MUST come from an environment variable in production.
+# We refuse to start in production mode if JWT_SECRET is not set or weak.
+# For local development, we generate a random per-process key (tokens invalidated
+# on restart) to avoid the dangerous default that ships in the repo.
+# ----------------------------------------------------------------------------
+
+
+def _resolve_jwt_secret() -> str:
+    explicit = os.environ.get("JWT_SECRET", "").strip()
+    if explicit:
+        if len(explicit) < 32:
+            raise RuntimeError(
+                "JWT_SECRET must be at least 32 characters. "
+                "Generate one with: python -c 'import secrets; print(secrets.token_urlsafe(48))'"
+            )
+        return explicit
+
+    app_env = os.environ.get("APP_ENV", "development").lower()
+    if app_env in ("production", "prod", "staging"):
+        raise RuntimeError(
+            "JWT_SECRET environment variable is REQUIRED in production. "
+            "Refusing to start with a default secret."
+        )
+
+    # Development: ephemeral per-process key. Tokens are invalidated on restart,
+    # which is the safest fallback for local dev.
+    ephemeral = secrets.token_urlsafe(48)
+    logger.warning(
+        "[SECURITY] JWT_SECRET not set; using an ephemeral per-process key. "
+        "All tokens will be invalidated on restart. Set JWT_SECRET in .env for stable dev sessions."
+    )
+    return ephemeral
+
+
+SECRET_KEY = _resolve_jwt_secret()
 ALGORITHM = "HS256"
 TOKEN_EXPIRE_SECONDS = 86400 * 7  # 7 days
 

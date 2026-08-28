@@ -4,6 +4,7 @@ interface ProgressBarProps {
   color?: string;
   height?: string;
   showLabel?: boolean;
+  ariaLabel?: string;
 }
 
 export default function ProgressBar({
@@ -12,6 +13,7 @@ export default function ProgressBar({
   color = "bg-indigo-600",
   height = "h-2",
   showLabel = false,
+  ariaLabel,
 }: ProgressBarProps) {
   const percentage = Math.min(
     100,
@@ -21,6 +23,11 @@ export default function ProgressBar({
   return (
     <div className="w-full">
       <div
+        role="progressbar"
+        aria-valuenow={Math.round(percentage)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={ariaLabel ?? "Progress"}
         className={`w-full overflow-hidden rounded-full bg-slate-200 ${height}`}
       >
         <div

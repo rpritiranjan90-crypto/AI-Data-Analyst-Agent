@@ -1,0 +1,50 @@
+# CODEOWNERS — Code review ownership map
+# Order matters: later matches override earlier ones.
+# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for the whole repo (fall back to maintainer)
+*                               @personal
+
+# Backend — Python / FastAPI
+/backend/app/routes/             @personal
+/backend/app/services/           @personal
+/backend/app/middleware/         @personal
+/backend/app/ai/                 @personal
+/backend/app/exceptions/         @personal
+/backend/app/main.py             @personal
+/backend/tests/                  @personal
+/backend/requirements.txt        @personal
+/backend/Dockerfile              @personal
+
+# Frontend — React / TypeScript
+/frontend/src/routes/            @personal
+/frontend/src/services/          @personal
+/frontend/src/store/             @personal
+/frontend/src/types/             @personal
+/frontend/src/components/        @personal
+/frontend/src/pages/             @personal
+/frontend/e2e/                   @personal
+/frontend/Dockerfile             @personal
+/frontend/nginx.conf             @personal
+/frontend/package.json           @personal
+
+# DevOps / CI
+/.github/workflows/              @personal
+/docker-compose.yml              @personal
+/docker-compose.staging.yml      @personal
+/Dockerfile                      @personal
+
+# Documentation (anyone can review)
+/docs/                           @personal
+/README.md                       @personal
+/CHANGELOG.md                    @personal
+/CONTRIBUTING.md                 @personal
+/SECURITY.md                     @personal
+/LICENSE                         @personal
+
+# Configuration & metadata
+/.editorconfig                   @personal
+/.gitignore                      @personal
+/frontend/.env.example           @personal
+/frontend/.nvmrc                 @personal
+/backend/.env.example            @personal

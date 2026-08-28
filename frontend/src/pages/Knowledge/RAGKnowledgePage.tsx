@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, FileText, Upload, Folder, Search, Trash2 } from "lucide-react";
+import { BookOpen, FileText, Upload, Folder, Search, Trash2, Inbox } from "lucide-react";
 import { toast } from "sonner";
 import PageHeader from "../../components/ui/PageHeader";
 
@@ -19,12 +19,9 @@ export default function RAGKnowledgePage() {
 
   const collections = ["All Collections", "Corporate Policies", "Financial Reports", "Standard Operating Procedures (SOPs)", "Contracts & Compliance"];
 
-  const [documents, setDocuments] = useState<DocumentItem[]>([
-    { id: "1", name: "2026_Q2_Financial_Audit_Report.pdf", type: "PDF", collection: "Financial Reports", size: "4.2 MB", embeddings: 1420, updated: "Yesterday" },
-    { id: "2", name: "Enterprise_SLA_Security_Policy.docx", type: "DOCX", collection: "Corporate Policies", size: "1.8 MB", embeddings: 680, updated: "3 days ago" },
-    { id: "3", name: "Customer_Onboarding_SOP_v3.md", type: "Markdown", collection: "Standard Operating Procedures (SOPs)", size: "320 KB", embeddings: 240, updated: "1 week ago" },
-    { id: "4", name: "Vendor_Procurement_Contract_2026.pdf", type: "PDF", collection: "Contracts & Compliance", size: "2.5 MB", embeddings: 910, updated: "2 weeks ago" },
-  ]);
+  // Start empty — documents are added when users upload them via the file input below.
+  // The upload flow calls setDocuments() to register indexed documents.
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
 
   function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -127,43 +124,54 @@ export default function RAGKnowledgePage() {
         </div>
 
         <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px]">
-              <tr>
-                <th className="px-4 py-3">Document Name</th>
-                <th className="px-4 py-3">Collection</th>
-                <th className="px-4 py-3">Format</th>
-                <th className="px-4 py-3">File Size</th>
-                <th className="px-4 py-3">Vector Embeddings</th>
-                <th className="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-medium text-slate-800 dark:text-slate-200">
-              {filteredDocs.map((doc) => (
-                <tr key={doc.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                  <td className="px-4 py-3 font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <FileText size={15} className="text-indigo-600 dark:text-indigo-400" /> {doc.name}
-                  </td>
-                  <td className="px-4 py-3 text-slate-500">{doc.collection}</td>
-                  <td className="px-4 py-3 font-mono text-[11px] text-indigo-600 dark:text-indigo-400">{doc.type}</td>
-                  <td className="px-4 py-3 text-slate-500">{doc.size}</td>
-                  <td className="px-4 py-3">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
-                      {doc.embeddings} Vectors
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => handleDelete(doc.id)}
-                      className="text-slate-400 hover:text-red-500 transition p-1"
-                    >
-                      <Trash2 size={15} />
-                    </button>
-                  </td>
+          {filteredDocs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Inbox size={36} className="text-slate-300 dark:text-slate-700 mb-3" />
+              <p className="text-sm font-bold text-slate-700 dark:text-slate-300">No documents indexed yet</p>
+              <p className="text-xs text-slate-500 mt-1 max-w-md">
+                Click "Index Document" above to add a PDF, DOCX, or Markdown file to your vector knowledge base. AI Copilot will cite them in responses.
+              </p>
+            </div>
+          ) : (
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold uppercase text-[10px]">
+                <tr>
+                  <th className="px-4 py-3">Document Name</th>
+                  <th className="px-4 py-3">Collection</th>
+                  <th className="px-4 py-3">Format</th>
+                  <th className="px-4 py-3">File Size</th>
+                  <th className="px-4 py-3">Vector Embeddings</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-medium text-slate-800 dark:text-slate-200">
+                {filteredDocs.map((doc) => (
+                  <tr key={doc.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                    <td className="px-4 py-3 font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <FileText size={15} className="text-indigo-600 dark:text-indigo-400" /> {doc.name}
+                    </td>
+                    <td className="px-4 py-3 text-slate-500">{doc.collection}</td>
+                    <td className="px-4 py-3 font-mono text-[11px] text-indigo-600 dark:text-indigo-400">{doc.type}</td>
+                    <td className="px-4 py-3 text-slate-500">{doc.size}</td>
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+                        {doc.embeddings} Vectors
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        onClick={() => handleDelete(doc.id)}
+                        aria-label={`Delete ${doc.name}`}
+                        className="text-slate-400 hover:text-red-500 transition p-1"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

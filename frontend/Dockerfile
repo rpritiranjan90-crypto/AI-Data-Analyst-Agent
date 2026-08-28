@@ -16,6 +16,9 @@ FROM nginx:alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
+# Copy custom nginx config with SPA routing + API proxy to backend
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Expose HTTP port 80
 EXPOSE 80
 
