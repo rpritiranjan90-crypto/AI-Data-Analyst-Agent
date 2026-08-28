@@ -4,6 +4,7 @@ import { Lock, Mail, ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import Button from "../../components/ui/Button";
 import { useAuthStore } from "../../store/authStore";
+import api from "../../api/axios";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -14,27 +15,30 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     if (!email || !password) {
       toast.error("Please fill in both email and password.");
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      setAuth(
-        {
-          id: `usr_${Math.random().toString(36).substr(2, 6)}`,
-          email,
-          name: email.split("@")[0].toUpperCase(),
-          role: "Owner",
-        },
-        "jwt_token_sample_key"
-      );
+    try {
+      // Real backend auth call. /auth/login returns { token, user }.
+      const res = await api.post("/auth/login", { email, password });
+      const { token, user } = res.data;
+      // Persist the JWT so axios interceptor picks it up for future calls.
+      if (token) localStorage.setItem("ai_analyst_jwt_token", token);
+      setAuth(user, token);
       toast.success("Welcome back! Authentication successful.");
-      setLoading(false);
       navigate("/dashboard");
-    }, 500);
+    } catch (err: unknown) {
+      const detail =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+        "Invalid email or password.";
+      toast.error(detail);
+    } finally {
+      setLoading(false);
+    }
   }
 
   function handleGuestPreview() {
@@ -70,7 +74,9 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="analyst@enterprise.com"
+                  placeholder="you@company.com"
+                  required
+                  autoComplete="email"
                   className="w-full rounded-xl border border-slate-700 bg-slate-800/90 py-2.5 pl-10 pr-4 text-xs font-semibold text-white placeholder-slate-500 outline-none focus:border-indigo-500"
                 />
               </div>
@@ -89,17 +95,19 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
                   className="w-full rounded-xl border border-slate-700 bg-slate-800/90 py-2.5 pl-10 pr-4 text-xs font-semibold text-white outline-none focus:border-indigo-500"
                 />
               </div>
             </div>
 
-            <Button type="submit" variant="primary" size="lg" className="w-full justify-center">
+            <Button type="submit" variant="primary" size="lg" disabled={loading} className="w-full justify-center">
               {loading ? "Authenticating..." : "Sign In to Workspace"} <ArrowRight size={16} />
             </Button>
           </form>
 
-          {/* Social OAuth Buttons */}
+          {/* Social OAuth Buttons (placeholder; backend SSO endpoints are TBD) */}
           <div className="space-y-3 pt-2">
             <div className="relative flex items-center justify-center">
               <div className="w-full border-t border-slate-800" />
@@ -111,17 +119,19 @@ export default function LoginPage() {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={handleLogin}
-                className="flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-950 py-2 text-xs font-bold text-slate-300 hover:bg-slate-800 transition"
+                disabled
+                title="SSO coming soon"
+                className="flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-950 py-2 text-xs font-bold text-slate-500 cursor-not-allowed"
               >
-                Google OAuth
+                Google SSO
               </button>
               <button
                 type="button"
-                onClick={handleLogin}
-                className="flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-950 py-2 text-xs font-bold text-slate-300 hover:bg-slate-800 transition"
+                disabled
+                title="SSO coming soon"
+                className="flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-950 py-2 text-xs font-bold text-slate-500 cursor-not-allowed"
               >
-                GitHub OAuth
+                GitHub SSO
               </button>
             </div>
           </div>

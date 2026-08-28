@@ -4,6 +4,7 @@ import { Lock, Mail, User, Building, ArrowRight, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import Button from "../../components/ui/Button";
 import { useAuthStore } from "../../store/authStore";
+import api from "../../api/axios";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -15,28 +16,38 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleSignup(e: React.FormEvent) {
+  async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     if (!name || !email || !password) {
       toast.error("Please fill in all required fields.");
       return;
     }
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters.");
+      return;
+    }
     setLoading(true);
-    setTimeout(() => {
-      setAuth(
-        {
-          id: `usr_${Math.random().toString(36).substr(2, 6)}`,
-          email,
-          name,
-          role: "Owner",
-        },
-        "jwt_token_sample_key",
-        [{ id: "ws_new", name: `${company || name}'s Workspace`, role: "Owner" }]
-      );
-      toast.success("Enterprise Workspace created successfully!");
-      setLoading(false);
+    try {
+      // Real backend registration. /auth/register returns { token, user }.
+      const res = await api.post("/auth/register", {
+        email,
+        password,
+        full_name: name,
+        company_name: company || undefined,
+      });
+      const { token, user } = res.data || {};
+      if (token) localStorage.setItem("ai_analyst_jwt_token", token);
+      setAuth(user, token);
+      toast.success("Workspace created. Welcome aboard!");
       navigate("/dashboard");
-    }, 500);
+    } catch (err: unknown) {
+      const detail =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+        "Registration failed. Please try again.";
+      toast.error(typeof detail === "string" ? detail : "Registration failed.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -61,6 +72,8 @@ export default function SignupPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Jane Doe"
+                  required
+                  autoComplete="name"
                   className="w-full rounded-xl border border-slate-700 bg-slate-800/90 py-2.5 pl-10 pr-4 text-xs font-semibold text-white outline-none focus:border-indigo-500"
                 />
               </div>
@@ -75,6 +88,8 @@ export default function SignupPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="jane@company.com"
+                  required
+                  autoComplete="email"
                   className="w-full rounded-xl border border-slate-700 bg-slate-800/90 py-2.5 pl-10 pr-4 text-xs font-semibold text-white outline-none focus:border-indigo-500"
                 />
               </div>
@@ -89,6 +104,7 @@ export default function SignupPage() {
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
                   placeholder="Acme Corporation"
+                  autoComplete="organization"
                   className="w-full rounded-xl border border-slate-700 bg-slate-800/90 py-2.5 pl-10 pr-4 text-xs font-semibold text-white outline-none focus:border-indigo-500"
                 />
               </div>
@@ -103,12 +119,15 @@ export default function SignupPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="At least 8 characters"
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
                   className="w-full rounded-xl border border-slate-700 bg-slate-800/90 py-2.5 pl-10 pr-4 text-xs font-semibold text-white outline-none focus:border-indigo-500"
                 />
               </div>
             </div>
 
-            <Button type="submit" variant="primary" size="lg" className="w-full justify-center">
+            <Button type="submit" variant="primary" size="lg" disabled={loading} className="w-full justify-center">
               {loading ? "Creating..." : "Create Enterprise Account"} <ArrowRight size={16} />
             </Button>
           </form>

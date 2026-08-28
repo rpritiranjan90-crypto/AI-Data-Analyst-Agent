@@ -33,6 +33,8 @@ export default function AnalyticsBarChart({
   emptyTitle,
   emptyDescription,
 }: AnalyticsBarChartProps) {
+  const ariaLabel =
+    title || `Bar chart with ${data?.length ?? 0} bars`;
   if (!data || data.length === 0) {
     return (
       <ChartCard
@@ -56,7 +58,7 @@ export default function AnalyticsBarChart({
       subtitle={subtitle}
       className={className}
     >
-      <ChartContainer height={height}>
+      <ChartContainer height={height} ariaLabel={ariaLabel}>
         <RechartsBarChart
           data={data}
           layout={horizontal ? "vertical" : "horizontal"}

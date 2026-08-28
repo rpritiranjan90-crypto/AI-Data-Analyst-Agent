@@ -9,6 +9,9 @@ export interface QueryRequest {
   connection_string: string;
   query: string;
   dataset_name?: string;
+  /** Allowlist of valid table names for this connection. If supplied the backend
+   *  rejects the query if it references a table not in this list. */
+  table_names?: string[];
 }
 
 export async function testDbConnection(connectionString: string): Promise<{ success: boolean; message: string }> {

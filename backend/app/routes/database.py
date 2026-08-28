@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
@@ -28,6 +29,13 @@ class QueryRequest(BaseModel):
     connection_string: str = Field(..., description="SQLAlchemy connection URI")
     query: str = Field(..., description="SQL query to execute (e.g. SELECT * FROM sales LIMIT 1000)")
     dataset_name: Optional[str] = Field("sql_dataset.csv", description="Name to label the imported dataset")
+    # Optional allowlist: if provided, the query is rejected if it references any table
+    # not in this list. Use /tables first to discover which tables are available,
+    # then pass the returned list here to guard against injection via alias tricks.
+    table_names: Optional[List[str]] = Field(
+        default_factory=list,
+        description="Allowlist of valid table names for this connection",
+    )
 
 
 class NLToSQLRequest(BaseModel):
@@ -59,6 +67,21 @@ def query_database(req: QueryRequest):
     Execute a SQL query, save result as a CSV dataset, load into memory cache,
     and trigger full AI profiling and analysis.
     """
+    # Defense in depth: if the caller supplied a table allowlist, verify every
+    # FROM/JOIN identifier in the query is in that list. This blocks the case
+    # where the frontend (or a tampered client) interpolates an arbitrary
+    # identifier — e.g. `SELECT * FROM users; DROP TABLE users` — into the FROM
+    # clause before sending.
+    if req.table_names:
+        referenced = _extract_referenced_tables(req.query)
+        allowed = {t.lower() for t in req.table_names}
+        forbidden = [t for t in referenced if t.lower() not in allowed]
+        if forbidden:
+            raise ValidationException(
+                f"Query references tables not in the connection's allowlist: {forbidden}. "
+                "Re-discover tables via /database/tables and try again."
+            )
+
     df = DatabaseConnectorService.execute_sql(req.connection_string, req.query)
 
     # Save DataFrame to Upload Directory as CSV
@@ -97,3 +120,34 @@ def generate_nl_to_sql(req: NLToSQLRequest):
         "prompt": req.prompt,
         "generated_sql": sql,
     }
+
+
+# ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
+
+# Matches "FROM <identifier>" and "JOIN <identifier>" in a SQL string.
+# Handles quoted identifiers (double or single), schema-qualified names (a.b),
+# and alias tricks (FROM users u WHERE ...). Does NOT try to parse the full
+# SQL — a conservative regex is sufficient as defence-in-depth; the DB driver
+# itself handles all real SQL-injection vectors.
+_TABLE_REF_RE = re.compile(
+    r"""
+    (?:
+      \bFROM\s+   (?P<from>[a-zA-Z_][a-zA-Z0-9_]*(?:\s*[.]\s*[a-zA-Z_][a-zA-Z0-9_]*)?)
+    | \bJOIN\s+   (?P<join>[a-zA-Z_][a-zA-Z0-9_]*(?:\s*[.]\s*[a-zA-Z_][a-zA-Z0-9_]*)?)
+    )\s*(?:[a-zA-Z_][a-zA-Z0-9_]*)?  # optional alias word
+    """,
+    re.VERBOSE | re.IGNORECASE,
+)
+
+
+def _extract_referenced_tables(sql: str) -> List[str]:
+    """Return the set of table identifiers referenced in a SELECT query."""
+    seen: List[str] = []
+    for m in _TABLE_REF_RE.finditer(sql):
+        # One of the two named groups will be populated.
+        table = (m.group("from") or m.group("join") or "").strip()
+        if table:
+            seen.append(table)
+    return seen

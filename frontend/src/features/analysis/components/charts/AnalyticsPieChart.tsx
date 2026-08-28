@@ -28,6 +28,8 @@ export default function AnalyticsPieChart({
   emptyTitle,
   emptyDescription,
 }: AnalyticsPieChartProps) {
+  const ariaLabel =
+    title || `Pie chart with ${data?.length ?? 0} slices`;
   if (!data || data.length === 0) {
     return (
       <ChartCard
@@ -49,7 +51,7 @@ export default function AnalyticsPieChart({
       subtitle={subtitle}
       className={className}
     >
-      <ChartContainer height={height}>
+      <ChartContainer height={height} ariaLabel={ariaLabel}>
         <RechartsPieChart>
           <Pie
             data={data}

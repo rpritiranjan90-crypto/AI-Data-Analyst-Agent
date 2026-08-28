@@ -31,6 +31,8 @@ export default function AnalyticsLineChart({
   emptyTitle,
   emptyDescription,
 }: AnalyticsLineChartProps) {
+  const ariaLabel =
+    title || `Line chart with ${data?.length ?? 0} points`;
   if (!data || data.length === 0) {
     return (
       <ChartCard
@@ -52,7 +54,7 @@ export default function AnalyticsLineChart({
       subtitle={subtitle}
       className={className}
     >
-      <ChartContainer height={height}>
+      <ChartContainer height={height} ariaLabel={ariaLabel}>
         <RechartsLineChart
           data={data}
           margin={CHART_CONFIG.margin}

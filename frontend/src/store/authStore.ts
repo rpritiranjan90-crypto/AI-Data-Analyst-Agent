@@ -28,27 +28,17 @@ interface AuthState {
   logout: () => void;
 }
 
+// SECURITY: Start unauthenticated. The persisted store rehydrates from localStorage
+// after the first render, so returning users keep their session but new users
+// see the login page rather than being silently auto-logged in as a fake user.
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      user: {
-        id: "usr_enterprise_demo",
-        email: "analyst@enterprise.com",
-        name: "Lead Enterprise Analyst",
-        role: "Owner",
-      },
-      token: "demo_jwt_token_sample",
-      activeWorkspace: {
-        id: "ws_default",
-        name: "Acme Analytics Workspace",
-        role: "Owner",
-      },
-      workspaces: [
-        { id: "ws_default", name: "Acme Analytics Workspace", role: "Owner" },
-        { id: "ws_finance", name: "Finance & Accounting", role: "Admin" },
-        { id: "ws_marketing", name: "Growth Marketing", role: "Analyst" },
-      ],
-      isAuthenticated: true,
+      user: null,
+      token: null,
+      activeWorkspace: null,
+      workspaces: [],
+      isAuthenticated: false,
       isGuest: false,
 
       setAuth: (user, token, workspaces) =>

@@ -48,13 +48,20 @@ export default function UploadPage() {
   const [joining, setJoining] = useState(false);
 
   useEffect(() => {
-    listDatasets().then((res) => {
-      if (res.success && res.items) {
-        setAvailableDatasets(res.items.map((d: { filename: string }) => d.filename));
-        if (res.items.length > 0) setLeftFile(res.items[0].filename);
-        if (res.items.length > 1) setRightFile(res.items[1].filename);
-      }
-    }).catch(() => {});
+    let cancelled = false;
+    listDatasets()
+      .then((res) => {
+        if (cancelled) return;
+        if (res.success && res.items) {
+          setAvailableDatasets(res.items.map((d: { filename: string }) => d.filename));
+          if (res.items.length > 0) setLeftFile(res.items[0].filename);
+          if (res.items.length > 1) setRightFile(res.items[1].filename);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -177,6 +184,9 @@ export default function UploadPage() {
         connection_string: dbUri,
         query: sqlQuery,
         dataset_name: datasetName,
+        // Pass discovered table names so the backend can reject queries that reference
+        // unlisted tables (defence in depth against SQL injection via free-form input).
+        table_names: dbTables,
       });
 
       setDataset(response);
@@ -451,6 +461,15 @@ export default function UploadPage() {
               <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
                 Database Connection URI
               </label>
+              <div
+                role="note"
+                className="rounded-lg border border-amber-300/40 bg-amber-50/70 dark:bg-amber-950/30 px-3 py-2 text-[11px] font-semibold text-amber-800 dark:text-amber-300"
+              >
+                <strong>Security:</strong> avoid hardcoding passwords. Prefer
+                environment variables, secrets files outside the repo, or a
+                read-only DB user. Connections are sent to the backend over
+                TLS only.
+              </div>
               <div className="flex gap-3">
                 <input
                   type="text"

@@ -6,6 +6,7 @@ export default function ChartContainer({
   children,
   height = 320,
   className = "",
+  ariaLabel,
 }: ChartContainerProps) {
   return (
     <div
@@ -15,6 +16,10 @@ export default function ChartContainer({
         height,
         minHeight: height,
       }}
+      // Recharts renders as <svg>; expose it to assistive tech with role="img"
+      // and a descriptive aria-label so screen-reader users get the chart context.
+      role="img"
+      aria-label={ariaLabel}
     >
       <ResponsiveContainer width="100%" height="100%">
         {children}

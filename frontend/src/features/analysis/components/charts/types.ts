@@ -66,6 +66,12 @@ export interface ChartContainerProps {
   height?: number;
 
   className?: string;
+
+  /**
+   * Accessible label announced by screen readers. Should describe what the
+   * chart is showing (e.g. "Bar chart of revenue by region").
+   */
+  ariaLabel?: string;
 }
 
 /* -------------------------------------------------------------------------- */

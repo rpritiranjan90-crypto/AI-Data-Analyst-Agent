@@ -71,6 +71,17 @@ export const useDatasetStore = create<DatasetState>()(
     {
       name: "ai-data-analyst-dataset",
       storage: createJSONStorage(() => localStorage),
+      // Persist only the lightweight summary — never the full DatasetResponse,
+      // which can include large `profile.head`, `preview`, and `statistics` blobs
+      // that bloat localStorage and become stale anyway.
+      // The full dataset is rehydrated from the backend by filename if needed.
+      partialize: (state) => ({
+        activeFilename: state.activeFilename,
+        // Persist just the metadata, not profile/statistics/preview.
+        dataset: state.dataset
+          ? { ...state.dataset, profile: undefined, statistics: undefined, preview: undefined }
+          : null,
+      }),
     }
   )
 );

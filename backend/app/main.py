@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 from contextlib import asynccontextmanager
 
 # Configure matplotlib before importing plotting modules
@@ -107,8 +108,9 @@ app.add_middleware(IPRateLimitMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(AuditLogMiddleware)
 
-# Allowed origins — add your production domain here.
-# In development, allow localhost variants; in production, restrict to your domain only.
+# Allowed origins — production domains + dev localhost.
+# Vercel preview deployments get a wildcard subdomain (*.vercel.app).
+# Set ALLOWED_ORIGINS env (comma-separated) to add custom domains.
 _allowed_origins = [
     "http://localhost:5173",
     "http://localhost:5174",
@@ -116,14 +118,36 @@ _allowed_origins = [
     "http://127.0.0.1:5173",
     "http://127.0.0.1:5174",
     "http://127.0.0.1:5175",
+    # Vercel deployment URLs
+    "https://ai-data-analyst-agent.vercel.app",
+    # Allow any Vercel preview deployment
+    "https://vercel.app",
 ]
 _import_origins = os.environ.get("ALLOWED_ORIGINS", "")
 if _import_origins:
     _allowed_origins.extend([o.strip() for o in _import_origins.split(",") if o.strip()])
 
+# We use a regex-based allow-list for Vercel preview URLs so any
+# *-<hash>-<team>.vercel.app or <project>.vercel.app origin works without
+# listing each one. The static list above is checked first; the regex catches
+# the rest of the vercel.app / vercel.sh / now.sh ecosystem.
+_vercel_origin_re = re.compile(
+    r"^https://[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.vercel\.app$"
+)
+_vercel_sh_re = re.compile(
+    r"^https://[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.vercel\.sh$"
+)
+_now_sh_re = re.compile(
+    r"^https://[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.now\.sh$"
+)
+_allow_origin_regex = (
+    r"^https://([a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.(vercel\.app|vercel\.sh|now\.sh))$"
+)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins,
+    allow_origin_regex=_allow_origin_regex,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
