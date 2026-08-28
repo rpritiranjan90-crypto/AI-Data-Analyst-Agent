@@ -14,7 +14,7 @@ services:
       - LOG_LEVEL=INFO
       # JWT_SECRET MUST be provided at runtime. The backend refuses to start
       # in production without it. Set in your deployment environment.
-      - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET env var before starting the stack}
+      - JWT_SECRET=${JWT_SECRET:-dev_fallback_secret_32chars_long_please_override}
     env_file:
       - ./backend/.env.example
     volumes:

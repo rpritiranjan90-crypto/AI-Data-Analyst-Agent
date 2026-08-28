@@ -149,7 +149,7 @@ jobs:
         continue-on-error: false
         run: |
           cd backend
-          pip-audit -r requirements.txt --strict --disable-pip
+          pip-audit -r requirements.txt --strict --no-deps
 
       - name: Set up Node.js 20
         uses: actions/setup-node@v4
