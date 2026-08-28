@@ -6,10 +6,6 @@
   },
   "rewrites": [
     {
-      "source": "/(api|auth|upload|datasets|clean|analysis|visualization|ml|report|generate-report|reports|ai|api-insights|admin|governance|readiness|recommendation|health|database|joiner|chart-recommendation|ai-insights|ml-pipeline|webhooks)/(.*)",
-      "destination": "https://ai-data-analyst-agent-xs7p.onrender.com/$1/$2"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
