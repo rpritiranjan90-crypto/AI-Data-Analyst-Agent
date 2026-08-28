@@ -3,12 +3,26 @@ import { toast } from "sonner";
 
 // In dev, vite.config.ts proxies /api/* and /auth/* to the local backend.
 // In prod, VITE_API_URL is set on Vercel to point at the deployed backend.
-// We intentionally do NOT fall back to a hardcoded third-party URL — if the
-// env var is missing we use a relative path so requests hit the same origin
-// (e.g. when the backend is reverse-proxied by Vercel rewrites).
-const API_BASE_URL: string =
-  (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/+$/, "") ||
-  (import.meta.env.PROD ? "" : "http://localhost:8000");
+// If the env var is missing (e.g. env var not picked up by the build), we detect
+// the Vercel deployment hostname and fall back to the Render backend URL directly.
+const RENDER_BACKEND = "https://ai-data-analyst-agent-xs7p.onrender.com";
+
+function getBaseUrl(): string {
+  if (import.meta.env.VITE_API_URL) {
+    return (import.meta.env.VITE_API_URL as string).replace(/\/+$/, "");
+  }
+  // Detect Vercel preview/production deployment hostname so uploads and API calls
+  // work even when the env var isn't inlined at build time.
+  if (
+    typeof window !== "undefined" &&
+    /\.vercel\.app$/.test(window.location.hostname)
+  ) {
+    return RENDER_BACKEND;
+  }
+  return import.meta.env.PROD ? "" : "http://localhost:8000";
+}
+
+const API_BASE_URL = getBaseUrl();
 
 /** Methods we will retry on a 5xx / network error. POSTs are NOT retried
  *  because they may not be idempotent on the server. */
