@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import re
+import time
 from contextlib import asynccontextmanager
 
 # Configure matplotlib before importing plotting modules
@@ -41,6 +42,13 @@ from app.routes.webhooks import router as webhooks_router
 from app.routes.governance import router as governance_router
 from app.routes.readiness import router as readiness_router
 from app.routes.admin import router as admin_router
+from app.routes.billing import router as billing_router
+from app.routes.workspaces import router as workspaces_router
+from app.routes.usage import router as usage_router
+from app.routes.gdpr import router as gdpr_router
+from app.routes.status import router as status_router
+from app.routes.onboarding import router as onboarding_router
+from app.routes.status import set_start_time
 
 logger = get_logger(__name__)
 
@@ -64,6 +72,8 @@ async def lifespan(app: FastAPI):
         "enabled (Sentry)" if sentry.SENTRY_LOADED else "disabled",
     )
     logger.info("=" * 60)
+
+    set_start_time(time.time())
 
     yield
 
@@ -115,15 +125,17 @@ _allowed_origins = [
     "http://localhost:5173",
     "http://localhost:5174",
     "http://localhost:5175",
+    "http://localhost:5177",
     "http://127.0.0.1:5173",
     "http://127.0.0.1:5174",
     "http://127.0.0.1:5175",
+    "http://127.0.0.1:5177",
     # Vercel deployment URLs
     "https://ai-data-analyst-agent.vercel.app",
     # Allow any Vercel preview deployment
     "https://vercel.app",
 ]
-_import_origins = os.environ.get("ALLOWED_ORIGINS", "")
+_import_origins = os.environ.get("ALLOWED_ORIGINS", "") or os.environ.get("CORS_ALLOWED_ORIGINS", "")
 if _import_origins:
     _allowed_origins.extend([o.strip() for o in _import_origins.split(",") if o.strip()])
 
@@ -142,6 +154,7 @@ _now_sh_re = re.compile(
 )
 _allow_origin_regex = (
     r"^https://([a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.(vercel\.app|vercel\.sh|now\.sh))$"
+    r"|^http://(localhost|127\.0\.0\.1)(:\d+)?$"
 )
 
 app.add_middleware(
@@ -179,6 +192,12 @@ app.include_router(webhooks_router)
 app.include_router(governance_router)
 app.include_router(readiness_router)
 app.include_router(admin_router)
+app.include_router(billing_router)
+app.include_router(workspaces_router)
+app.include_router(usage_router)
+app.include_router(gdpr_router)
+app.include_router(status_router)
+app.include_router(onboarding_router)
 
 
 # ------------------------------------------------------------------
