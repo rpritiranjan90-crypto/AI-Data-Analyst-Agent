@@ -1,8 +1,10 @@
 import { useMemo } from "react";
 import { Target, ArrowRight, TrendingUp, DollarSign, Users, AlertTriangle, BarChart2, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import PageHeader from "../../components/ui/PageHeader";
 import Button from "../../components/ui/Button";
+import ExecutiveEmptyStateBanner from "../../components/ui/ExecutiveEmptyStateBanner";
 import { useDatasetStore } from "../../store/datasetStore";
 import type { ColumnDetail } from "../../types/dataset";
 
@@ -20,7 +22,7 @@ interface Decision {
 }
 
 export default function DecisionCenterPage() {
-  const { dataset } = useDatasetStore();
+  const { dataset, setDataset } = useDatasetStore();
   const metadata = dataset?.metadata;
 
   const decisions = useMemo<Decision[]>(() => {
@@ -163,6 +165,34 @@ export default function DecisionCenterPage() {
     return decisions;
   }, [metadata]);
 
+  function loadDemoDataset() {
+    const mockDemo = {
+      filename: "HR_Analytics_Demo.csv",
+      filepath: "uploads/HR_Analytics_Demo.csv",
+      extension: ".csv",
+      rows: 1500,
+      columns: 5,
+      missing_values: 12,
+      duplicate_rows: 3,
+      memory_usage_mb: 0.12,
+      file_size_bytes: 125000,
+      column_names: ["employee_id", "age", "salary", "department", "churned"],
+      columns_detail: [
+        { name: "employee_id", type: "string" },
+        { name: "age", type: "number" },
+        { name: "salary", type: "number" },
+        { name: "department", type: "string" },
+        { name: "churned", type: "number" },
+      ],
+      head: [
+        { employee_id: "EMP_001", age: 34, salary: 75000, department: "IT", churned: 0 },
+        { employee_id: "EMP_002", age: 42, salary: 92000, department: "Sales", churned: 1 },
+      ],
+    };
+    setDataset({ metadata: mockDemo, success: true, message: "Loaded demo" });
+    toast.success("Loaded HR Analytics Demo dataset!");
+  }
+
   const riskColors: Record<Decision["risk"], string> = {
     "Low Risk": "bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
     "Medium Risk": "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800",
@@ -190,26 +220,13 @@ export default function DecisionCenterPage() {
       />
 
       {!metadata && (
-        <div className="rounded-2xl border border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/60 dark:bg-indigo-950/30 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="rounded-xl bg-indigo-600/20 p-3 text-indigo-600 dark:text-indigo-400">
-              <Target size={28} />
-            </div>
-            <div>
-              <h3 className="font-extrabold text-base text-slate-900 dark:text-white">
-                AI Decision Engine Ready
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Upload a dataset to unlock personalized business recommendations, ROI estimates, and strategic action plans.
-              </p>
-            </div>
-          </div>
-          <Link to="/upload">
-            <Button variant="primary" className="shrink-0">
-              <Upload size={16} className="mr-2" /> Upload Dataset
-            </Button>
-          </Link>
-        </div>
+        <ExecutiveEmptyStateBanner
+          badgeText="AI Decision Engine"
+          title="AI Decision Engine Ready"
+          subtitle="Upload a dataset to unlock personalized business recommendations, ROI estimates, and strategic action plans."
+          actionText="Upload Dataset"
+          onLoadDemo={loadDemoDataset}
+        />
       )}
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">

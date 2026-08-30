@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Sliders, Sparkles, Play, RefreshCw, BarChart2, ArrowUpRight, ArrowDownRight, AlertCircle } from "lucide-react";
+import { Sliders, Sparkles, Play, RefreshCw, BarChart2, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 import { toast } from "sonner";
 import PageHeader from "../../components/ui/PageHeader";
 import Button from "../../components/ui/Button";
+import ExecutiveEmptyStateBanner from "../../components/ui/ExecutiveEmptyStateBanner";
 import { useDatasetStore } from "../../store/datasetStore";
 
 export default function ScenarioSimulatorPage() {
@@ -86,21 +87,12 @@ export default function ScenarioSimulatorPage() {
 
       {/* No-dataset advisory banner */}
       {!dataset && (
-        <div
-          role="status"
-          className="rounded-2xl border border-amber-200 dark:border-amber-900 bg-amber-50/60 dark:bg-amber-950/30 p-4 flex items-start gap-3 shadow-xs"
-        >
-          <AlertCircle size={20} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-          <div>
-            <h4 className="font-extrabold text-sm text-amber-900 dark:text-amber-300">
-              No dataset loaded — using generic business baselines
-            </h4>
-            <p className="text-xs font-semibold text-amber-800/80 dark:text-amber-400/80 mt-0.5">
-              Upload a CSV on the <a href="/upload" className="underline">Upload page</a> to drive the simulator from real
-              dataset metrics. {mlReady ? "ML pipeline is reachable." : "ML pipeline not reachable — running in formula mode."}
-            </p>
-          </div>
-        </div>
+        <ExecutiveEmptyStateBanner
+          badgeText="What-If Simulator"
+          title="Simulator Running on Generic Baselines"
+          subtitle="Upload a dataset to drive the simulator from real metrics. You can still explore scenarios now using baseline values."
+          actionText="Upload Dataset"
+        />
       )}
 
       {/* Natural Language Prompt Box */}
