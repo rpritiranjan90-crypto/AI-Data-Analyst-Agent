@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import OnboardingTour from "../components/onboarding/OnboardingTour";
+import RequireAuth from "../components/auth/RequireAuth";
 
 // Lazy-loaded routes for bundle optimization
 const LandingPage = lazy(() => import("../pages/Landing/LandingPage"));
@@ -27,6 +28,12 @@ const AdminPortalPage = lazy(() => import("../pages/Admin/AdminPortalPage"));
 const PricingPage = lazy(() => import("../pages/Pricing/PricingPage"));
 const PrivacyPolicyPage = lazy(() => import("../pages/Legal/PrivacyPolicyPage"));
 const TermsOfServicePage = lazy(() => import("../pages/Legal/TermsOfServicePage"));
+const BillingSuccessPage = lazy(() => import("../pages/Billing/BillingSuccessPage"));
+const BillingCancelPage = lazy(() => import("../pages/Billing/BillingCancelPage"));
+const WorkspaceSettingsPage = lazy(() => import("../pages/Settings/WorkspaceSettingsPage"));
+const UsagePage = lazy(() => import("../pages/Settings/UsagePage"));
+const GDPRPage = lazy(() => import("../pages/Settings/GDPRPage"));
+const StatusPage = lazy(() => import("../pages/Status/StatusPage"));
 const NotFoundPage = lazy(() => import("../pages/NotFound/NotFoundPage"));
 
 function PageLoader() {
@@ -52,9 +59,16 @@ export default function AppRouter() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/status" element={<StatusPage />} />
 
-          {/* Application Layout Routes */}
-          <Route element={<MainLayout />}>
+          {/* Application Layout Routes (protected) */}
+          <Route
+            element={
+              <RequireAuth>
+                <MainLayout />
+              </RequireAuth>
+            }
+          >
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/data-fabric" element={<DataFabricPage />} />
@@ -73,6 +87,11 @@ export default function AppRouter() {
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/admin" element={<AdminPortalPage />} />
             <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/settings/workspace" element={<WorkspaceSettingsPage />} />
+            <Route path="/settings/usage" element={<UsagePage />} />
+            <Route path="/settings/gdpr" element={<GDPRPage />} />
+            <Route path="/billing/success" element={<BillingSuccessPage />} />
+            <Route path="/billing/cancel" element={<BillingCancelPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="/terms-of-service" element={<TermsOfServicePage />} />
           </Route>

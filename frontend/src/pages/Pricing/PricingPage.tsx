@@ -3,13 +3,19 @@ import { Check, Sparkles, Zap, Shield, Crown, ArrowRight } from "lucide-react";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import { toast } from "sonner";
+import { useAuthStore } from "../../store/authStore";
+import { startCheckout } from "../../api/billing";
 
 export default function PricingPage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const { activeWorkspace } = useAuthStore();
+  const currentPlan = activeWorkspace?.plan ?? "free";
 
   const plans = [
     {
       name: "Free Analyst",
+      key: "free",
       tagline: "Perfect for individuals & small dataset exploration",
       priceMonthly: "$0",
       priceYearly: "$0",
@@ -29,6 +35,7 @@ export default function PricingPage() {
     },
     {
       name: "Pro Analyst",
+      key: "pro",
       tagline: "For professional data analysts & data scientists",
       priceMonthly: "$29",
       priceYearly: "$24",
@@ -49,6 +56,7 @@ export default function PricingPage() {
     },
     {
       name: "Enterprise SaaS",
+      key: "enterprise",
       tagline: "For analytics teams, board presentations & enterprises",
       priceMonthly: "$299",
       priceYearly: "$249",
@@ -70,11 +78,30 @@ export default function PricingPage() {
     },
   ];
 
-  function handleSelectPlan(planName: string) {
+  async function handleSelectPlan(planName: string) {
     if (planName === "Free Analyst") {
       toast.info("You are currently on the Free Analyst plan.");
-    } else {
-      toast.success(`Redirecting to ${planName} checkout portal...`);
+      return;
+    }
+    if (planName === "Enterprise SaaS") {
+      toast.info("Contact sales at hello@yourdomain.com for Enterprise pricing.");
+      return;
+    }
+    const planKey = planName === "Pro Analyst" ? "pro" : "enterprise";
+    if (currentPlan === planKey) {
+      toast.info(`You are already on the ${planName} plan.`);
+      return;
+    }
+    setLoadingPlan(planKey);
+    try {
+      const url = await startCheckout(planKey as "pro" | "enterprise");
+      window.location.href = url;
+    } catch (err) {
+      const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail
+        || (err as Error).message
+        || "Failed to start checkout";
+      toast.error(msg);
+      setLoadingPlan(null);
     }
   }
 
@@ -176,14 +203,24 @@ export default function PricingPage() {
                 </ul>
               </div>
 
-              <div className="pt-6 mt-6 border-t border-slate-200 dark:border-slate-800">
+              <div className="pt-6 mt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col gap-2">
+                {currentPlan === plan.key && (
+                  <span className="text-center text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 rounded-lg px-3 py-1.5">
+                    ✓ Current Plan
+                  </span>
+                )}
                 <Button
                   variant={plan.buttonVariant}
                   onClick={() => handleSelectPlan(plan.name)}
+                  disabled={loadingPlan !== null || currentPlan === plan.key}
                   className="w-full flex items-center justify-center gap-2"
                 >
                   <span>{plan.buttonText}</span>
-                  <ArrowRight size={15} />
+                  {loadingPlan === plan.key ? (
+                    <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                  ) : (
+                    <ArrowRight size={15} />
+                  )}
                 </Button>
               </div>
             </Card>

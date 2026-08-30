@@ -28,16 +28,30 @@ export default function SignupPage() {
     }
     setLoading(true);
     try {
-      // Real backend registration. /auth/register returns { token, user }.
+      // Real backend registration. /auth/register returns { token, user, workspaces }.
       const res = await api.post("/auth/register", {
         email,
         password,
-        full_name: name,
-        company_name: company || undefined,
+        name,
+        workspace_name: company || `${name}'s Workspace`,
       });
-      const { token, user } = res.data || {};
+      const { token, user, workspaces } = res.data || {};
       if (token) localStorage.setItem("ai_analyst_jwt_token", token);
-      setAuth(user, token);
+      // Persist for the dev fallback (SignInPage also writes the same key)
+      if (token) {
+        // Persist the same token to the localStorage key the axios interceptor reads.
+        localStorage.setItem("ai_analyst_jwt_token", token);
+      }
+      // Map backend `name` to our `name` field
+      const mappedUser = user
+        ? {
+            id: user.id,
+            email: user.email,
+            name: user.name || name,
+            role: "Owner" as const,
+          }
+        : null;
+      setAuth(mappedUser as any, token, workspaces);
       toast.success("Workspace created. Welcome aboard!");
       navigate("/dashboard");
     } catch (err: unknown) {

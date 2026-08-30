@@ -271,6 +271,11 @@ cd frontend && npx playwright test --project=chromium
 | `docs/ERROR_CODES.md` | Complete error code catalog |
 | `docs/UNIQUE_FEATURES.md` | What makes this project different from typical submissions |
 | `docs/UPTIMEROBOT_SETUP.md` | Keep the Render backend awake (free, 5-minute setup) |
+| `docs/DEPLOYMENT.md` | Production SaaS deployment guide (Vercel + Render + Supabase + Resend + Stripe) |
+| `docs/SUPABASE_SETUP.md` | Set up the free persistent database (10 min) |
+| `docs/RESEND_SETUP.md` | Set up transactional email with Resend free tier (5 min) |
+| `docs/STRIPE_SETUP.md` | Wire Stripe Checkout, Customer Portal, and webhooks (10 min) |
+| `docs/PRICING.md` | Plan tier limits and how they map to backend feature gates |
 | `CHANGELOG.md` | Version history |
 | `LICENSE` | MIT License |
 

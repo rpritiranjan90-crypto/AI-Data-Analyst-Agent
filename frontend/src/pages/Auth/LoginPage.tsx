@@ -23,12 +23,21 @@ export default function LoginPage() {
     }
     setLoading(true);
     try {
-      // Real backend auth call. /auth/login returns { token, user }.
+      // Real backend auth call. /auth/login returns { token, user, workspaces }.
       const res = await api.post("/auth/login", { email, password });
-      const { token, user } = res.data;
+      const { token, user, workspaces } = res.data;
       // Persist the JWT so axios interceptor picks it up for future calls.
       if (token) localStorage.setItem("ai_analyst_jwt_token", token);
-      setAuth(user, token);
+      // Map backend response to our store shape
+      const mappedUser = user
+        ? {
+            id: user.id,
+            email: user.email,
+            name: user.name || user.email,
+            role: (user.role || "Analyst") as "Owner" | "Admin" | "Data Scientist" | "Analyst" | "Viewer",
+          }
+        : null;
+      setAuth(mappedUser as any, token, workspaces);
       toast.success("Welcome back! Authentication successful.");
       navigate("/dashboard");
     } catch (err: unknown) {

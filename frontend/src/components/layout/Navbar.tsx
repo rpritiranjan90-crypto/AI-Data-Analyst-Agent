@@ -11,10 +11,13 @@ import {
   Building2,
   ChevronDown,
   ShieldCheck,
+  Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDatasetStore } from "../../store/datasetStore";
 import { useAuthStore } from "../../store/authStore";
+import api from "../../api/axios";
+import { toast } from "sonner";
 
 interface NavbarProps {
   onMenuToggle?: () => void;
@@ -25,13 +28,14 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
   const { dataset, clearDataset } = useDatasetStore();
   const metadata = dataset?.metadata;
 
-  const { user, activeWorkspace, workspaces, setActiveWorkspace, isAuthenticated } = useAuthStore();
+  const { user, activeWorkspace, workspaces, setAuth, isAuthenticated } = useAuthStore();
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem("theme_mode") === "dark";
   });
 
   const [wsDropdownOpen, setWsDropdownOpen] = useState(false);
+  const [switchingWs, setSwitchingWs] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -80,18 +84,51 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
               {workspaces.map((ws) => (
                 <button
                   key={ws.id}
-                  onClick={() => {
-                    setActiveWorkspace(ws);
+                  onClick={async () => {
+                    if (activeWorkspace?.id === ws.id) { setWsDropdownOpen(false); return; }
+                    setSwitchingWs(ws.id);
                     setWsDropdownOpen(false);
+                    try {
+                      const res = await api.post("/auth/switch-workspace", {
+                        workspace_id: ws.id,
+                      });
+                      const { token, user: refreshedUser, workspaces: refreshedWorkspaces } = res.data;
+                      if (token) localStorage.setItem("ai_analyst_jwt_token", token);
+                      if (refreshedUser && token) {
+                        const mappedUser = {
+                          id: refreshedUser.id,
+                          email: refreshedUser.email,
+                          name: refreshedUser.name || refreshedUser.email,
+                          role: (refreshedUser.role || "Analyst") as "Owner" | "Admin" | "Data Scientist" | "Analyst" | "Viewer",
+                        };
+                        setAuth(mappedUser as any, token, refreshedWorkspaces);
+                      }
+                      toast.success(`Switched to ${ws.name}`);
+                    } catch {
+                      toast.error("Failed to switch workspace. Please try again.");
+                    } finally {
+                      setSwitchingWs(null);
+                    }
                   }}
-                  className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition ${
+                  disabled={switchingWs !== null}
+                  className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-xs font-bold transition disabled:opacity-60 ${
                     activeWorkspace?.id === ws.id
                       ? "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400"
                       : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                   }`}
                 >
-                  <span>{ws.name}</span>
-                  <span className="text-[10px] font-mono text-slate-400">{ws.role}</span>
+                  <span className="flex items-center gap-1.5">
+                    {ws.name}
+                    {ws.plan && ws.plan !== "free" && (
+                      <span className="text-[9px] bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 px-1 rounded font-mono uppercase">
+                        {ws.plan}
+                      </span>
+                    )}
+                  </span>
+                  {switchingWs === ws.id
+                    ? <Loader2 size={12} className="animate-spin" />
+                    : <span className="text-[10px] font-mono text-slate-400">{ws.role}</span>
+                  }
                 </button>
               ))}
             </div>

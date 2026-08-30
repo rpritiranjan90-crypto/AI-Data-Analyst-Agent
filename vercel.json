@@ -2,7 +2,8 @@
   "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/dist",
   "env": {
-    "VITE_API_URL": "https://ai-data-analyst-agent-xs7p.onrender.com"
+    "VITE_API_URL": "https://ai-data-analyst-agent-xs7p.onrender.com",
+    "VITE_STRIPE_PUBLISHABLE_KEY": "pk_test_your_key_here"
   },
   "rewrites": [
     {

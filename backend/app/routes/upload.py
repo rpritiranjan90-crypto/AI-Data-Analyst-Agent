@@ -21,6 +21,7 @@ from typing import List
 
 from app.services.dataset_service import DatasetService
 from app.services.dataset_validation import validate_upload
+from app.services import usage_service as usage
 
 logger = get_logger(__name__)
 

@@ -24,6 +24,7 @@ import PageHeader from "../../components/ui/PageHeader";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import { useDatasetStore } from "../../store/datasetStore";
+import OnboardingChecklist from "../../components/onboarding/OnboardingChecklist";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -79,6 +80,9 @@ export default function DashboardPage() {
         title="Executive Intelligence Dashboard"
         subtitle="AI-powered dataset profiling, real-time metrics, automated charts, and strategic business decisions."
       />
+
+      {/* Onboarding checklist */}
+      <OnboardingChecklist />
 
       {/* Quick Action Banner */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl">

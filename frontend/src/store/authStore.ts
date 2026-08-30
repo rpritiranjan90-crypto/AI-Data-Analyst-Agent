@@ -9,10 +9,13 @@ export interface UserProfile {
   avatar?: string;
 }
 
+export type Plan = "free" | "pro" | "enterprise";
+
 export interface Workspace {
   id: string;
   name: string;
   role: string;
+  plan?: Plan;
 }
 
 interface AuthState {
@@ -25,12 +28,11 @@ interface AuthState {
   setAuth: (user: UserProfile, token: string, workspaces?: Workspace[]) => void;
   setGuestMode: (isGuest: boolean) => void;
   setActiveWorkspace: (ws: Workspace) => void;
+  setWorkspaces: (workspaces: Workspace[]) => void;
+  updateCurrentPlan: (plan: Plan) => void;
   logout: () => void;
 }
 
-// SECURITY: Start unauthenticated. The persisted store rehydrates from localStorage
-// after the first render, so returning users keep their session but new users
-// see the login page rather than being silently auto-logged in as a fake user.
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -46,12 +48,13 @@ export const useAuthStore = create<AuthState>()(
           user,
           token,
           workspaces: workspaces || [
-            { id: "ws_default", name: `${user.name}'s Workspace`, role: "Owner" },
+            { id: "ws_default", name: `${user.name}'s Workspace`, role: "Owner", plan: "free" },
           ],
           activeWorkspace: workspaces?.[0] || {
             id: "ws_default",
             name: `${user.name}'s Workspace`,
             role: "Owner",
+            plan: "free",
           },
           isAuthenticated: true,
           isGuest: false,
@@ -67,6 +70,19 @@ export const useAuthStore = create<AuthState>()(
         }),
 
       setActiveWorkspace: (ws) => set({ activeWorkspace: ws }),
+
+      setWorkspaces: (workspaces) => set({ workspaces }),
+
+      updateCurrentPlan: (plan) =>
+        set((state) => {
+          if (!state.activeWorkspace) return state;
+          return {
+            activeWorkspace: { ...state.activeWorkspace, plan },
+            workspaces: state.workspaces.map((w) =>
+              w.id === state.activeWorkspace!.id ? { ...w, plan } : w
+            ),
+          };
+        }),
 
       logout: () =>
         set({

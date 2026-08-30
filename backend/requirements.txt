@@ -26,6 +26,11 @@ duckdb>=1.0.0
 sqlalchemy>=2.0.0
 psutil>=5.9.0
 
+# Production SaaS (Phase 1)
+supabase>=2.7.0
+resend>=1.0.0
+stripe>=10.12.0
+
 # Error tracking (optional — only loaded if SENTRY_DSN is set)
 sentry-sdk[fastapi]>=2.10.0
 

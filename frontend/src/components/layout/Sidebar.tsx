@@ -16,6 +16,8 @@ import {
   Network,
   CheckCircle2,
   HelpCircle,
+  TrendingUp,
+  Shield,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useDatasetStore } from "../../store/datasetStore";
@@ -48,6 +50,12 @@ const governanceSection = [
 
 const supportSection = [
   { name: "Help & Developer Docs",icon: HelpCircle,    path: "/help" },
+];
+
+const settingsSection = [
+  { name: "Workspace Settings", icon: Sliders, path: "/settings/workspace" },
+  { name: "Usage & Limits",     icon: TrendingUp, path: "/settings/usage" },
+  { name: "Privacy & Data",     icon: Shield,    path: "/settings/gdpr" },
 ];
 
 interface SidebarProps {
@@ -150,6 +158,18 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </div>
           <div className="space-y-1">
             {supportSection.map((item) => (
+              <SideNavLink key={item.path} item={item} onClose={onClose} />
+            ))}
+          </div>
+        </div>
+
+        {/* Settings */}
+        <div>
+          <div className="text-slate-500 uppercase text-[10px] tracking-[0.1em] font-bold px-3 mb-2">
+            WORKSPACE
+          </div>
+          <div className="space-y-1">
+            {settingsSection.map((item) => (
               <SideNavLink key={item.path} item={item} onClose={onClose} />
             ))}
           </div>
