@@ -15,6 +15,10 @@ os.environ["APP_ENV"] = "testing"
 os.environ["JWT_SECRET"] = "test_secret_key_for_unit_tests_only_32chars"
 os.environ["APP_VERSION"] = "2.0.0"
 os.environ.setdefault("LOG_LEVEL", "CRITICAL")
+# Force in-memory fallback so tests don't bleed into the real Supabase DB.
+# Must SET (not pop) so dotenv's load_dotenv(override=False) won't re-fill them.
+os.environ["SUPABASE_URL"] = ""
+os.environ["SUPABASE_SERVICE_KEY"] = ""
 
 
 @pytest.fixture(scope="session")
