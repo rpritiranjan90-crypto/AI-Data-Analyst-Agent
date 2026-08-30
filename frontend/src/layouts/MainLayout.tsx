@@ -9,6 +9,7 @@ import BugReportModal from "../components/feedback/BugReportModal";
 import AICopilotDrawer from "../components/copilot/AICopilotDrawer";
 import CommandPalette from "../components/ui/CommandPalette";
 import AIConfigBanner from "../components/ui/AIConfigBanner";
+import SimpleGuide from "../components/ui/SimpleGuide";
 import AIWorkflowProgressModal from "../features/workflow/AIWorkflowProgressModal";
 import { Bug, Zap, Search } from "lucide-react";
 
@@ -54,6 +55,9 @@ export default function MainLayout() {
 
       {/* Cookie Consent Banner */}
       <CookieBanner />
+
+      {/* Context-aware help guide (SimpleGuide) */}
+      <SimpleGuide />
 
       {/* Bug Report Modal */}
       <BugReportModal isOpen={bugModalOpen} onClose={() => setBugModalOpen(false)} />

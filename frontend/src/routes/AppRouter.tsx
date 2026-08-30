@@ -1,7 +1,6 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
-import OnboardingTour from "../components/onboarding/OnboardingTour";
 import RequireAuth from "../components/auth/RequireAuth";
 
 // Lazy-loaded routes for bundle optimization
@@ -50,8 +49,6 @@ function PageLoader() {
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      {/* First-time user onboarding walkthrough */}
-      <OnboardingTour />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Public Routes */}

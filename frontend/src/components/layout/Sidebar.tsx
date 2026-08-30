@@ -8,54 +8,65 @@ import {
   FileText,
   X,
   CreditCard,
-  Zap,
   Sliders,
   BookOpen,
   ShieldCheck,
   Target,
   Network,
-  CheckCircle2,
   HelpCircle,
   TrendingUp,
   Shield,
+  ChevronDown,
+  ChevronRight,
+  Wrench,
 } from "lucide-react";
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useDatasetStore } from "../../store/datasetStore";
 
-const coreSection = [
-  { name: "Executive Dashboard", icon: Home,     path: "/dashboard" },
-  { name: "Data Fabric Catalog",icon: Network,  path: "/data-fabric" },
-  { name: "Upload & SQL Connect",icon: Upload,   path: "/upload" },
+/**
+ * Sidebar navigation.
+ *
+ * Design principles:
+ * - Plain language that answers "What do I want to do?"
+ * - 4 top-level sections users can scan in seconds
+ * - Advanced tools hidden behind a single "More Tools" expander
+ *   so first-time users are not overwhelmed
+ * - Icons + short labels, no marketing words ("Studio", "Radar")
+ */
+
+const getStartedSection = [
+  { name: "Dashboard", icon: Home, path: "/dashboard" },
+  { name: "Upload Data", icon: Upload, path: "/upload" },
 ];
 
-const analyticsSection = [
-  { name: "Data Analysis Studio", icon: BarChart3,      path: "/analysis" },
-  { name: "Data Cleaning Studio", icon: Wand2,         path: "/cleaning" },
-  { name: "35 Visualizations",    icon: Sparkles,      path: "/visualization" },
-  { name: "AutoML & Anomaly Radar",icon: BrainCircuit,  path: "/machine-learning" },
+const understandSection = [
+  { name: "Analyze Data", icon: BarChart3, path: "/analysis" },
+  { name: "Clean Data", icon: Wand2, path: "/cleaning" },
+  { name: "Visualize", icon: Sparkles, path: "/visualization" },
+  { name: "Train ML Models", icon: BrainCircuit, path: "/machine-learning" },
 ];
 
-const intelligenceSection = [
-  { name: "Decision Center & ROI", icon: Target,        path: "/decision-center" },
-  { name: "What-if Simulator",    icon: Sliders,       path: "/simulator" },
-  { name: "RAG Knowledge Base",   icon: BookOpen,      path: "/knowledge" },
+const decideSection = [
+  { name: "Decision Center", icon: Target, path: "/decision-center" },
+  { name: "Reports", icon: FileText, path: "/reports" },
+  { name: "AI Insights & Cost", icon: ShieldCheck, path: "/governance" },
 ];
 
-const governanceSection = [
-  { name: "Reports & Exporters",  icon: FileText,      path: "/reports" },
-  { name: "AI Governance & Cost", icon: ShieldCheck,   path: "/governance" },
-  { name: "Production Readiness", icon: CheckCircle2,  path: "/readiness" },
-  { name: "Pricing & Plans",     icon: CreditCard,    path: "/pricing" },
+const workspaceSection = [
+  { name: "Workspace", icon: Network, path: "/settings/workspace" },
+  { name: "Usage", icon: TrendingUp, path: "/settings/usage" },
+  { name: "Privacy & Data", icon: Shield, path: "/settings/gdpr" },
+  { name: "Upgrade Plan", icon: CreditCard, path: "/pricing" },
+  { name: "Help", icon: HelpCircle, path: "/help" },
 ];
 
-const supportSection = [
-  { name: "Help & Developer Docs",icon: HelpCircle,    path: "/help" },
-];
-
-const settingsSection = [
-  { name: "Workspace Settings", icon: Sliders, path: "/settings/workspace" },
-  { name: "Usage & Limits",     icon: TrendingUp, path: "/settings/usage" },
-  { name: "Privacy & Data",     icon: Shield,    path: "/settings/gdpr" },
+// "More Tools" — advanced / power-user items collapsed by default
+const advancedSection = [
+  { name: "Data Fabric", icon: Network, path: "/data-fabric" },
+  { name: "What-If Simulator", icon: Sliders, path: "/simulator" },
+  { name: "Ask AI", icon: BookOpen, path: "/knowledge" },
+  { name: "Production Readiness", icon: ShieldCheck, path: "/readiness" },
 ];
 
 interface SidebarProps {
@@ -66,6 +77,7 @@ interface SidebarProps {
 export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const dataset = useDatasetStore((state) => state.dataset);
   const metadata = dataset?.metadata;
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   return (
     <aside
@@ -78,15 +90,15 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       {/* ── LOGO HEADER ── */}
       <div className="flex h-16 items-center justify-between px-4 border-b border-white/5">
         <div className="flex items-center gap-2.5">
-          <div className="bg-gradient-to-r from-indigo-500 to-cyan-500 text-white font-bold px-2 py-0.5 rounded-md text-xs shadow-xs">
+          <div className="bg-indigo-500 text-white font-bold px-2 py-0.5 rounded-md text-xs">
             AI
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white leading-tight tracking-tight">
-              AI Data Analyst
+            <h2 className="text-sm font-bold text-white leading-tight">
+              AIFlow Enterprise
             </h2>
             <p className="text-[10px] text-slate-400 leading-none mt-0.5">
-              Enterprise Intelligence OS
+              Data Analyst Platform
             </p>
           </div>
         </div>
@@ -95,94 +107,49 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           <button
             onClick={onClose}
             className="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 hover:text-white transition md:hidden"
+            aria-label="Close menu"
           >
             <X size={18} />
           </button>
         )}
       </div>
 
-      {/* ── NAVIGATION (GROUPED BY PURPOSE) ── */}
-      <nav className="flex-1 space-y-6 overflow-y-auto p-3">
-        {/* Platform Core */}
-        <div>
-          <div className="text-slate-500 uppercase text-[10px] tracking-[0.1em] font-bold px-3 mb-2">
-            PLATFORM CORE
-          </div>
-          <div className="space-y-1">
-            {coreSection.map((item) => (
-              <SideNavLink key={item.path} item={item} onClose={onClose} />
-            ))}
-          </div>
-        </div>
+      {/* ── NAVIGATION ── */}
+      <nav className="flex-1 space-y-5 overflow-y-auto p-3">
+        <NavGroup title="Get Started" items={getStartedSection} onClose={onClose} />
+        <NavGroup title="Understand Your Data" items={understandSection} onClose={onClose} />
+        <NavGroup title="Decide & Report" items={decideSection} onClose={onClose} />
+        <NavGroup title="Workspace" items={workspaceSection} onClose={onClose} />
 
-        {/* Analytics & Machine Learning */}
+        {/* Advanced tools — collapsed by default */}
         <div>
-          <div className="text-slate-500 uppercase text-[10px] tracking-[0.1em] font-bold px-3 mb-2">
-            ANALYTICS & ML
-          </div>
-          <div className="space-y-1">
-            {analyticsSection.map((item) => (
-              <SideNavLink key={item.path} item={item} onClose={onClose} />
-            ))}
-          </div>
-        </div>
-
-        {/* AI Intelligence */}
-        <div>
-          <div className="text-slate-500 uppercase text-[10px] tracking-[0.1em] font-bold px-3 mb-2">
-            AI INTELLIGENCE
-          </div>
-          <div className="space-y-1">
-            {intelligenceSection.map((item) => (
-              <SideNavLink key={item.path} item={item} onClose={onClose} />
-            ))}
-          </div>
-        </div>
-
-        {/* Reports & Governance */}
-        <div>
-          <div className="text-slate-500 uppercase text-[10px] tracking-[0.1em] font-bold px-3 mb-2">
-            GOVERNANCE & REPORTS
-          </div>
-          <div className="space-y-1">
-            {governanceSection.map((item) => (
-              <SideNavLink key={item.path} item={item} onClose={onClose} />
-            ))}
-          </div>
-        </div>
-
-        {/* Support & Resources */}
-        <div>
-          <div className="text-slate-500 uppercase text-[10px] tracking-[0.1em] font-bold px-3 mb-2">
-            SUPPORT & RESOURCES
-          </div>
-          <div className="space-y-1">
-            {supportSection.map((item) => (
-              <SideNavLink key={item.path} item={item} onClose={onClose} />
-            ))}
-          </div>
-        </div>
-
-        {/* Settings */}
-        <div>
-          <div className="text-slate-500 uppercase text-[10px] tracking-[0.1em] font-bold px-3 mb-2">
-            WORKSPACE
-          </div>
-          <div className="space-y-1">
-            {settingsSection.map((item) => (
-              <SideNavLink key={item.path} item={item} onClose={onClose} />
-            ))}
-          </div>
+          <button
+            onClick={() => setAdvancedOpen((v) => !v)}
+            className="w-full flex items-center justify-between text-slate-500 uppercase text-[10px] tracking-wider font-bold px-3 mb-2 hover:text-slate-300 transition"
+            aria-expanded={advancedOpen}
+          >
+            <span className="flex items-center gap-1.5">
+              <Wrench size={11} /> More Tools
+            </span>
+            {advancedOpen ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+          </button>
+          {advancedOpen && (
+            <div className="space-y-1">
+              {advancedSection.map((item) => (
+                <SideNavLink key={item.path} item={item} onClose={onClose} />
+              ))}
+            </div>
+          )}
         </div>
       </nav>
 
-      {/* ── FOOTER & ACTIVE DATASET STATUS ── */}
-      <div className="border-t border-white/5 p-3 space-y-2">
-        {metadata && (
+      {/* ── FOOTER: ACTIVE DATASET ── */}
+      {metadata && (
+        <div className="border-t border-white/5 p-3">
           <div className="rounded-lg bg-white/5 border border-white/10 p-2.5 text-xs text-slate-300">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-semibold uppercase text-slate-400 flex items-center gap-1">
-                <Zap size={10} className="text-indigo-400" /> Active Dataset
+              <span className="text-[10px] font-semibold uppercase text-slate-400">
+                Active Dataset
               </span>
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
             </div>
@@ -191,22 +158,43 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
               {metadata.rows.toLocaleString()} rows · {metadata.columns} cols
             </p>
           </div>
-        )}
-
-        <div className="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 text-xs font-medium text-slate-300 border border-white/5">
-          <span className="flex items-center gap-1.5 text-slate-400 text-[11px]">
-            <span className="text-cyan-400">●</span> AI OS Kernel:
-          </span>
-          <span className="text-cyan-300 font-semibold text-xs">Gemini 2.0</span>
         </div>
-      </div>
+      )}
     </aside>
   );
 }
 
-/* ── SIDEBAR NAV LINK ── */
-interface NavItem { name: string; icon: React.ElementType; path: string; }
+/* ── NAV GROUP ── */
+interface NavItem {
+  name: string;
+  icon: React.ElementType;
+  path: string;
+}
 
+function NavGroup({
+  title,
+  items,
+  onClose,
+}: {
+  title: string;
+  items: NavItem[];
+  onClose?: () => void;
+}) {
+  return (
+    <div>
+      <div className="text-slate-500 uppercase text-[10px] tracking-wider font-bold px-3 mb-2">
+        {title}
+      </div>
+      <div className="space-y-1">
+        {items.map((item) => (
+          <SideNavLink key={item.path} item={item} onClose={onClose} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── SIDEBAR NAV LINK ── */
 function SideNavLink({ item, onClose }: { item: NavItem; onClose?: () => void }) {
   const Icon = item.icon;
   return (
@@ -214,17 +202,17 @@ function SideNavLink({ item, onClose }: { item: NavItem; onClose?: () => void })
       to={item.path}
       onClick={onClose}
       className={({ isActive }) =>
-        `flex items-center gap-3 px-3 py-2.5 text-xs transition-all duration-150 ease-in-out hover:translate-x-0.5 ${
+        `flex items-center gap-3 px-3 py-2 text-xs transition hover:bg-white/5 rounded-lg ${
           isActive
-            ? "bg-indigo-600/15 text-indigo-400 font-semibold border-l-2 border-indigo-500 rounded-r-lg"
-            : "text-slate-400 hover:bg-white/5 hover:text-white rounded-lg"
+            ? "bg-indigo-600/15 text-indigo-400 font-semibold border-l-2 border-indigo-500 rounded-l-none"
+            : "text-slate-400 hover:text-white"
         }`
       }
     >
       {({ isActive }) => (
         <>
           <Icon
-            size={18}
+            size={16}
             className={`flex-shrink-0 ${isActive ? "text-indigo-400" : "text-slate-400"}`}
           />
           <span>{item.name}</span>
