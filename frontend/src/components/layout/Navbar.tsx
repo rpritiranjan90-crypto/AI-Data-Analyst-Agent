@@ -48,6 +48,29 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
     }
   }, [isDarkMode]);
 
+  // Close workspace dropdown on outside click or Escape
+  useEffect(() => {
+    if (!wsDropdownOpen) return;
+    const handler = (e: MouseEvent | KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        e instanceof KeyboardEvent && e.key === "Escape"
+          ? true
+          : !target.closest("[data-ws-dropdown]")
+      ) {
+        setWsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("keydown", handler);
+    // Use setTimeout so the current click that opened the dropdown doesn't close it immediately
+    const timeout = setTimeout(() => document.addEventListener("click", handler), 0);
+    return () => {
+      document.removeEventListener("keydown", handler);
+      document.removeEventListener("click", handler);
+      clearTimeout(timeout);
+    };
+  }, [wsDropdownOpen]);
+
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between px-6 bg-[#F8F9FC]/95 dark:bg-[#0F1629]/95 backdrop-blur border-b border-slate-200/60 dark:border-white/5 transition-colors">
       {/* ── LEFT SECTION ── */}
@@ -64,6 +87,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
         {/* Prominent Workspace Switcher */}
         <div className="relative">
           <button
+            data-ws-dropdown
             onClick={() => setWsDropdownOpen(!wsDropdownOpen)}
             className="flex items-center gap-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-1.5 text-xs font-bold text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700 transition"
           >
@@ -77,7 +101,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
 
           {/* Dropdown Menu */}
           {wsDropdownOpen && (
-            <div className="absolute top-full left-0 mt-2 w-64 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2 shadow-xl z-50 space-y-1">
+            <div data-ws-dropdown className="absolute top-full right-0 mt-2 w-64 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2 shadow-xl z-50 space-y-1 max-h-[80vh] overflow-y-auto">
               <div className="px-3 py-1.5 text-[10px] font-bold uppercase text-slate-400">
                 Switch Enterprise Workspace
               </div>

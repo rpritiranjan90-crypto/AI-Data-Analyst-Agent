@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Toaster } from "sonner";
@@ -19,6 +19,21 @@ export default function MainLayout() {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [workflowModalOpen, setWorkflowModalOpen] = useState(false);
   const location = useLocation();
+
+  // Close the mobile drawer on Escape and lock body scroll while it is open
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSidebarOpen(false);
+    };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [sidebarOpen]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#F8F9FC] dark:bg-[#080C15] text-[#0F172A] dark:text-slate-100 font-sans relative">
@@ -85,7 +100,7 @@ export default function MainLayout() {
         <Navbar onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
 
         <main className="flex-1 overflow-y-auto">
-          <div className="px-8 py-8 max-w-screen-2xl mx-auto flex flex-col min-h-full">
+          <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-screen-2xl mx-auto flex flex-col min-h-full">
             {/* Global Utility Quick Actions Bar */}
             <div className="mb-4 flex items-center justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-2.5 shadow-xs">
               <button

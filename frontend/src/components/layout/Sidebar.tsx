@@ -81,7 +81,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col
+      className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col
         bg-[#0F1629] border-r border-white/5
         transition-all duration-300 ease-in-out
         md:static md:translate-x-0
