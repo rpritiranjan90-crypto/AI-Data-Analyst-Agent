@@ -63,7 +63,11 @@ test.describe("Executive Dashboard & Decision Center E2E Suite", () => {
     // Set the file on the hidden file input — wait for it explicitly
     const fileInput = page.locator('input[type="file"]');
     await fileInput.waitFor({ state: "attached", timeout: 10000 });
-    await fileInput.setInputFiles(FIXTURE_CSV);
+    await fileInput.setInputFiles({
+      name: "sample_data.csv",
+      mimeType: "text/csv",
+      buffer: Buffer.from("id,name,age,salary,department\n1,Alice,30,70000,Engineering\n2,Bob,35,80000,Marketing\n3,Charlie,28,60000,Engineering\n"),
+    });
     // The upload zone should show the filename
     await expect(page.getByText(/sample_data\.csv/).first()).toBeVisible({ timeout: 10000 });
   });
