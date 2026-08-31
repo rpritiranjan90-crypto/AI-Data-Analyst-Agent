@@ -177,7 +177,7 @@ jobs:
 
       - name: Verify .env is not committed
         run: |
-          if git ls-files backend/.env 2>/dev/null; then
+          if [ -n "$(git ls-files backend/.env)" ]; then
             echo "::error::backend/.env is tracked in git. Add it to .gitignore and remove from history."
             exit 1
           fi
