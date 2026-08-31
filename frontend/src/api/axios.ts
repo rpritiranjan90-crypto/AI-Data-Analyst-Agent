@@ -12,18 +12,12 @@ function getBaseUrl(): string {
   if (import.meta.env.VITE_API_URL) {
     return (import.meta.env.VITE_API_URL as string).replace(/\/+$/, "");
   }
-  // In development, fall back to the local backend via the Vite proxy.
+  // In development, fall back to the local backend.
   if (!import.meta.env.PROD) {
     return "http://localhost:8000";
   }
-  // In production, fail loudly if the env var is missing so misconfiguration
-  // is caught immediately rather than silently producing failed requests.
-  if (typeof console !== "undefined") {
-    console.error(
-      "[axios] VITE_API_URL is not set. API calls will fail. Set it in your deployment environment."
-    );
-  }
-  return "";
+  // In production, fallback to the deployed Render backend so API requests succeed
+  return "https://ai-data-analyst-agent-xs7p.onrender.com";
 }
 
 const API_BASE_URL = getBaseUrl();
