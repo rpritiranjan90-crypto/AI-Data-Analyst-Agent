@@ -6,13 +6,39 @@ import Button from "../../../../components/ui/Button";
 import Spinner from "../../../../components/ui/Spinner";
 import { runNaturalLanguageQuery } from "../../../../services/analysisService";
 
+interface ISpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+  onstart: (() => void) | null;
+  onresult: ((event: any) => void) | null;
+  onerror: ((event: any) => void) | null;
+  onend: (() => void) | null;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: new () => ISpeechRecognition;
+    webkitSpeechRecognition: new () => ISpeechRecognition;
+  }
+}
+
+interface QueryResult {
+  summary?: string;
+  code?: string;
+  data?: Record<string, unknown>[];
+}
+
 export default function NLQueryWidget() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [queryResult, setQueryResult] = useState<any>(null);
-  const recognitionRef = useRef<any>(null);
+  const [queryResult, setQueryResult] = useState<QueryResult | null>(null);
+  const recognitionRef = useRef<ISpeechRecognition | null>(null);
 
   const sampleChips = [
     "Show top 10 records",
@@ -22,7 +48,7 @@ export default function NLQueryWidget() {
 
   function toggleVoiceInput() {
     const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
       toast.error("Voice input is not supported in this browser. Please use Chrome or Edge.");
@@ -46,14 +72,14 @@ export default function NLQueryWidget() {
         toast.info("Listening... Speak your dataset question now.");
       };
 
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
         const transcript = event.results[0][0].transcript;
         setQuery(transcript);
         toast.success(`Voice captured: "${transcript}"`);
         handleSearch(transcript);
       };
 
-      recognition.onerror = (event: any) => {
+      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
         console.error("Speech recognition error:", event.error);
         toast.error("Voice input error. Please try again.");
         setIsListening(false);
@@ -65,7 +91,7 @@ export default function NLQueryWidget() {
 
       recognitionRef.current = recognition;
       recognition.start();
-    } catch (err) {
+    } catch {
       toast.error("Failed to start voice recognition.");
       setIsListening(false);
     }
@@ -106,8 +132,9 @@ export default function NLQueryWidget() {
       if (res?.summary) {
         speakText(res.summary);
       }
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Failed to execute query");
+    } catch (err) {
+      const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
+      toast.error(detail || "Failed to execute query");
     } finally {
       setLoading(false);
     }
@@ -186,7 +213,7 @@ export default function NLQueryWidget() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => speakText(queryResult.summary)}
+                onClick={() => speakText(queryResult.summary || "")}
                 className={`flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full transition ${
                   isSpeaking
                     ? "bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse"
@@ -218,9 +245,9 @@ export default function NLQueryWidget() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800 text-slate-300">
-                  {queryResult.data.map((row: any, rIdx: number) => (
+                  {queryResult.data.map((row, rIdx) => (
                     <tr key={rIdx} className="hover:bg-slate-800/50">
-                      {Object.values(row).map((val: any, cIdx: number) => (
+                      {Object.values(row).map((val, cIdx) => (
                         <td key={cIdx} className="px-3 py-2 whitespace-nowrap">
                           {String(val ?? "")}
                         </td>

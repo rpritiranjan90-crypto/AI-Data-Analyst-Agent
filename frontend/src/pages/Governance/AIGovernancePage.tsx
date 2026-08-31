@@ -26,9 +26,10 @@ export default function AIGovernancePage() {
       const data = await getGovernanceStats();
       setStats(data);
       setError(null);
-    } catch (err: any) {
-      const msg = err.response?.data?.detail || err.message || "Failed to load governance stats";
-      setError(msg);
+    } catch (err) {
+      const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
+      const message = (err as Error).message;
+      setError(detail || message || "Failed to load governance stats");
     }
   }
 

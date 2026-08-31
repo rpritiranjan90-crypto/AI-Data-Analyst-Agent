@@ -40,10 +40,14 @@ export default function Card({
   variant = "default",
   ...props
 }: CardProps) {
+  const glassStyle = (glass || variant === "glass") ? "backdrop-blur-md bg-white/80 dark:bg-slate-900/80" : "bg-white dark:bg-slate-900";
+  const variantStyle = variant === "outline" ? "border-2 border-indigo-500/30" : variant === "elevated" ? "shadow-lg shadow-indigo-950/10" : "";
+
   return (
     <div
       className={`
-        bg-white dark:bg-slate-900 
+        ${glassStyle}
+        ${variantStyle}
         rounded-2xl 
         border border-slate-200/70 dark:border-slate-800 
         shadow-[0_1px_3px_rgba(0,0,0,0.04)] 

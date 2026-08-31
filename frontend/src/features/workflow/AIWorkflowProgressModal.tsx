@@ -16,24 +16,25 @@ interface AIWorkflowProgressModalProps {
   onClose: () => void;
 }
 
+const DEFAULT_STEPS: Step[] = [
+  { id: 1, label: "Dataset & Schema Validation", status: "pending" },
+  { id: 2, label: "Automated Data Cleaning & Outlier Removal", status: "pending" },
+  { id: 3, label: "Descriptive Statistical Profiling", status: "pending" },
+  { id: 4, label: "Exploratory Data Analysis (EDA)", status: "pending" },
+  { id: 5, label: "35 Visualization Engine Selection", status: "pending" },
+  { id: 6, label: "Pearson & Spearman Correlation Matrix", status: "pending" },
+  { id: 7, label: "AutoML Model Recommendation", status: "pending" },
+  { id: 8, label: "Isolation Forest Anomaly Detection", status: "pending" },
+  { id: 9, label: "Executive AI Insights Generation", status: "pending" },
+  { id: 10, label: "Temporal Trend & Time-Series Forecast", status: "pending" },
+  { id: 11, label: "Executive Dashboard Layout Build", status: "pending" },
+  { id: 12, label: "PowerPoint & PDF Slide Deck Compilation", status: "pending" },
+];
+
 export default function AIWorkflowProgressModal({ isOpen, onClose }: AIWorkflowProgressModalProps) {
   const navigate = useNavigate();
 
-  const [steps, setSteps] = useState<Step[]>([
-    { id: 1, label: "Dataset & Schema Validation", status: "pending" },
-    { id: 2, label: "Automated Data Cleaning & Outlier Removal", status: "pending" },
-    { id: 3, label: "Descriptive Statistical Profiling", status: "pending" },
-    { id: 4, label: "Exploratory Data Analysis (EDA)", status: "pending" },
-    { id: 5, label: "35 Visualization Engine Selection", status: "pending" },
-    { id: 6, label: "Pearson & Spearman Correlation Matrix", status: "pending" },
-    { id: 7, label: "AutoML Model Recommendation", status: "pending" },
-    { id: 8, label: "Isolation Forest Anomaly Detection", status: "pending" },
-    { id: 9, label: "Executive AI Insights Generation", status: "pending" },
-    { id: 10, label: "Temporal Trend & Time-Series Forecast", status: "pending" },
-    { id: 11, label: "Executive Dashboard Layout Build", status: "pending" },
-    { id: 12, label: "PowerPoint & PDF Slide Deck Compilation", status: "pending" },
-  ]);
-
+  const [steps, setSteps] = useState<Step[]>(DEFAULT_STEPS);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
 
@@ -45,8 +46,8 @@ export default function AIWorkflowProgressModal({ isOpen, onClose }: AIWorkflowP
       return;
     }
 
-    let interval: ReturnType<typeof setInterval> | null = null;
     let idx = 0;
+    let interval: ReturnType<typeof setInterval> | null = null;
 
     setSteps((prev) =>
       prev.map((s, i) => ({
@@ -55,8 +56,9 @@ export default function AIWorkflowProgressModal({ isOpen, onClose }: AIWorkflowP
       }))
     );
 
+    const totalSteps = DEFAULT_STEPS.length;
     interval = setInterval(() => {
-      if (idx < steps.length - 1) {
+      if (idx < totalSteps - 1) {
         idx += 1;
         setCurrentStepIndex(idx);
         setSteps((prev) =>

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Target, ArrowRight, TrendingUp, DollarSign, Users, AlertTriangle, BarChart2, Upload } from "lucide-react";
+import { Target, ArrowRight, TrendingUp, DollarSign, Users, AlertTriangle, BarChart2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import PageHeader from "../../components/ui/PageHeader";
@@ -163,7 +163,7 @@ export default function DecisionCenterPage() {
     }
 
     return decisions;
-  }, [metadata]);
+  }, [metadata, dataset?.profile?.columns]);
 
   function loadDemoDataset() {
     const mockDemo = {

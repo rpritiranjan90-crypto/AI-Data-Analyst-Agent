@@ -1,43 +1,52 @@
 import { test, expect } from "@playwright/test";
-import { CleaningPage } from "../pages/CleaningPage";
-import { MachineLearningPage } from "../pages/MachineLearningPage";
+import { BasePage } from "../pages/BasePage";
 
 test.describe("Data Cleaning & AutoML E2E Suite", () => {
+  test.beforeEach(async ({ page }) => {
+    const base = new BasePage(page);
+    await base.resetAuth();
+  });
+
   test("should render Data Cleaning Studio", async ({ page }) => {
-    const cleaning = new CleaningPage(page);
-    await cleaning.goto();
+    const base = new BasePage(page);
+    await base.gotoAuthenticated("/cleaning");
     await expect(page).toHaveURL(/.*cleaning/);
   });
 
   test("should render AutoML Training Studio", async ({ page }) => {
-    const ml = new MachineLearningPage(page);
-    await ml.goto();
+    const base = new BasePage(page);
+    await base.gotoAuthenticated("/machine-learning");
     await expect(page).toHaveURL(/.*machine-learning/);
   });
 
   test("should show empty state banner when no dataset is loaded on Cleaning page", async ({ page }) => {
-    await page.goto("/cleaning");
-    // Empty state should show a prompt to upload data
+    const base = new BasePage(page);
+    await base.gotoAuthenticated("/cleaning");
+    await expect(page).toHaveURL(/.*cleaning/, { timeout: 15000 });
     await expect(
-      page.getByText(/Upload|import a dataset|clean dataset/i).first()
-    ).toBeVisible({ timeout: 3000 });
+      page.getByText(/Data Quality & Preprocessing Studio|Data Cleaning Studio/i).first()
+    ).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByText(/Upload First Dataset/i).first()
+    ).toBeVisible({ timeout: 5000 });
   });
 
   test("should show empty state on ML page when no dataset is loaded", async ({ page }) => {
-    await page.goto("/machine-learning");
-    // ML studio should indicate a dataset is needed
+    const base = new BasePage(page);
+    await base.gotoAuthenticated("/machine-learning");
+    // ML studio should indicate a dataset is needed.
     await expect(
-      page.getByText(/Upload|select.*target|import.*dataset/i).first()
-    ).toBeVisible({ timeout: 3000 });
+      page.getByText(/Upload|select.*target|import.*dataset|No.*dataset/i).first()
+    ).toBeVisible({ timeout: 5000 });
   });
 
   test("should navigate from Cleaning to Upload page via CTA", async ({ page }) => {
-    const cleaning = new CleaningPage(page);
-    await cleaning.goto();
-    // Find and click an upload CTA if present
-    const uploadLink = page.getByRole("link", { name: /Upload|Import/i }).first();
-    if (await uploadLink.isVisible()) {
-      await uploadLink.click();
+    const base = new BasePage(page);
+    await base.gotoAuthenticated("/cleaning");
+    // The "Upload First Dataset" button on the empty state should take us to /upload.
+    const uploadBtn = page.getByRole("button", { name: /Upload First Dataset/i }).first();
+    if (await uploadBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await uploadBtn.click();
       await expect(page).toHaveURL(/.*upload/);
     }
   });

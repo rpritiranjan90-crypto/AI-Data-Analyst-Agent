@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { ShieldCheck, Cpu, Search, RefreshCw, Upload, Wand2, BarChart2, BrainCircuit, FileText } from "lucide-react";
 import PageHeader from "../../components/ui/PageHeader";
 import Button from "../../components/ui/Button";
-import Spinner from "../../components/ui/Spinner";
+import Skeleton from "../../components/ui/Skeleton";
 import { getAdminStats, getAuditLogs, type AdminStats, type AuditLogEntry } from "../../services/adminService";
 
 function formatUptime(seconds: number): string {
@@ -31,8 +31,10 @@ export default function AdminPortalPage() {
       setStats(statsData);
       setAuditLogs(logsData.entries);
       setError(null);
-    } catch (err: any) {
-      setError(err.response?.data?.detail || err.message || "Failed to load admin data");
+    } catch (err) {
+      const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
+      const message = (err as Error).message;
+      setError(detail || message || "Failed to load admin data");
     }
   }
 
@@ -64,8 +66,51 @@ export default function AdminPortalPage() {
           title="Enterprise Security & Admin Portal"
           subtitle="Monitor platform statistics, API utilization, active security logs, and usage metrics."
         />
-        <div className="flex items-center justify-center py-24">
-          <Spinner size={36} label="Loading admin portal..." />
+
+        {/* Skeleton KPI grid — mirrors the real 6-card layout */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <Skeleton h="h-3" w="w-16" />
+                <Skeleton h="h-8" w="w-8" rounded="lg" />
+              </div>
+              <Skeleton h="h-7" w="w-20" className="mb-2" />
+              <Skeleton h="h-2.5" w="w-24" />
+            </div>
+          ))}
+        </div>
+
+        {/* Skeleton audit log table */}
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4 shadow-xs">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <Skeleton h="h-4" w="w-48" />
+              <Skeleton h="h-2.5" w="w-64" />
+            </div>
+            <Skeleton h="h-8" w="w-48" rounded="lg" />
+          </div>
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div className="bg-slate-100 dark:bg-slate-800 px-4 py-3">
+              <div className="grid grid-cols-5 gap-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} h="h-2.5" w="w-12" />
+                ))}
+              </div>
+            </div>
+            <div className="divide-y divide-slate-200 dark:divide-slate-800">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="px-4 py-3 grid grid-cols-5 gap-4">
+                  {Array.from({ length: 5 }).map((_, j) => (
+                    <Skeleton key={j} h="h-3" w={j === 1 ? "w-24" : "w-20"} />
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );

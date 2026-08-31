@@ -267,7 +267,7 @@ export default function WorkspaceSettingsPage() {
                       {m.role.charAt(0).toUpperCase() + m.role.slice(1)}
                     </div>
                     {/* Role editing controls - visible to owner/admin only */}
-                    {user && (user.role === "owner" || user.role === "admin") && (
+                    {user && (user.role.toLowerCase() === "owner" || user.role.toLowerCase() === "admin") && (
                       <div className="flex items-center gap-2">
                         <select
                           value={m.role}
@@ -282,7 +282,7 @@ export default function WorkspaceSettingsPage() {
                       </div>
                     )}
                     {/* Remove member button - visible to owner/admin only */}
-                    {user && (user.role === "owner" || user.role === "admin") && (
+                    {user && (user.role.toLowerCase() === "owner" || user.role.toLowerCase() === "admin") && (
                       <button
                         onClick={() => handleRemoveMember(m.user_id, m.name || m.email)}
                         className="ml-2 text-red-500 hover:text-red-700"

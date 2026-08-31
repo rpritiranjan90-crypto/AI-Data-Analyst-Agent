@@ -27,13 +27,15 @@ export default function ForgotPasswordPage() {
     try {
       const res = await api.post("/auth/reset-password", { email });
       toast.success(res.data?.message || "If that email is registered, you'll receive a reset link.");
-      // For demo/college submission, the backend returns the token so the user
-      // can complete the flow without an email server. In production, this
-      // would arrive via email.
-      const devToken = res.data?.dev_reset_token as string | undefined;
-      if (devToken) {
-        setResetToken(devToken);
-        setStage("confirm");
+      // M4: Only auto-fill the reset token in development. In production, the token
+      // arrives via email and must be manually pasted. Remove entirely once a real email
+      // service is configured.
+      if (import.meta.env.DEV) {
+        const devToken = res.data?.dev_reset_token as string | undefined;
+        if (devToken) {
+          setResetToken(devToken);
+          setStage("confirm");
+        }
       }
     } catch (err: unknown) {
       const detail =
@@ -89,8 +91,8 @@ export default function ForgotPasswordPage() {
           </h1>
           <p className="text-xs text-slate-400 font-semibold">
             {stage === "request"
-              ? "Enter your email and we'll generate a reset link."
-              : "Use the token from the email (or from the toast above in dev mode) to set a new password."}
+              ? "Enter your email and we'll send you a reset link."
+              : "Paste the token from the email to set a new password."}
           </p>
         </div>
 

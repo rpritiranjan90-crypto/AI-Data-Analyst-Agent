@@ -14,6 +14,7 @@ import PageHeader from "../../components/ui/PageHeader";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Spinner from "../../components/ui/Spinner";
+import Skeleton from "../../components/ui/Skeleton";
 import ExecutiveEmptyStateBanner from "../../components/ui/ExecutiveEmptyStateBanner";
 import { useDatasetStore } from "../../store/datasetStore";
 import {
@@ -23,6 +24,7 @@ import {
   listReports,
   promptAI,
 } from "../../services/reportService";
+import type { AIInsightResponse } from "../../types/api";
 
 interface ChatMessage {
   sender: "user" | "ai";
@@ -30,14 +32,19 @@ interface ChatMessage {
   time: string;
 }
 
+/** Backend returns either an AIInsightResponse, a plain string, or an
+ *  unknown shape — the page normalises all of them. */
+type InsightsData = AIInsightResponse | string | Record<string, unknown> | null;
+
 export default function ReportsPage() {
   const { dataset, setDataset } = useDatasetStore();
   const metadata = dataset?.metadata;
 
   const [loadingInsights, setLoadingInsights] = useState(false);
-  const [insights, setInsights] = useState<any>(null);
+  const [insights, setInsights] = useState<InsightsData>(null);
   const [generatingReport, setGeneratingReport] = useState(false);
-  const [reportList, setReportList] = useState<any[]>([]);
+  const [loadingReports, setLoadingReports] = useState(true);
+  const [reportList, setReportList] = useState<Array<string | { filename: string }>>([]);
 
   // Chat State
   const [chatPrompt, setChatPrompt] = useState("");
@@ -89,8 +96,8 @@ export default function ReportsPage() {
     try {
       setLoadingInsights(true);
       const res = await getAIInsights();
-      setInsights(res);
-    } catch (err: any) {
+      setInsights(res as InsightsData);
+    } catch (err) {
       console.error(err);
     } finally {
       setLoadingInsights(false);
@@ -99,12 +106,15 @@ export default function ReportsPage() {
 
   async function fetchReportsList() {
     try {
+      setLoadingReports(true);
       const res = await listReports();
       if (res && Array.isArray(res)) {
-        setReportList(res);
+        setReportList(res as Array<string | { filename: string }>);
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoadingReports(false);
     }
   }
 
@@ -114,8 +124,9 @@ export default function ReportsPage() {
       const res = await generateReport();
       toast.success(res.message || "PDF Report generated successfully!");
       fetchReportsList();
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Report generation failed");
+    } catch (err) {
+      const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
+      toast.error(detail || "Report generation failed");
     } finally {
       setGeneratingReport(false);
     }
@@ -148,7 +159,8 @@ export default function ReportsPage() {
           time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         },
       ]);
-    } catch (err: any) {
+    } catch (err) {
+      console.error(err);
       toast.error("AI Assistant request failed");
       setChatHistory([
         ...newHistory,
@@ -221,8 +233,24 @@ export default function ReportsPage() {
             </div>
 
             {loadingInsights ? (
-              <div className="py-12 flex justify-center">
-                <Spinner size={28} label="Synthesizing AI dataset insights..." />
+              <div className="space-y-3" aria-live="polite" aria-busy="true">
+                {/* Skeleton insight header */}
+                <div className="space-y-2">
+                  <Skeleton h="h-3" w="w-32" />
+                  <Skeleton h="h-5" w="w-3/4" />
+                </div>
+                {/* Skeleton insight body — multiple paragraph rows */}
+                <div className="p-4 rounded-2xl bg-indigo-50/50 dark:bg-slate-800/80 border border-indigo-100 dark:border-slate-700 space-y-2.5">
+                  <Skeleton h="h-3" w="w-full" />
+                  <Skeleton h="h-3" w="w-11/12" />
+                  <Skeleton h="h-3" w="w-10/12" />
+                  <div className="h-2" />
+                  <Skeleton h="h-3" w="w-full" />
+                  <Skeleton h="h-3" w="w-9/12" />
+                  <div className="h-2" />
+                  <Skeleton h="h-3" w="w-full" />
+                  <Skeleton h="h-3" w="w-8/12" />
+                </div>
               </div>
             ) : insights ? (
               <div className="prose prose-slate max-w-none text-xs leading-relaxed space-y-3">
@@ -230,7 +258,7 @@ export default function ReportsPage() {
                   <p className="whitespace-pre-line">
                     {typeof insights === "string"
                       ? insights
-                      : insights.summary || insights.insights || JSON.stringify(insights, null, 2)}
+                      : (insights as Record<string, any>).summary || (insights as Record<string, any>).insights || JSON.stringify(insights, null, 2)}
                   </p>
                 </div>
               </div>
@@ -248,9 +276,27 @@ export default function ReportsPage() {
               Generated Report Files
             </h3>
 
-            {reportList.length > 0 ? (
+            {loadingReports ? (
+              <div className="space-y-3" aria-live="polite" aria-busy="true">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/60"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Skeleton h="h-5" w="w-5" rounded="md" />
+                      <div className="space-y-1.5">
+                        <Skeleton h="h-3" w="w-40" />
+                        <Skeleton h="h-2.5" w="w-24" />
+                      </div>
+                    </div>
+                    <Skeleton h="h-7" w="w-20" rounded="lg" />
+                  </div>
+                ))}
+              </div>
+            ) : reportList.length > 0 ? (
               <div className="space-y-3">
-                {reportList.map((rpt: any, idx: number) => {
+                {reportList.map((rpt, idx) => {
                   const fname = typeof rpt === "string" ? rpt : rpt.filename || `report_${idx}.pdf`;
                   return (
                     <div
@@ -326,8 +372,15 @@ export default function ReportsPage() {
             ))}
 
             {chatLoading && (
-              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 p-2">
-                <Spinner size={16} /> Thinking...
+              <div className="flex gap-3" aria-live="polite" aria-busy="true">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white text-xs font-bold">
+                  <Bot size={16} />
+                </div>
+                <div className="max-w-[80%] rounded-2xl p-3.5 text-xs bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-tl-none border border-slate-200/60 dark:border-slate-700 space-y-2">
+                  <Skeleton h="h-3" w="w-56" />
+                  <Skeleton h="h-3" w="w-44" />
+                  <Skeleton h="h-3" w="w-32" />
+                </div>
               </div>
             )}
           </div>

@@ -22,8 +22,22 @@ export default defineConfig({
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
+    // Test isolation: clear all persisted client state synchronously before
+    // every page load so unauthenticated redirect tests are never contaminated
+    // by state from a previous test. addInitScript runs before page scripts.
+    addInitScript() {
+      return `
+        try {
+          localStorage.removeItem('ada-auth-storage');
+          localStorage.removeItem('ai_analyst_jwt_token');
+          localStorage.removeItem('ai-dataset-storage');
+          localStorage.removeItem('ai-pinboard-storage');
+        } catch(e){}
+      `;
+    },
   },
   // Auto-start the Vite dev server before running tests (skipped in CI which pre-starts it).
+  // reuseExistingServer: false ensures the server picks up any vite.config.ts changes.
   webServer: process.env.CI
     ? undefined
     : {

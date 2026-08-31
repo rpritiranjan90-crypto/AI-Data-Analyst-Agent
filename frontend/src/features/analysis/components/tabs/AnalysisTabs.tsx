@@ -9,6 +9,7 @@ import {
   CalendarClock,
   Sparkles,
   FileText,
+  type LucideIcon,
 } from "lucide-react";
 
 interface AnalysisTabsProps {
@@ -19,7 +20,7 @@ interface AnalysisTabsProps {
 const tabs: {
   id: AnalysisTab;
   label: string;
-  icon: any;
+  icon: LucideIcon;
 }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "statistics", label: "Statistics", icon: Calculator },

@@ -15,7 +15,7 @@ async function runTests() {
   try {
     const res = await fetch(`${API_BASE}/health`);
     const json = await res.json();
-    if (res.ok && json.success) {
+    if (res.ok && (json.status === "healthy" || json.success)) {
       console.log("  [PASS] GET /health -> Status:", json.status);
       passed++;
     } else {

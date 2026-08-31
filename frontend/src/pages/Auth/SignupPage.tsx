@@ -1,10 +1,16 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Lock, Mail, User, Building, ArrowRight, Sparkles } from "lucide-react";
+import { Lock, Mail, User, Building, ArrowRight, Sparkles, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import Button from "../../components/ui/Button";
 import { useAuthStore } from "../../store/authStore";
 import api from "../../api/axios";
+import {
+  evaluatePassword,
+  strengthBarColor,
+  strengthLabel,
+  type PasswordEvaluation,
+} from "../../lib/passwordStrength";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -16,6 +22,11 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const strength: PasswordEvaluation = useMemo(
+    () => evaluatePassword(password),
+    [password]
+  );
+
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     if (!name || !email || !password) {
@@ -24,6 +35,14 @@ export default function SignupPage() {
     }
     if (password.length < 8) {
       toast.error("Password must be at least 8 characters.");
+      return;
+    }
+    if (strength.score < 2) {
+      toast.error(
+        strength.score === 0
+          ? "Password is too weak. Add a mix of characters and symbols."
+          : "Password is too weak. Try a longer password with mixed characters."
+      );
       return;
     }
     setLoading(true);
@@ -36,12 +55,7 @@ export default function SignupPage() {
         workspace_name: company || `${name}'s Workspace`,
       });
       const { token, user, workspaces } = res.data || {};
-      if (token) localStorage.setItem("ai_analyst_jwt_token", token);
-      // Persist for the dev fallback (SignInPage also writes the same key)
-      if (token) {
-        // Persist the same token to the localStorage key the axios interceptor reads.
-        localStorage.setItem("ai_analyst_jwt_token", token);
-      }
+      // Tokens are now stored in cookies (ada_access + ada_refresh httpOnly).
       // Map backend `name` to our `name` field
       const mappedUser = user
         ? {
@@ -51,7 +65,7 @@ export default function SignupPage() {
             role: "Owner" as const,
           }
         : null;
-      setAuth(mappedUser as any, token, workspaces);
+      setAuth(mappedUser!, token, workspaces);
       toast.success("Workspace created. Welcome aboard!");
       navigate("/dashboard");
     } catch (err: unknown) {
@@ -136,9 +150,60 @@ export default function SignupPage() {
                   required
                   minLength={8}
                   autoComplete="new-password"
+                  aria-describedby="password-strength-label password-strength-checks"
                   className="w-full rounded-xl border border-slate-700 bg-slate-800/90 py-2.5 pl-10 pr-4 text-xs font-semibold text-white outline-none focus:border-indigo-500"
                 />
               </div>
+
+              {password.length > 0 && (
+                <div className="mt-2 space-y-2" aria-live="polite">
+                  {/* 4-segment strength bar */}
+                  <div
+                    id="password-strength-label"
+                    className="flex items-center gap-2"
+                    role="status"
+                  >
+                    <div className="flex-1 grid grid-cols-4 gap-1" aria-hidden="true">
+                      {[0, 1, 2, 3].map((seg) => {
+                        const filled = strength.score >= seg + 1;
+                        return (
+                          <div
+                            key={seg}
+                            className={`h-1.5 rounded-full transition-colors ${
+                              filled ? strengthBarColor(strength.score) : "bg-slate-700/60"
+                            }`}
+                          />
+                        );
+                      })}
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300 min-w-[5.5rem] text-right">
+                      {strengthLabel(strength.score)}
+                    </span>
+                  </div>
+
+                  {/* Checklist of missing requirements */}
+                  <ul
+                    id="password-strength-checks"
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1 text-[11px]"
+                  >
+                    {strength.checks.map((c) => (
+                      <li
+                        key={c.label}
+                        className={`flex items-center gap-1.5 ${
+                          c.passed ? "text-emerald-400" : "text-slate-500"
+                        }`}
+                      >
+                        {c.passed ? (
+                          <Check size={11} className="shrink-0" />
+                        ) : (
+                          <X size={11} className="shrink-0" />
+                        )}
+                        <span>{c.label}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
             <Button type="submit" variant="primary" size="lg" disabled={loading} className="w-full justify-center">

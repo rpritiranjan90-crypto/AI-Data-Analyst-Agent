@@ -5,12 +5,32 @@ import { toast } from "sonner";
 import { runNaturalLanguageQuery } from "../../services/analysisService";
 import { useDatasetStore } from "../../store/datasetStore";
 
+interface ISpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+  onstart: (() => void) | null;
+  onresult: ((event: any) => void) | null;
+  onerror: ((event: any) => void) | null;
+  onend: (() => void) | null;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: new () => ISpeechRecognition;
+    webkitSpeechRecognition: new () => ISpeechRecognition;
+  }
+}
+
 interface Message {
   id: string;
   sender: "user" | "copilot";
   text: string;
   timestamp: string;
-  data?: any[];
+  data?: Record<string, unknown>[];
   code?: string;
 }
 
@@ -34,7 +54,7 @@ export default function AICopilotDrawer() {
   ]);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<ISpeechRecognition | null>(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -42,7 +62,7 @@ export default function AICopilotDrawer() {
 
   function toggleVoiceInput() {
     const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
       toast.error("Voice input is not supported in this browser.");
@@ -66,7 +86,7 @@ export default function AICopilotDrawer() {
         toast.info("Listening... Speak your dataset question now.");
       };
 
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
         const transcript = event.results[0][0].transcript;
         setInput(transcript);
         handleSend(transcript);
@@ -82,7 +102,8 @@ export default function AICopilotDrawer() {
 
       recognitionRef.current = recognition;
       recognition.start();
-    } catch {
+    } catch (err) {
+      console.error("Voice input init failed:", err);
       setIsListening(false);
     }
   }
@@ -128,11 +149,12 @@ export default function AICopilotDrawer() {
       };
       setMessages((prev) => [...prev, copilotMsg]);
       speakText(copilotMsg.text);
-    } catch (err: any) {
+    } catch (err) {
+      const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         sender: "copilot",
-        text: err.response?.data?.detail || "Failed to analyze query. Please try rephrasing.",
+        text: detail || "Failed to analyze query. Please try rephrasing.",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
       setMessages((prev) => [...prev, errorMsg]);
@@ -192,6 +214,7 @@ export default function AICopilotDrawer() {
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
+                  aria-label="Close AI Copilot"
                   className="rounded-lg p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 transition"
                 >
                   <X size={15} />
@@ -240,7 +263,7 @@ export default function AICopilotDrawer() {
                           <tbody className="divide-y divide-slate-800">
                             {msg.data.slice(0, 5).map((row, rIdx) => (
                               <tr key={rIdx}>
-                                {Object.values(row).map((val: any, cIdx) => (
+                                {Object.values(row).map((val, cIdx) => (
                                   <td key={cIdx} className="px-2 py-1 whitespace-nowrap">{String(val ?? "")}</td>
                                 ))}
                               </tr>
@@ -255,6 +278,7 @@ export default function AICopilotDrawer() {
                       {msg.sender === "copilot" && (
                         <button
                           onClick={() => speakText(msg.text)}
+                          aria-label="Read aloud"
                           className="hover:text-white transition"
                         >
                           <Volume2 size={12} />
@@ -294,6 +318,7 @@ export default function AICopilotDrawer() {
                   <button
                     type="button"
                     onClick={toggleVoiceInput}
+                    aria-label={isListening ? "Stop voice input" : "Start voice input"}
                     className={`p-1.5 rounded-lg transition ${
                       isListening ? "bg-red-500/20 text-red-400 animate-pulse" : "text-slate-400 hover:text-white"
                     }`}
@@ -304,6 +329,7 @@ export default function AICopilotDrawer() {
                     type="button"
                     onClick={() => handleSend()}
                     disabled={loading || !input.trim()}
+                    aria-label="Send message"
                     className="p-1.5 rounded-lg bg-indigo-600 text-white disabled:opacity-50 hover:bg-indigo-500 transition"
                   >
                     <Send size={14} />

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Circle, X, Loader2, Rocket, Upload, BarChart3, LineChart, Brain, FileText, UserPlus, Crown } from "lucide-react";
+import { CheckCircle2, Circle, X, Rocket, Upload, BarChart3, LineChart, Brain, FileText, UserPlus, Crown } from "lucide-react";
 import { toast } from "sonner";
-import { getOnboarding, markOnboardingStep, type OnboardingStep } from "../../api/phase2";
+import { getOnboarding, type OnboardingStep } from "../../api/phase2";
 import { useAuthStore } from "../../store/authStore";
 
 const ICON_MAP: Record<string, React.ReactNode> = {
@@ -72,6 +72,7 @@ export default function OnboardingChecklist({ onClose }: { onClose?: () => void 
         onClick={handleDismiss}
         className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-white/50 dark:hover:bg-slate-800/50 transition"
         title="Dismiss"
+        aria-label="Dismiss checklist"
       >
         <X size={16} className="text-slate-400" />
       </button>

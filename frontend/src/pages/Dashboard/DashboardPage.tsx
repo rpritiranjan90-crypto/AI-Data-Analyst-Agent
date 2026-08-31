@@ -23,6 +23,7 @@ import RecentUploads from "../../components/dashboard/RecentUploads";
 import PageHeader from "../../components/ui/PageHeader";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
+import Skeleton from "../../components/ui/Skeleton";
 import { useDatasetStore } from "../../store/datasetStore";
 import OnboardingChecklist from "../../components/onboarding/OnboardingChecklist";
 
@@ -101,48 +102,66 @@ export default function DashboardPage() {
       </div>
 
       {/* KPI Cards Grid */}
-      <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <KPICard
-          title="Active Dataset"
-          value={metadata ? metadata.filename : "No dataset"}
-          trendLabel={metadata ? `${metadata.extension.toUpperCase()} Format` : "Upload a file to begin"}
-          icon={FileSpreadsheet}
-        />
+      <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6" aria-live="polite" aria-busy={loadingDemo}>
+        {loadingDemo ? (
+          Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <Skeleton h="h-3" w="w-20" />
+                <Skeleton h="h-8" w="h-8" rounded="lg" />
+              </div>
+              <Skeleton h="h-7" w="w-16" />
+              <Skeleton h="h-2.5" w="w-24" />
+            </div>
+          ))
+        ) : (
+          <>
+            <KPICard
+              title="Active Dataset"
+              value={metadata ? metadata.filename : "No dataset"}
+              trendLabel={metadata ? `${metadata.extension.toUpperCase()} Format` : "Upload a file to begin"}
+              icon={FileSpreadsheet}
+            />
 
-        <KPICard
-          title="Total Rows"
-          value={metadata ? metadata.rows.toLocaleString() : "0"}
-          trendLabel="Record count"
-          icon={Database}
-        />
+            <KPICard
+              title="Total Rows"
+              value={metadata ? metadata.rows.toLocaleString() : "0"}
+              trendLabel="Record count"
+              icon={Database}
+            />
 
-        <KPICard
-          title="Columns"
-          value={metadata ? metadata.columns : 0}
-          trendLabel="Feature dimension"
-          icon={Table2}
-        />
+            <KPICard
+              title="Columns"
+              value={metadata ? metadata.columns : 0}
+              trendLabel="Feature dimension"
+              icon={Table2}
+            />
 
-        <KPICard
-          title="Missing Cells"
-          value={metadata ? metadata.missing_values.toLocaleString() : "0"}
-          trendLabel={metadata && metadata.missing_values > 0 ? "Requires cleaning" : "Data complete"}
-          icon={TriangleAlert}
-        />
+            <KPICard
+              title="Missing Cells"
+              value={metadata ? metadata.missing_values.toLocaleString() : "0"}
+              trendLabel={metadata && metadata.missing_values > 0 ? "Requires cleaning" : "Data complete"}
+              icon={TriangleAlert}
+            />
 
-        <KPICard
-          title="Duplicate Rows"
-          value={metadata ? metadata.duplicate_rows.toLocaleString() : "0"}
-          trendLabel={metadata && metadata.duplicate_rows > 0 ? "Duplicates detected" : "No duplicates"}
-          icon={TriangleAlert}
-        />
+            <KPICard
+              title="Duplicate Rows"
+              value={metadata ? metadata.duplicate_rows.toLocaleString() : "0"}
+              trendLabel={metadata && metadata.duplicate_rows > 0 ? "Duplicates detected" : "No duplicates"}
+              icon={TriangleAlert}
+            />
 
-        <KPICard
-          title="Memory Usage"
-          value={metadata ? `${metadata.memory_usage_mb.toFixed(2)} MB` : "0 MB"}
-          trendLabel="RAM footprint"
-          icon={BrainCircuit}
-        />
+            <KPICard
+              title="Memory Usage"
+              value={metadata ? `${metadata.memory_usage_mb.toFixed(2)} MB` : "0 MB"}
+              trendLabel="RAM footprint"
+              icon={BrainCircuit}
+            />
+          </>
+        )}
       </section>
 
       {/* Featured Section: Business Decision Center & Strategic AI Advisor */}

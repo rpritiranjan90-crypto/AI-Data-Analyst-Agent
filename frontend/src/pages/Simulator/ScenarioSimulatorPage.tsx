@@ -242,7 +242,7 @@ export default function ScenarioSimulatorPage() {
                   <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
                   <XAxis dataKey="metric" stroke="#888888" fontSize={11} />
                   <YAxis stroke="#888888" fontSize={11} tickFormatter={(v) => `$${v / 1000}k`} />
-                  <Tooltip formatter={(value: any) => [`$${Number(value).toLocaleString()}`, ""]} />
+                  <Tooltip formatter={(value) => [`$${Number(value).toLocaleString()}`, ""]} />
                   <Legend />
                   <Bar dataKey="Baseline" fill="#94a3b8" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="Simulated" fill="#4f46e5" radius={[4, 4, 0, 0]} />

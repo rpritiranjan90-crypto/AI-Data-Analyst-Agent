@@ -22,6 +22,13 @@ import {
   trainModel,
 } from "../../services/mlService";
 
+interface TrainingResults {
+  algorithm?: string;
+  target?: string;
+  metrics?: Record<string, number>;
+  [key: string]: unknown;
+}
+
 export default function MachineLearningPage() {
   const { dataset, setDataset } = useDatasetStore();
   const metadata = dataset?.metadata;
@@ -32,15 +39,16 @@ export default function MachineLearningPage() {
   const [randomState, setRandomState] = useState(42);
 
   const [training, setTraining] = useState(false);
-  const [trainingResults, setTrainingResults] = useState<any>(null);
+  const [trainingResults, setTrainingResults] = useState<TrainingResults | null>(null);
 
   const columns = metadata?.column_names || [];
 
   useEffect(() => {
     fetchModels();
     fetchSummary();
-    if (columns.length > 0) {
-      setTargetCol(columns[columns.length - 1]);
+    const cols = metadata?.column_names || [];
+    if (cols.length > 0) {
+      setTargetCol(cols[cols.length - 1]);
     }
   }, [metadata]);
 
@@ -84,7 +92,7 @@ export default function MachineLearningPage() {
     try {
       const res = await getMLTrainingSummary();
       if (res && res.metrics) {
-        setTrainingResults(res);
+        setTrainingResults(res as TrainingResults);
       }
     } catch (err) {
       console.error(err);
@@ -101,10 +109,11 @@ export default function MachineLearningPage() {
         test_size: Number(testSize),
         random_state: Number(randomState),
       });
-      setTrainingResults(res);
+      setTrainingResults(res as TrainingResults);
       toast.success("ML Model trained successfully!");
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || "ML Training failed");
+    } catch (err) {
+      const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
+      toast.error(detail || "ML Training failed");
     } finally {
       setTraining(false);
     }
@@ -289,7 +298,7 @@ export default function MachineLearningPage() {
                   </h4>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-                    {Object.entries(trainingResults.metrics || {}).map(([key, val]: [string, any]) => (
+                    {Object.entries(trainingResults.metrics || {}).map(([key, val]) => (
                       <div key={key} className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs">
                         <span className="font-semibold text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-wide">
                           {key.replace(/_/g, " ")}

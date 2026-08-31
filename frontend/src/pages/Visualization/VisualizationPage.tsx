@@ -13,6 +13,7 @@ import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Select from "../../components/ui/Select";
 import Spinner from "../../components/ui/Spinner";
+import Skeleton from "../../components/ui/Skeleton";
 import ExecutiveEmptyStateBanner from "../../components/ui/ExecutiveEmptyStateBanner";
 import { useDatasetStore } from "../../store/datasetStore";
 import {
@@ -21,6 +22,7 @@ import {
   getChartImageUrl,
   getSupportedChartTypes,
 } from "../../services/visualizationService";
+import type { ChartType, Theme } from "../../types/api";
 
 export default function VisualizationPage() {
   const { dataset, setDataset } = useDatasetStore();
@@ -42,9 +44,10 @@ export default function VisualizationPage() {
 
   useEffect(() => {
     fetchSupportedTypes();
-    if (columns.length > 0) {
-      setXCol(columns[0]);
-      setYCol(columns[1] || columns[0]);
+    const cols = metadata?.column_names || [];
+    if (cols.length > 0) {
+      setXCol(cols[0]);
+      setYCol(cols[1] || cols[0]);
     }
   }, [metadata]);
 
@@ -91,12 +94,11 @@ export default function VisualizationPage() {
     if (!xCol) return;
     try {
       setGenerating(true);
-      const payload: any = {
-        chart_type: chartType,
-        column: xCol,
+      const payload: { chart_type: ChartType; x_column: string; title: string; theme: Theme; y_column?: string } = {
+        chart_type: chartType as ChartType,
         x_column: xCol,
         title: title || `${chartType.toUpperCase()} of ${xCol}`,
-        theme,
+        theme: theme as Theme,
       };
 
       if (["scatter", "line", "bar", "box", "violin"].includes(chartType)) {
@@ -106,13 +108,14 @@ export default function VisualizationPage() {
       const res = await generateChart(payload);
       if (res.chart_path || res.image_path || res.file_path || res.path) {
         const path = res.chart_path || res.image_path || res.file_path || res.path;
-        setGeneratedChartPath(path);
+        setGeneratedChartPath(path as string);
         toast.success("Visualization generated!");
       } else {
         toast.success("Chart created!");
       }
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Chart generation failed");
+    } catch (err) {
+      const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
+      toast.error(detail || "Chart generation failed");
     } finally {
       setGenerating(false);
     }
@@ -126,8 +129,9 @@ export default function VisualizationPage() {
       if (res.charts && Array.isArray(res.charts)) {
         setAutoCharts(res.charts);
       }
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Auto visualization failed");
+    } catch (err) {
+      const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
+      toast.error(detail || "Auto visualization failed");
     } finally {
       setAutoGenerating(false);
     }
@@ -165,7 +169,7 @@ export default function VisualizationPage() {
           className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-blue-500/20"
         >
           {autoGenerating ? (
-            <Spinner size={18} label="Rendering..." />
+            <Spinner size={18} label="Generating charts..." />
           ) : (
             <>
               <Zap size={18} className="mr-2" />
@@ -295,8 +299,26 @@ export default function VisualizationPage() {
             </div>
 
             {generating ? (
-              <div className="flex flex-col items-center justify-center py-24">
-                <Spinner size={36} label="Creating visualization..." />
+              <div className="flex flex-col items-center justify-center py-16 space-y-4" aria-live="polite" aria-busy="true">
+                <Spinner size={28} label="Rendering visualization..." />
+                <div className="w-full max-w-2xl rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-6 space-y-4 shadow-inner">
+                  {/* Skeleton chart canvas — axes */}
+                  <div className="flex items-end justify-between gap-2 h-56">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <Skeleton
+                        key={i}
+                        h={`h-${32 + ((i * 13) % 24)}`}
+                        w="w-full"
+                        rounded="md"
+                      />
+                    ))}
+                  </div>
+                  {/* Skeleton axis labels */}
+                  <div className="flex justify-between">
+                    <Skeleton h="h-2.5" w="w-24" />
+                    <Skeleton h="h-2.5" w="w-16" />
+                  </div>
+                </div>
               </div>
             ) : generatedChartPath ? (
               <div className="flex justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 p-4 overflow-hidden shadow-inner">
@@ -318,6 +340,22 @@ export default function VisualizationPage() {
           </div>
 
           {/* Auto Generated Gallery */}
+          {autoGenerating && autoCharts.length === 0 && (
+            <div className="mt-8 border-t border-slate-100 dark:border-slate-800 pt-6" aria-live="polite" aria-busy="true">
+              <h4 className="font-bold text-slate-900 dark:text-white text-sm mb-4">Auto-Generated Gallery</h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-xs"
+                  >
+                    <Skeleton h="h-32" w="w-full" rounded="md" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {autoCharts.length > 0 && (
             <div className="mt-8 border-t border-slate-100 dark:border-slate-800 pt-6">
               <h4 className="font-bold text-slate-900 dark:text-white text-sm mb-4">Auto-Generated Gallery</h4>
@@ -326,7 +364,16 @@ export default function VisualizationPage() {
                   <div
                     key={idx}
                     onClick={() => setGeneratedChartPath(chartPath)}
-                    className="cursor-pointer border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden hover:border-blue-500 transition shadow-xs"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setGeneratedChartPath(chartPath);
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`View auto-generated chart ${idx + 1}`}
+                    className="cursor-pointer border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden hover:border-blue-500 transition shadow-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <img
                       src={getChartImageUrl(chartPath)}

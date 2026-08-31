@@ -40,7 +40,7 @@ export default function DataFabricPage() {
       setLoading(true);
       const res = await listDatasets();
       setDatasets(res.items);
-    } catch (err) {
+    } catch {
       // Soft-fail: keep the page usable even if backend is down.
       setDatasets([]);
     } finally {

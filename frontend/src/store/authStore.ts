@@ -1,5 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { isJwtExpired } from "../lib/jwt";
+import { readAccessCookie } from "../lib/cookie";
+import { logoutRequest } from "../services/authService";
 
 export interface UserProfile {
   id: string;
@@ -84,7 +87,16 @@ export const useAuthStore = create<AuthState>()(
           };
         }),
 
-      logout: () =>
+      logout: () => {
+        // C1: clear the access cookie (server also clears both cookies via
+        // /auth/logout) and drop the legacy localStorage entry if present.
+        try {
+          localStorage.removeItem("ai_analyst_jwt_token");
+        } catch {
+          // Ignore storage errors.
+        }
+        // Fire-and-forget; we don't want to block the UI on this.
+        void logoutRequest();
         set({
           user: null,
           token: null,
@@ -92,10 +104,34 @@ export const useAuthStore = create<AuthState>()(
           workspaces: [],
           isAuthenticated: false,
           isGuest: true,
-        }),
+        });
+      },
     }),
     {
       name: "ada-auth-storage",
+      // H3 + C1: on hydration, prefer the ada_access cookie as the source of
+      // truth for the current session. If the cookie is missing/expired, try
+      // a silent /auth/refresh. If the persisted state holds a token whose
+      // `exp` is in the past, drop it.
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+        // One-time migration: drop the old localStorage token if it exists.
+        try { localStorage.removeItem("ai_analyst_jwt_token"); } catch {}
+
+        const cookieToken = readAccessCookie();
+        if (cookieToken && !isJwtExpired(cookieToken)) {
+          state.token = cookieToken;
+          state.isAuthenticated = true;
+          return;
+        }
+        if (state.token && isJwtExpired(state.token)) {
+          state.token = null;
+          state.user = null;
+          state.isAuthenticated = false;
+          state.activeWorkspace = null;
+          state.workspaces = [];
+        }
+      },
     }
   )
 );

@@ -26,11 +26,17 @@ import {
   removeZScoreOutliers,
 } from "../../services/cleaningService";
 
+interface QualityData {
+  quality_score?: number;
+  // Backend may surface other fields; keep them loosely typed.
+  [key: string]: unknown;
+}
+
 export default function CleaningPage() {
   const { dataset, setDataset } = useDatasetStore();
   const metadata = dataset?.metadata;
 
-  const [qualityData, setQualityData] = useState<any>(null);
+  const [qualityData, setQualityData] = useState<QualityData | null>(null);
   const [activeAction, setActiveAction] = useState<string | null>(null);
 
   // Form States
@@ -50,10 +56,11 @@ export default function CleaningPage() {
   useEffect(() => {
     if (metadata) {
       fetchQuality();
-      if (columns.length > 0) {
-        setMissingCol(columns[0]);
-        setOutlierCol(columns[0]);
-        setDtypeCol(columns[0]);
+      const cols = metadata.column_names || [];
+      if (cols.length > 0) {
+        setMissingCol(cols[0]);
+        setOutlierCol(cols[0]);
+        setDtypeCol(cols[0]);
       }
     }
   }, [metadata]);
@@ -101,8 +108,9 @@ export default function CleaningPage() {
       const res = await autoCleanDataset();
       toast.success(res.message || "Dataset automatically cleaned!");
       fetchQuality();
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Auto cleaning failed");
+    } catch (err) {
+      const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
+      toast.error(detail || "Auto cleaning failed");
     } finally {
       setActiveAction(null);
     }
@@ -115,8 +123,9 @@ export default function CleaningPage() {
       const res = await fillMissingValues(missingCol, missingMethod, missingValue);
       toast.success(res.message || `Missing values filled for ${missingCol}`);
       fetchQuality();
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Failed to fill missing values");
+    } catch (err) {
+      const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
+      toast.error(detail || "Failed to fill missing values");
     } finally {
       setActiveAction(null);
     }
@@ -128,8 +137,9 @@ export default function CleaningPage() {
       const res = await removeDuplicates();
       toast.success(res.message || "Duplicate rows removed");
       fetchQuality();
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Failed to remove duplicates");
+    } catch (err) {
+      const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
+      toast.error(detail || "Failed to remove duplicates");
     } finally {
       setActiveAction(null);
     }
@@ -147,8 +157,9 @@ export default function CleaningPage() {
       }
       toast.success(res.message || `Outliers removed from ${outlierCol}`);
       fetchQuality();
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Failed to remove outliers");
+    } catch (err) {
+      const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
+      toast.error(detail || "Failed to remove outliers");
     } finally {
       setActiveAction(null);
     }
@@ -161,8 +172,9 @@ export default function CleaningPage() {
       const res = await convertDatatype(dtypeCol, targetDtype);
       toast.success(res.message || `Converted ${dtypeCol} to ${targetDtype}`);
       fetchQuality();
-    } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Failed to convert datatype");
+    } catch (err) {
+      const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
+      toast.error(detail || "Failed to convert datatype");
     } finally {
       setActiveAction(null);
     }

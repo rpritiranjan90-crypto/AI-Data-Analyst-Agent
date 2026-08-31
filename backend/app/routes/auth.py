@@ -9,6 +9,12 @@ Key design decisions:
 - /auth/switch-workspace re-issues a JWT with a different workspace_id claim.
 - In Supabase mode: all reads/writes go to Postgres.
   In dev mode (no SUPABASE_URL): in-memory fallback with identical interface.
+
+Cookie strategy (C1):
+- On login/register: short-lived `ada_access` cookie (15 min) + long-lived
+  `ada_refresh` httpOnly cookie (7 days, path-scoped to /auth/refresh).
+- On /auth/refresh: rotate the refresh token, return a new access token in body.
+- On /auth/logout: revoke all refresh tokens for the user, clear both cookies.
 """
 from __future__ import annotations
 
@@ -17,12 +23,56 @@ import secrets
 import time
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Header, Request, status
+from fastapi import APIRouter, HTTPException, Header, Request, Response, status
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, field_validator
 
 from app.services import auth_service as auth
 
 router = APIRouter(prefix="/auth", tags=["Authentication & Workspace"])
+
+# Cookie config
+ACCESS_COOKIE_NAME = "ada_access"
+REFRESH_COOKIE_NAME = "ada_refresh"
+REFRESH_COOKIE_PATH = "/auth/refresh"
+
+
+def _is_production() -> bool:
+    return os.environ.get("APP_ENV", "development").lower() in ("production", "prod", "staging")
+
+
+def _cookie_secure() -> bool:
+    """In dev, cookies can be sent over http; in prod, must be https."""
+    return _is_production()
+
+
+def _set_access_cookie(response: Response, token: str) -> None:
+    response.set_cookie(
+        key=ACCESS_COOKIE_NAME,
+        value=token,
+        max_age=auth.ACCESS_TOKEN_TTL_SECONDS,
+        httponly=False,        # readable by JS so axios can build the Authorization header
+        secure=_cookie_secure(),
+        samesite="strict",
+        path="/",
+    )
+
+
+def _set_refresh_cookie(response: Response, token: str) -> None:
+    response.set_cookie(
+        key=REFRESH_COOKIE_NAME,
+        value=token,
+        max_age=auth.REFRESH_TOKEN_TTL_SECONDS,
+        httponly=True,         # invisible to JS — XSS cannot exfiltrate
+        secure=_cookie_secure(),
+        samesite="strict",
+        path=REFRESH_COOKIE_PATH,
+    )
+
+
+def _clear_auth_cookies(response: Response) -> None:
+    response.delete_cookie(ACCESS_COOKIE_NAME, path="/")
+    response.delete_cookie(REFRESH_COOKIE_NAME, path=REFRESH_COOKIE_PATH)
 
 # ─── Request schemas ─────────────────────────────────────────────────────────
 
@@ -128,8 +178,10 @@ def _user_to_dict(user: dict[str, Any], workspaces: list[dict[str, Any]], active
 
 
 @router.post("/register", summary="User Registration", status_code=status.HTTP_201_CREATED)
-def register(req: RegisterRequest) -> dict[str, Any]:
-    """Create account + first workspace. Issues a workspace-scoped JWT."""
+def register(req: RegisterRequest) -> Response:
+    """Create account + first workspace. Issues a workspace-scoped JWT.
+    Sets ada_access + ada_refresh cookies and returns the access token in the body
+    for backwards compat with the localStorage-era frontend."""
     if auth.user_email_exists(req.email):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -144,17 +196,20 @@ def register(req: RegisterRequest) -> dict[str, Any]:
     )
     active_ws = workspaces[0] if workspaces else {}
 
-    token = auth.create_access_token(
+    access_token = auth.create_access_token(
         user_id=user["id"],
         email=user["email"],
         workspaces=workspaces,
         active_workspace_id=active_ws.get("id"),
     )
+    refresh_token, _ = auth.create_refresh_token(user["id"])
 
-    return {
-        "success": True,
-        "message": "Account created successfully.",
-        "token": token,
+    response = JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content={
+            "success": True,
+            "message": "Account created successfully.",
+            "token": access_token,  # kept in body for migration window
         "user": _user_to_dict(user, workspaces, active_ws.get("id")),
         "workspaces": [
             {
@@ -165,11 +220,14 @@ def register(req: RegisterRequest) -> dict[str, Any]:
             }
             for w in workspaces
         ],
-    }
+    })
+    _set_access_cookie(response, access_token)
+    _set_refresh_cookie(response, refresh_token)
+    return response
 
 
 @router.post("/login", summary="User Login")
-def login(req: LoginRequest, request: Request) -> dict[str, Any]:
+def login(req: LoginRequest, request: Request) -> Response:
     client_ip = request.client.host if request.client else "unknown_ip"
     identifier = f"{client_ip}:{req.email}"
 
@@ -192,15 +250,16 @@ def login(req: LoginRequest, request: Request) -> dict[str, Any]:
 
     # Use workspace_id from JWT payload if present (allows staying in the same workspace)
     active_ws = workspaces[0] if workspaces else {}
-    token = auth.create_access_token(
+    access_token = auth.create_access_token(
         user["id"], user["email"], workspaces,
         active_workspace_id=active_ws.get("id"),
     )
+    refresh_token, _ = auth.create_refresh_token(user["id"])
 
-    return {
+    response = JSONResponse({
         "success": True,
         "message": "Authentication successful",
-        "token": token,
+        "token": access_token,  # kept in body for migration window
         "user": _user_to_dict(user, workspaces, active_ws.get("id")),
         "workspaces": [
             {
@@ -211,7 +270,99 @@ def login(req: LoginRequest, request: Request) -> dict[str, Any]:
             }
             for w in workspaces
         ],
-    }
+    })
+    _set_access_cookie(response, access_token)
+    _set_refresh_cookie(response, refresh_token)
+    return response
+
+
+@router.post("/refresh", summary="Refresh access token (cookie-based)")
+def refresh(request: Request) -> Response:
+    """
+    Reads the ada_refresh httpOnly cookie, verifies it, rotates it,
+    and returns a new access token in the body.
+
+    This endpoint is path-scoped via the cookie's path=/auth/refresh, so it is
+    not sent on normal API calls — only when the browser navigates here.
+    """
+    raw = request.cookies.get(REFRESH_COOKIE_NAME)
+    if not raw:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="No refresh token")
+
+    payload = auth.decode_refresh_token(raw)
+    if not payload:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token")
+
+    user_id: str = payload["sub"]
+    jti: str = payload["jti"]
+
+    # Reuse detection: if the jti is no longer active, this token has been used
+    # already — revoke everything and force re-login.
+    from app.services.auth_service import _USING_SUPABASE
+    if _USING_SUPABASE:
+        is_active = auth._supabase_is_jti_active(user_id, jti)
+    else:
+        is_active = jti in auth._REFRESH_TOKENS_DB.get(user_id, set())
+
+    if not is_active:
+        # Token was already used — possible theft. Wipe all tokens for this user.
+        auth.revoke_all_refresh_tokens(user_id)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token reuse detected. Please sign in again.",
+        )
+
+    user = auth.get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+
+    workspaces = auth.get_user_workspaces(user_id)
+    active_ws = workspaces[0] if workspaces else {}
+
+    new_access = auth.create_access_token(
+        user_id=user["id"],
+        email=user["email"],
+        workspaces=workspaces,
+        active_workspace_id=active_ws.get("id"),
+    )
+
+    # Rotate: invalidate old jti, mint a fresh refresh token.
+    new_refresh, _ = auth.rotate_refresh_token(user_id)
+
+    response = JSONResponse({
+        "success": True,
+        "token": new_access,
+        "user": _user_to_dict(user, workspaces, active_ws.get("id")),
+        "workspaces": [
+            {
+                "id": w["id"],
+                "name": w["name"],
+                "plan": w.get("plan", "free"),
+                "role": w.get("role", "member"),
+            }
+            for w in workspaces
+        ],
+    })
+    _set_access_cookie(response, new_access)
+    _set_refresh_cookie(response, new_refresh)
+    return response
+
+
+@router.post("/logout", summary="Logout and revoke all refresh tokens")
+def logout(request: Request) -> Response:
+    """
+    Revokes all refresh tokens for the current user and clears both cookies.
+    The access cookie is cleared client-side by the authStore on the next render.
+    """
+    raw = request.cookies.get(REFRESH_COOKIE_NAME)
+    if raw:
+        payload = auth.decode_refresh_token(raw)
+        if payload:
+            auth.revoke_all_refresh_tokens(payload["sub"])
+
+    response = JSONResponse({"success": True, "message": "Signed out."})
+    _clear_auth_cookies(response)
+    return response
 
 
 @router.post("/reset-password", summary="Password Reset Request")

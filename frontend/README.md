@@ -2,6 +2,11 @@
 
 React 19 + Vite 8 + Tailwind CSS v4 single-page application that powers the AI Data Analyst Agent enterprise platform.
 
+[![CI](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg)](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/<OWNER>/<REPO>/branch/main/graph/badge.svg)](https://codecov.io/gh/<OWNER>/<REPO>)
+
+> **Note:** Replace `<OWNER>/<REPO>` in the badge URLs above with your actual GitHub path (e.g. `pritiranjan-rout/AI-Data-Analyst-Agent`).
+
 ## Tech Stack
 
 - **Framework:** React 19.2 with React Router 7

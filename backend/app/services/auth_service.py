@@ -74,7 +74,48 @@ def _resolve_jwt_secret() -> str:
 
 SECRET_KEY = _resolve_jwt_secret()
 ALGORITHM = "HS256"
-TOKEN_EXPIRE_SECONDS = 86400 * 7  # 7 days
+TOKEN_EXPIRE_SECONDS = 86400 * 7  # legacy alias — access tokens now use ACCESS_TOKEN_TTL
+
+# C1: short-lived access token (15 min) + long-lived refresh token (7 days)
+ACCESS_TOKEN_TTL_SECONDS = 15 * 60        # 15 minutes
+REFRESH_TOKEN_TTL_SECONDS = 7 * 24 * 3600  # 7 days
+
+# ─── Refresh token secret ───────────────────────────────────────────────────
+_REFRESH_SECRET_KEY: str | None = None
+
+
+def _resolve_refresh_secret() -> str:
+    global _REFRESH_SECRET_KEY
+    if _REFRESH_SECRET_KEY:
+        return _REFRESH_SECRET_KEY
+
+    explicit = os.environ.get("REFRESH_TOKEN_SECRET", "").strip()
+    if explicit:
+        if len(explicit) < 32:
+            raise RuntimeError(
+                "REFRESH_TOKEN_SECRET must be at least 32 characters. "
+                "Generate: python -c \"import secrets; print(secrets.token_urlsafe(48))\""
+            )
+        _REFRESH_SECRET_KEY = explicit
+        return _REFRESH_SECRET_KEY
+
+    app_env = os.environ.get("APP_ENV", "development").lower()
+    if app_env in ("production", "prod", "staging"):
+        raise RuntimeError(
+            "REFRESH_TOKEN_SECRET is REQUIRED in production. "
+            "Refusing to start with a default/weak secret."
+        )
+
+    ephemeral = secrets.token_urlsafe(48)
+    logger.warning(
+        "[SECURITY] REFRESH_TOKEN_SECRET not set — using an ephemeral per-process key. "
+        "Refresh tokens are invalidated on restart. Set REFRESH_TOKEN_SECRET in .env."
+    )
+    _REFRESH_SECRET_KEY = ephemeral
+    return _REFRESH_SECRET_KEY
+
+
+REFRESH_SECRET_KEY = _resolve_refresh_secret()
 
 # ─── Supabase availability ────────────────────────────────────────────────────
 _supabase_client: "SupabaseClient | None" = None
@@ -146,6 +187,101 @@ def _ensure_default_admin_seeded() -> None:
 
 # ─── Security tracking (in-memory, per-process) ───────────────────────────────
 SECURITY_TRACKER: dict[str, dict[str, Any]] = {}
+
+# ─── Refresh token store ──────────────────────────────────────────────────────
+# Maps user_id → set of active jti values.
+_REFRESH_TOKENS_DB: dict[str, set[str]] = {}
+
+
+def _supabase_upsert_refresh_token(user_id: str, jti: str) -> None:
+    _get_db().table("refresh_tokens").upsert(
+        {"user_id": user_id, "jti": jti},
+        on_conflict="user_id,jti",
+    ).execute()
+
+
+def _supabase_revoke_all_refresh_tokens(user_id: str) -> None:
+    _get_db().table("refresh_tokens").delete().eq("user_id", user_id).execute()
+
+
+def _supabase_is_jti_active(user_id: str, jti: str) -> bool:
+    resp = (
+        _get_db()
+        .table("refresh_tokens")
+        .select("jti")
+        .eq("user_id", user_id)
+        .eq("jti", jti)
+        .execute()
+    )
+    return bool(resp.data)
+
+
+def create_refresh_token(user_id: str) -> tuple[str, str]:
+    """
+    Mint a new refresh token and register its jti.
+    Returns (token_string, jti).
+    """
+    jti = secrets.token_urlsafe(32)
+    payload = {
+        "sub": user_id,
+        "jti": jti,
+        "type": "refresh",
+    }
+    token = _encode_jwt(payload, secret=REFRESH_SECRET_KEY, ttl=REFRESH_TOKEN_TTL_SECONDS)
+
+    if _USING_SUPABASE:
+        _supabase_upsert_refresh_token(user_id, jti)
+    else:
+        if user_id not in _REFRESH_TOKENS_DB:
+            _REFRESH_TOKENS_DB[user_id] = set()
+        _REFRESH_TOKENS_DB[user_id].add(jti)
+
+    return token, jti
+
+
+def decode_refresh_token(token: str) -> dict[str, Any] | None:
+    """
+    Verify a refresh token: correct signature, not expired, jti still active.
+    Returns the payload dict (with 'sub' and 'jti') or None.
+    """
+    payload = _decode_jwt(token, secret=REFRESH_SECRET_KEY)
+    if not payload:
+        return None
+    if payload.get("type") != "refresh":
+        return None
+
+    user_id = payload.get("sub")
+    jti = payload.get("jti")
+    if not user_id or not jti:
+        return None
+
+    if _USING_SUPABASE:
+        active = _supabase_is_jti_active(user_id, jti)
+    else:
+        active = jti in _REFRESH_TOKENS_DB.get(user_id, set())
+
+    return payload if active else None
+
+
+def rotate_refresh_token(user_id: str) -> tuple[str, str]:
+    """
+    Invalidate all existing refresh tokens for the user and issue a fresh one.
+    Called on every successful /auth/refresh.
+    """
+    if _USING_SUPABASE:
+        _supabase_revoke_all_refresh_tokens(user_id)
+    else:
+        _REFRESH_TOKENS_DB.pop(user_id, None)
+
+    return create_refresh_token(user_id)
+
+
+def revoke_all_refresh_tokens(user_id: str) -> None:
+    """Revoke every refresh token for the user (logout or breach)."""
+    if _USING_SUPABASE:
+        _supabase_revoke_all_refresh_tokens(user_id)
+    else:
+        _REFRESH_TOKENS_DB.pop(user_id, None)
 
 # ─── Supabase helpers ─────────────────────────────────────────────────────────
 def _get_db() -> "SupabaseClient":
@@ -420,8 +556,9 @@ def create_access_token(
         "role": active_role,
         "workspace_id": active_workspace_id,
         "plan": active_plan,
+        "type": "access",
     }
-    return _encode_jwt(payload)
+    return _encode_jwt(payload, ttl=ACCESS_TOKEN_TTL_SECONDS)
 
 
 def create_workspace_switch_token(
@@ -439,42 +576,57 @@ def create_workspace_switch_token(
     )
 
 
-def _encode_jwt(payload: dict[str, Any]) -> str:
-    def b64url(data: bytes) -> str:
-        return base64.urlsafe_b64encode(data).decode("utf-8").rstrip("=")
+def _b64url(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).decode("utf-8").rstrip("=")
+
+
+def _b64url_decode(s: str) -> bytes:
+    padding = "=" * (4 - (len(s) % 4))
+    return base64.urlsafe_b64decode(s + padding)
+
+
+def _encode_jwt(
+    payload: dict[str, Any],
+    secret: str | None = None,
+    ttl: int | None = None,
+) -> str:
+    """Sign a JWT. Uses SECRET_KEY and TOKEN_EXPIRE_SECONDS by default."""
+    _secret = secret or SECRET_KEY
+    _ttl = ttl if ttl is not None else TOKEN_EXPIRE_SECONDS
 
     header = {"alg": "HS256", "typ": "JWT"}
     payload_copy = payload.copy()
-    payload_copy["exp"] = int(time.time()) + TOKEN_EXPIRE_SECONDS
+    payload_copy["exp"] = int(time.time()) + _ttl
     payload_copy["iat"] = int(time.time())
 
-    header_b64 = b64url(json.dumps(header, separators=(",", ":")).encode("utf-8"))
-    payload_b64 = b64url(json.dumps(payload_copy, separators=(",", ":")).encode("utf-8"))
+    header_b64 = _b64url(json.dumps(header, separators=(",", ":")).encode("utf-8"))
+    payload_b64 = _b64url(json.dumps(payload_copy, separators=(",", ":")).encode("utf-8"))
     signing_input = f"{header_b64}.{payload_b64}".encode("utf-8")
-    signature = hmac.new(SECRET_KEY.encode("utf-8"), signing_input, hashlib.sha256).digest()
-    signature_b64 = b64url(signature)
+    signature = hmac.new(_secret.encode("utf-8"), signing_input, hashlib.sha256).digest()
+    signature_b64 = _b64url(signature)
     return f"{header_b64}.{payload_b64}.{signature_b64}"
 
 
-def decode_access_token(token: str) -> dict[str, Any] | None:
+def _decode_jwt(token: str, secret: str) -> dict[str, Any] | None:
+    """Decode and verify a JWT signed with the given secret. Returns payload or None."""
     try:
         parts = token.split(".")
         if len(parts) != 3:
             return None
         header_b64, payload_b64, signature_b64 = parts
 
-        def b64url_decode(s: str) -> bytes:
-            padding = "=" * (4 - (len(s) % 4))
-            return base64.urlsafe_b64decode(s + padding)
-
         signing_input = f"{header_b64}.{payload_b64}".encode("utf-8")
-        expected_sig = hmac.new(SECRET_KEY.encode("utf-8"), signing_input, hashlib.sha256).digest()
-        if not secrets.compare_digest(expected_sig, b64url_decode(signature_b64)):
+        expected_sig = hmac.new(secret.encode("utf-8"), signing_input, hashlib.sha256).digest()
+        if not secrets.compare_digest(expected_sig, _b64url_decode(signature_b64)):
             return None
 
-        payload = json.loads(b64url_decode(payload_b64).decode("utf-8"))
+        payload = json.loads(_b64url_decode(payload_b64).decode("utf-8"))
         if payload.get("exp", 0) < int(time.time()):
             return None
         return payload
     except Exception:
         return None
+
+
+def decode_access_token(token: str) -> dict[str, Any] | None:
+    return _decode_jwt(token, SECRET_KEY)

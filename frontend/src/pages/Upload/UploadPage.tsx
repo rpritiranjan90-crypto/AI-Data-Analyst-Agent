@@ -1,4 +1,5 @@
 import { useCallback, useState, useEffect } from "react";
+import type { FileRejection } from "react-dropzone";
 import { useNavigate } from "react-router-dom";
 import { UploadCloud, FileSpreadsheet, CheckCircle2, Zap, X, Database, Play, RefreshCw, Server, Code, Sparkles, GitMerge } from "lucide-react";
 import { useDropzone } from "react-dropzone";
@@ -70,7 +71,7 @@ export default function UploadPage() {
     }
   }, []);
 
-  const onDropRejected = useCallback((fileRejections: any[]) => {
+  const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
     if (fileRejections.length > 0) {
       const err = fileRejections[0].errors[0];
       toast.error(`File rejected: ${err?.message || "Please upload a valid CSV or Excel file (.csv, .xlsx, .xls)"}`);
@@ -79,6 +80,8 @@ export default function UploadPage() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     multiple: false,
+    // H4: client-side 50 MB guard. Backend must enforce the same limit.
+    maxSize: 50 * 1024 * 1024,
     accept: {
       "text/csv": [".csv"],
       "text/plain": [".csv", ".txt", ".tsv"],
@@ -112,10 +115,11 @@ export default function UploadPage() {
       setDataset(response);
       toast.success(`Dataset "${selectedFile.name}" processed successfully!`);
       setTimeout(() => navigate("/dashboard"), 400);
-    } catch (error: any) {
+    } catch (error) {
       if (timer) clearInterval(timer);
       console.error(error);
-      const msg = error.response?.data?.detail || error.response?.data?.message || error.message || "Upload failed. Please check your backend connection.";
+      const detail = (error as { response?: { data?: { detail?: string; message?: string } } }).response?.data;
+      const msg = detail?.detail || detail?.message || (error as Error).message || "Upload failed. Please check your backend connection.";
       toast.error(`Upload error: ${msg}`);
       setProgress(0);
     } finally {
@@ -141,9 +145,10 @@ export default function UploadPage() {
           // ignore table list error if permission restricted
         }
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      const msg = error.response?.data?.detail || error.response?.data?.message || error.message || "Connection failed.";
+      const detail = (error as { response?: { data?: { detail?: string; message?: string } } }).response?.data;
+      const msg = detail?.detail || detail?.message || (error as Error).message || "Connection failed.";
       toast.error(`Database error: ${msg}`);
       setDbConnected(false);
     } finally {
@@ -164,7 +169,7 @@ export default function UploadPage() {
         setSqlQuery(res.generated_sql);
         toast.success("SQL query generated successfully!");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
       toast.error("Failed to generate SQL. Using default query.");
     } finally {
@@ -192,9 +197,10 @@ export default function UploadPage() {
       setDataset(response);
       toast.success(`Database query dataset "${datasetName}" loaded successfully!`);
       navigate("/dashboard");
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      const msg = error.response?.data?.detail || error.response?.data?.message || error.message || "Query execution failed.";
+      const detail = (error as { response?: { data?: { detail?: string; message?: string } } }).response?.data;
+      const msg = detail?.detail || detail?.message || (error as Error).message || "Query execution failed.";
       toast.error(`SQL Error: ${msg}`);
     } finally {
       setQuerying(false);
@@ -221,9 +227,10 @@ export default function UploadPage() {
       setDataset(response);
       toast.success("Datasets joined successfully! Loading dashboard...");
       navigate("/dashboard");
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      const msg = error.response?.data?.detail || error.response?.data?.message || error.message || "Failed to join datasets.";
+      const detail = (error as { response?: { data?: { detail?: string; message?: string } } }).response?.data;
+      const msg = detail?.detail || detail?.message || (error as Error).message || "Failed to join datasets.";
       toast.error(`Join Error: ${msg}`);
     } finally {
       setJoining(false);
@@ -347,6 +354,7 @@ export default function UploadPage() {
                   {!uploading && (
                     <button
                       onClick={() => setSelectedFile(null)}
+                      aria-label="Remove selected file"
                       className="rounded-lg p-1.5 text-slate-400 hover:text-red-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                     >
                       <X size={16} />

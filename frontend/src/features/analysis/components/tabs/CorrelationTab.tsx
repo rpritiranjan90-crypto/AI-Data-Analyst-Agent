@@ -4,6 +4,7 @@ import EmptyState from "../../../../components/ui/EmptyState";
 import SectionHeader from "../../../../components/ui/SectionHeader";
 
 import { useAnalysisData } from "../../context/AnalysisContext";
+import type { CorrelationResponse } from "../../types/analysis";
 
 import CorrelationSummary from "../correlation/CorrelationSummary";
 import StrongCorrelationTable from "../correlation/StrongCorrelationTable";
@@ -15,12 +16,14 @@ export default function CorrelationTab() {
   const columns = correlation?.numeric_columns ?? [];
 
   if (!correlation || columns.length === 0) {
+    // Backend may return a message in the response body on error.
+    const msg = (correlation as (CorrelationResponse & { message?: string }) | undefined)?.message;
     return (
       <EmptyState
         icon={<Network className="h-10 w-10 text-indigo-500 dark:text-indigo-400" />}
         title="Correlation Analysis Unavailable"
         description={
-          (correlation as any)?.message ||
+          msg ||
           "No numeric columns are available in this dataset for correlation analysis."
         }
       />

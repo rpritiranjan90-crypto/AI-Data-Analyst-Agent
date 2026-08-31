@@ -22,7 +22,6 @@ import {
   Wand2,
   FileText,
   Lightbulb,
-  RotateCcw,
 } from "lucide-react";
 import { useDatasetStore } from "../../store/datasetStore";
 import { useAuthStore } from "../../store/authStore";

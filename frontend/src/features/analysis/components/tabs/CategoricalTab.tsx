@@ -4,6 +4,7 @@ import { Search, Tags } from "lucide-react";
 import CategoricalCard from "../cards/CategoricalCard";
 import EmptyState from "../../../../components/ui/EmptyState";
 import { useAnalysisData } from "../../context/AnalysisContext";
+import type { CategoricalResponse } from "../../types/analysis";
 
 export default function CategoricalTab() {
   const { categorical } = useAnalysisData();
@@ -23,7 +24,8 @@ export default function CategoricalTab() {
   }, [categorical, search]);
 
   if (columns.length === 0) {
-    const msg = (categorical as any)?.message;
+    // Backend may return a message in the response body on error.
+    const msg = (categorical as (CategoricalResponse & { message?: string }) | null)?.message;
     return (
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center shadow-sm">
         <EmptyState
@@ -61,7 +63,7 @@ export default function CategoricalTab() {
           <CategoricalCard
             key={column}
             column={column}
-            stats={stats as any}
+            stats={stats}
           />
         ))}
       </div>

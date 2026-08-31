@@ -125,10 +125,11 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
                           name: refreshedUser.name || refreshedUser.email,
                           role: (refreshedUser.role || "Analyst") as "Owner" | "Admin" | "Data Scientist" | "Analyst" | "Viewer",
                         };
-                        setAuth(mappedUser as any, token, refreshedWorkspaces);
+                        setAuth(mappedUser!, token, refreshedWorkspaces);
                       }
                       toast.success(`Switched to ${ws.name}`);
-                    } catch {
+                    } catch (err) {
+                      console.error("Workspace switch failed:", err);
                       toast.error("Failed to switch workspace. Please try again.");
                     } finally {
                       setSwitchingWs(null);

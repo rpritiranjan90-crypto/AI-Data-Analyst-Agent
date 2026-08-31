@@ -17,8 +17,10 @@ export default function ProductionReadinessPage() {
     try {
       const result = await getReadinessChecks();
       setData(result);
-    } catch (err: any) {
-      setError(err.response?.data?.detail || err.message || "Readiness check failed");
+    } catch (err) {
+      const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
+      const message = (err as Error).message;
+      setError(detail || message || "Readiness check failed");
     } finally {
       setRunning(false);
       setLoading(false);

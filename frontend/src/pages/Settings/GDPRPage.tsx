@@ -11,7 +11,7 @@ function statusBadge(status: string) {
 }
 
 export default function GDPRPage() {
-  const { user, activeWorkspace } = useAuthStore();
+  const { activeWorkspace } = useAuthStore();
   const [exports, setExports] = useState<ExportRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
@@ -39,7 +39,7 @@ export default function GDPRPage() {
         },
         ...prev,
       ]);
-    } catch (err) {
+    } catch {
       toast.error("Failed to start export");
     } finally {
       setExporting(false);

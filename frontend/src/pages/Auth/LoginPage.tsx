@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, Navigate } from "react-router-dom";
 import { Lock, Mail, ArrowRight, Sparkles, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import Button from "../../components/ui/Button";
 import { useAuthStore } from "../../store/authStore";
 import api from "../../api/axios";
+import { readAccessCookie } from "../../lib/cookie";
+import { isJwtExpired } from "../../lib/jwt";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -15,6 +17,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // C1: synchronous auth check — redirect authenticated users away from /login
+  // immediately without waiting for Zustand persist rehydration.
+  const cookieToken = readAccessCookie();
+  const isCookieAuth = cookieToken && !isJwtExpired(cookieToken);
+  if (isCookieAuth) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     if (!email || !password) {
@@ -23,11 +33,11 @@ export default function LoginPage() {
     }
     setLoading(true);
     try {
-      // Real backend auth call. /auth/login returns { token, user, workspaces }.
+      // Real backend auth call. The server sets ada_access + ada_refresh
+      // cookies and returns the access token in the body (kept for backwards
+      // compat with the localStorage-era frontend).
       const res = await api.post("/auth/login", { email, password });
       const { token, user, workspaces } = res.data;
-      // Persist the JWT so axios interceptor picks it up for future calls.
-      if (token) localStorage.setItem("ai_analyst_jwt_token", token);
       // Map backend response to our store shape
       const mappedUser = user
         ? {
@@ -37,7 +47,7 @@ export default function LoginPage() {
             role: (user.role || "Analyst") as "Owner" | "Admin" | "Data Scientist" | "Analyst" | "Viewer",
           }
         : null;
-      setAuth(mappedUser as any, token, workspaces);
+      setAuth(mappedUser!, token, workspaces);
       toast.success("Welcome back! Authentication successful.");
       navigate("/dashboard");
     } catch (err: unknown) {
