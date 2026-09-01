@@ -11,10 +11,11 @@
 
 An enterprise-grade, AI-powered Data Analytics & Machine Learning platform built with **FastAPI**, **Pandas**, **DuckDB**, **Seaborn**, **Scikit-Learn**, and **React 19**. It features executive glassmorphism styling, automated dataset cleaning, interactive 19+ chart visualization engines, automated ML training pipelines, and executive AI insights.
 
-> **Live Demo**: [https://ai-data-analyst-agent-five.vercel.app](https://ai-data-analyst-agent-five.vercel.app)
+> **Live Demo**: [https://ai-data-analyst-agent-five.vercel.app](https://ai-data-analyst-agent-five.vercel.app)  
+> 📖 **User Manual**: [Step-by-Step User Guide](USER_GUIDE.md)
 
 ```
- 📊 Dataset Profiling ──► 🧹 1-Click Data Cleaning ──► 📈 19+ Chart Engine ──► 🤖 AutoML & Reports
+ 📊 Dataset Profiling ──► 🧹 1-Click Data Cleaning ──► 📈 35+ Chart Engine ──► 🤖 AutoML & Reports
 ```
 
 ---
